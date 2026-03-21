@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+ /* Gradient animation for text */
+ @keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+ }
+
+ .animate-gradient {
+  background-size: 200% 200%;
+  animation: gradientMove 3s ease infinite;
+ }
+
+ /* Optional: smooth bounce for the car */
+ @keyframes bounceCar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+ }
+
+ button{
+     cursor:pointer;
+ }
+@font-face {
+    font-family: "Caveat";
+    src: url("./assets/fonts/Caveat-VariableFont_wght.ttf") format("truetype");
+    font-weight: 100 700;
+    /* variable font range */
+    font-style: normal;
+    font-display: swap;
+}
