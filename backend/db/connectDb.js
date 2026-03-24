@@ -4,13 +4,13 @@ export const connectDb = async ()=>{
         const conn = await mongoose.connect(process.env.MONGO_URI)
         console.log(`Mongodb is connected : ${conn.connection.host}`)
     }catch (error) {
-  console.log("❌ RAW ERROR:");
+  console.log(" RAW ERROR:");
   console.log(error);
-  console.log("❌ RESPONSE DATA:");
+  console.log(" RESPONSE DATA:");
   console.log(error?.response?.data);
-  console.log("❌ MESSAGE:");
+  console.log("MESSAGE:");
   console.log(error?.message);
 
-  throw error; // 👈 IMPORTANT: don't wrap it, just throw original
+  throw error; 
 }
 }

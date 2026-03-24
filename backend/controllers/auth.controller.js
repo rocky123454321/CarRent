@@ -13,12 +13,15 @@ export const signup = async (req, res) => {
         }
 
         const userAlreadyExists = await User.findOne({ email });
+
         if (userAlreadyExists) {
             return res.status(400).json({ message: "User already exists" });
         }
 
         const hashPassword = await bcryptjs.hash(password, 10);
         const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+
+        //new user
 
         const user = new User({
             email,
@@ -28,10 +31,11 @@ export const signup = async (req, res) => {
             verificationTokenExpiredAt: Date.now() + 24 * 60 * 60 * 1000, // 1 day
         });
 
-        await user.save(); // ✅ save the instance
+        await user.save(); //  save 
 
         generateTokenAndSetCookie(res, user._id); // sets cookie
-     await sendVerificationEmail({ email: user.email, verificationToken })
+        
+        await sendVerificationEmail({ email: user.email, verificationToken })
 
 
         res.status(201).json({
