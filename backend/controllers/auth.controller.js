@@ -34,18 +34,24 @@ export const signup = async (req, res) => {
         await user.save(); //  save 
 
         generateTokenAndSetCookie(res, user._id); // sets cookie
-        
-        await sendVerificationEmail({ email: user.email, verificationToken })
 
+        // Send verification email (non-blocking)
+        try {
+            await sendVerificationEmail({ email: user.email, verificationToken });
+        } catch (emailError) {
+            console.error('Failed to send verification email:', emailError.message);
+            // Continue signup even if email fails
+        }
 
         res.status(201).json({
             success: true,
-            message: "User created successfully",
+            message: "User created successfully. Please check your email for verification code.",
             user: {
                 ...user._doc,
                 password: undefined,
             },
         });
+
 
     } catch (error) {
         console.log(error);
@@ -55,6 +61,44 @@ export const signup = async (req, res) => {
 
 
 export const login = async (req , res)=>{
+     const { email, password } = req.body;
+
+     try{
+        if(!email || !password){
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+         const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+
+
+         
+
+        const isPasswordCorrect = await bcryptjs.compare(password, user.password);
+         if (!isPasswordCorrect) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+
+            generateTokenAndSetCookie(res, user._id); 
+
+
+           res.status(200).json({
+            success: true,
+            message: "Login successful",
+            user: {
+                ...user._doc,
+                password: undefined,
+            },
+        });
+
+
+     }catch(error){
+        console.log(error);
+        res.status(500).json({ message: "Server error" });
+     }
   
 }
 
