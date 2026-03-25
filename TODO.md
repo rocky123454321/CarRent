@@ -1,1 +1,17 @@
-# TODO: Fix MongoDB Connection Error\n\n## Approved Plan Steps\n\n### 1. [ ] Install MongoDB Community Server (Windows)\n   - Download from: https://www.mongodb.com/try/download/community\n   - Select Windows, MSI installer, latest version.\n   - Run installer: Install as Windows Service (default), complete MongoDB Compass (optional).\n   - Verify: Open Command Prompt, run `mongosh` → connects to localhost:27017.\n\n### 2. [ ] Update backend/.env\n   ```\n   MONGO_URI=mongodb://localhost:27017/carrent\n   ```\n   (Add if missing, replace existing MONGO_URI)\n\n### 3. [ ] Improve connectDb.js (retry logic)\n   - Edit pending confirmation.\n\n### 4. [ ] Test Backend\n   - cd backend\n   - npm run dev\n   - Expect: \"Mongodb is connected : localhost:27017\", no errors.\n\n### 5. [ ] Test API Endpoints\n   - POST /api/auth/register (use Postman/ThunderClient)\n   - Fix response issues if any (e.g. user id/token).\n\n**Next**: Confirm MongoDB install complete + .env updated, then I'll edit connectDb.js and test.
+# CarRent Mailtrap Email Fix TODO - COMPLETE
+
+## Completed Steps:
+- [x] Step 1: Edit backend/mailtrap/sendVerificationEmail.js ✓
+- [x] Step 2: Edit backend/controllers/auth.controller.js ✓
+
+## Remaining (Manual):
+- [ ] Step 3: Test flow (signup/verify)
+- [ ] Step 4: Check Mailtrap dashboard
+
+**To test:**
+1. cd backend && npm start (restart server)
+2. Signup/register new user via frontend
+3. Use verification code from email
+4. Check server console for welcome email log
+5. Verify in Mailtrap inbox
+

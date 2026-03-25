@@ -10,6 +10,7 @@ export const connectDb = async ()=>{
   console.log(error?.response?.data);
   console.log("MESSAGE:");
   console.log(error?.message);
+  
 
   throw error; 
 }

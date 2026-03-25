@@ -2,7 +2,7 @@
 import {User} from '../models/user.model.js'
 import bcryptjs from 'bcryptjs'
 import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js';
-import { sendVerificationEmail } from '../mailtrap/sendVerificationEmail.js';
+import { sendVerificationEmail, sendWelcomeEmail } from '../mailtrap/sendVerificationEmail.js';
 
 export const signup = async (req, res) => {
     const { email, password, name } = req.body;
@@ -31,17 +31,12 @@ export const signup = async (req, res) => {
             verificationTokenExpiredAt: Date.now() + 24 * 60 * 60 * 1000, // 1 day
         });
 
-        await user.save(); //  save 
+        await user.save(); 
 
-        generateTokenAndSetCookie(res, user._id); // sets cookie
+        generateTokenAndSetCookie(res, user._id); 
 
-        // Send verification email (non-blocking)
-        try {
+        
             await sendVerificationEmail({ email: user.email, verificationToken });
-        } catch (emailError) {
-            console.error('Failed to send verification email:', emailError.message);
-            // Continue signup even if email fails
-        }
 
         res.status(201).json({
             success: true,
@@ -59,6 +54,44 @@ export const signup = async (req, res) => {
     }
 };
 
+
+export const verifyEmail = async (req , res)=>{
+    const { code } = req.body;
+
+    try{
+        const user = await User.findOne({ 
+            verificationToken: code ,
+            verificationTokenExpiredAt: {$gt: Date.now()}});
+
+
+            if(!user){
+                return res.status(400).json({ message: "Invalid verification code" });
+            }
+
+            user.isVerified = true;
+            user.verificationToken = undefined;
+            user.verificationTokenExpiredAt = undefined;
+            await user.save();
+
+                await sendWelcomeEmail({ email: user.email, name: user.name });
+            
+
+            res.status(200).json({
+                success: true,
+                message: "Email verified successfully",
+                user:{
+                ...user._doc,
+                password: undefined
+                }
+            });
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({ message: "Server error" });
+    }
+    
+
+}
 
 export const login = async (req , res)=>{
      const { email, password } = req.body;
@@ -83,6 +116,8 @@ export const login = async (req , res)=>{
         }
 
             generateTokenAndSetCookie(res, user._id); 
+            user.lastLogin = new Date()
+            await user.save()
 
 
            res.status(200).json({
@@ -103,5 +138,6 @@ export const login = async (req , res)=>{
 }
 
 export const logout = async (req , res)=>{
-
+res.clearCookie("token")
+res.status(200).json({success: true , message:"logged out successfully"})
 }
