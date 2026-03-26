@@ -40,7 +40,7 @@ export const signup = async (req, res) => {
 		// jwt
 		generateTokenAndSetCookie(res, user._id);
 
-		await sendVerificationEmail(user.email, verificationToken);
+		//await sendVerificationEmail(user.email, verificationToken);
 
 		res.status(201).json({
 			success: true,
@@ -72,7 +72,7 @@ export const verifyEmail = async (req, res) => {
 		user.verificationTokenExpiresAt = undefined;
 		await user.save();
 
-		await sendWelcomeEmail(user.email, user.name);
+		//await sendWelcomeEmail(user.email, user.name);
 
 		res.status(200).json({
 			success: true,
@@ -138,12 +138,12 @@ export const forgotPassword = async (req, res) => {
 		const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hour
 
 		user.resetPasswordToken = resetToken;
-		user.resetPasswordExpiredAt = resetTokenExpiresAt;
+		user.resetPasswordExpiresAt = resetTokenExpiresAt;
 
 		await user.save();
 
 		// send email
-		await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`);
+		//await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`);
 
 		res.status(200).json({ success: true, message: "Password reset link sent to your email" });
 	} catch (error) {
@@ -159,7 +159,7 @@ export const resetPassword = async (req, res) => {
 
 		const user = await User.findOne({
 			resetPasswordToken: token,
-			resetPasswordExpiredAt: { $gt: Date.now() },
+			resetPasswordExpiresAt: { $gt: Date.now() },
 		});
 
 		if (!user) {
@@ -171,14 +171,29 @@ export const resetPassword = async (req, res) => {
 
 		user.password = hashedPassword;
 		user.resetPasswordToken = undefined;
-		user.resetPasswordExpiredAt = undefined;
+		user.resetPasswordExpiresAt = undefined;
 		await user.save();
 
-		await sendResetSuccessEmail(user.email);
+		//await sendResetSuccessEmail(user.email);
 
 		res.status(200).json({ success: true, message: "Password reset successful" });
 	} catch (error) {
 		console.log("Error in resetPassword ", error);
+		res.status(400).json({ success: false, message: error.message });
+	}
+};
+
+
+export const checkAuth = async (req, res) => {
+	try {
+		const user = await User.findById(req.userId).select("-password");
+		if (!user) {
+			return res.status(400).json({ success: false, message: "User not found" });
+		}
+
+		res.status(200).json({ success: true, user });
+	} catch (error) {
+		console.log("Error in checkAuth ", error);
 		res.status(400).json({ success: false, message: error.message });
 	}
 };
