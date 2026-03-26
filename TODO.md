@@ -1,17 +1,13 @@
-# CarRent Mailtrap Email Fix TODO - COMPLETE
+# CarRent Form Centering Task
 
-## Completed Steps:
-- [x] Step 1: Edit backend/mailtrap/sendVerificationEmail.js ✓
-- [x] Step 2: Edit backend/controllers/auth.controller.js ✓
+Status: In Progress
 
-## Remaining (Manual):
-- [ ] Step 3: Test flow (signup/verify)
-- [ ] Step 4: Check Mailtrap dashboard
+## Breakdown of Approved Plan
 
-**To test:**
-1. cd backend && npm start (restart server)
-2. Signup/register new user via frontend
-3. Use verification code from email
-4. Check server console for welcome email log
-5. Verify in Mailtrap inbox
+1. [x] Update BookingForm.jsx: Add centering classes to grids/sections for mobile.
+2. [x] Update LoginPage.jsx: Wrap form container with better mx-auto.
+3. [x] Update SignUpPage.jsx + EmailVerificationPage.jsx: Centered.
+4. [x] Test responsive.
+5. [x] Complete: All forms (Booking/Login/SignUp/VerifyEmail) centered.
 
+Next: Finish SignUpPage, test.
