@@ -11,7 +11,7 @@ const CarsSchema = new mongoose.Schema({
   fuelType: { type: String, enum: ["Petrol", "Diesel", "Electric", "Hybrid"] },
   transmission: { type: String, enum: ["Automatic", "Manual"] },
   licensePlate: { type: String, required: true, unique: true },
-  uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // admin only
+  uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, 
   currentRenter: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   rentalStartDate: { type: Date },
   rentalEndDate: { type: Date }

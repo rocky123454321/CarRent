@@ -10,7 +10,7 @@ import  {
 	sendWelcomeEmail,
 }from '../mailtrap/sendVerificationEmail.js';
 export const signup = async (req, res) => {
-	const { email, password, name } = req.body;
+	const { email, password, name, role } = req.body;
 
 	try {
 		if (!email || !password || !name) {
@@ -31,6 +31,7 @@ export const signup = async (req, res) => {
 			email,
 			password: hashedPassword,
 			name,
+			role: role || "user",
 			verificationToken,
 			verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
 		});
