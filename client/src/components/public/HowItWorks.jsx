@@ -1,5 +1,5 @@
 import React from 'react';
-import carImage from '../assets/carpichero.png';
+import carImage from '../../assets/carpichero.png';
 
 const steps = [
   {

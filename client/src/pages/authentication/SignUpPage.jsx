@@ -1,11 +1,11 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import Input from "../components/Input";
+import Input from "../../components/public/Input";
 import { Loader, Lock, Mail, User } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
-import { useAuthStore } from "../store/authStore";
+import PasswordStrengthMeter from "../../components/public/PasswordStrengthMeter";
+import { useAuthStore } from "../../store/authStore";
 
 const SignUpPage = () => {
 	const [name, setName] = useState("");

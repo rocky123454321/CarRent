@@ -1,5 +1,5 @@
 import React from "react";
-import car from "../assets/carpichero.png";
+import car from "../../assets/carpichero.png";
 import {ArrowRight} from 'lucide-react'
 const Hero = () => {
   return (

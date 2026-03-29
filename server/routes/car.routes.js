@@ -1,6 +1,6 @@
 import express from 'express';
 import { 
-  addCar, updateCar, deleteCar, getAllCars, getCarById, rentCar, returnCar 
+  addCar, updateCar, deleteCar,getAllCarbyAdmin, getAllCars, getCarById, rentCar, returnCar 
 } from '../controllers/cars.controller.js';
 
 const router = express.Router();
@@ -9,6 +9,7 @@ const router = express.Router();
 router.post('/', addCar);
 router.put('/:id', updateCar);
 router.delete('/:id', deleteCar);
+router.get('/:id', getAllCarbyAdmin);
 
 // USER ROUTES
 router.get('/', getAllCars);

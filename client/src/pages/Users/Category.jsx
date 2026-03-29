@@ -1,6 +1,6 @@
 import React from 'react';
-import Cards from '../components/Cards';
-import BookingForm from '../components/BookingForm';
+import Cards from '../../components/user/Cards';
+import BookingForm from '../../components/user/BookingForm';
 
 const Category = () => {
   return (

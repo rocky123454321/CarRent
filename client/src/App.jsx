@@ -1,25 +1,33 @@
 import { Navigate, Route, Routes, Outlet } from "react-router-dom";
-import FloatingShape from "./components/FloatingShape";
-import Navigation from "./components/navigation2"
-import LandingPage from "./pages/LandingPage";
-import Home from "./pages/Home";
-import Category from "./pages/Category";
+import FloatingShape from "./components/user/FloatingShape";
+import Navigation from "./components/navigations/UserNav";
+import AdminDashboard from "./components/admin/AdminDashboard";
+import LandingPage from "./pages/public/LandingPage";
+import Category from "./pages/Users/Category";
+import CarsListPage from "./components/admin/CarsListPage";
+import AddCarPage from "./components/admin/AddCarPage";
+import ReportsPage from "./components/admin/ReportsPage";
+import AdminSidebarLayout from '../../client/src/pages/layout/AdminSidebarLayout'
 
-import SignUpPage from "./pages/SignUpPage";
-import LoginPage from "./pages/LoginPage";
-import EmailVerificationPage from "./pages/EmailVerificationPage";
-import DashboardPage from "./pages/DashboardPage";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
-import LoadingSpinner from "./components/LoadingSpinner";
+// ✅ iisa lang (tinanggal duplicate)
+import DashboardPage from "./pages/Users/Home";
 
+// admin page
+import Admin from "./pages/admin/adminPage";
+import AddCar from "./components/forms/admin/AddCar";
+import SignUpPage from "./pages/authentication/SignUpPage";
+import LoginPage from "./pages/authentication/LoginPage";
+import EmailVerificationPage from "./pages/authentication/EmailVerificationPage";
+import ForgotPasswordPage from "./pages/authentication/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/authentication/ResetPasswordPage";
+import AdminPage from "./pages/admin/adminPage";
+import LoadingSpinner from "./components/public/LoadingSpinner";
 import { Toaster } from "react-hot-toast";
-import { useAuthStore } from "./store/authStore";
+import { useAuthStore } from "../src/store/authStore"
 import { useEffect } from "react";
 
 
-
-// Public layout with gradient bg
+// 🌐 Public Layout
 const PublicLayout = () => (
   <div className='min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 relative overflow-hidden'>
     <FloatingShape color='bg-green-500' size='w-64 h-64' top='-5%' left='10%' delay={0} />
@@ -31,35 +39,60 @@ const PublicLayout = () => (
   </div>
 );
 
-// Dashboard layout with nav
-const DashboardLayout = () => {
-  return (
-    <div className='min-h-screen bg-gray-50'>
-      <Navigation />
-      <div className='pt-20 max-w-7xl mx-auto px-6 py-12'>
-        <Outlet />
-      </div>
-    </div>
-  );
-};
 
-// Require auth but allow unverified
+// 📊 Dashboard Layout
+const DashboardLayout = () => (
+  <div className='min-h-screen bg-gray-50'>
+    <Navigation />
+    <div className='pt-20 max-w-7xl mx-auto px-6 py-12'>
+      <Outlet />
+    </div>
+  </div>
+);
+
+
+// 🔐 Require Login
 const AuthenticatedRoute = ({ children }) => {
   const { isAuthenticated } = useAuthStore();
+
   if (!isAuthenticated) {
     return <Navigate to='/landing' replace />;
   }
+
   return children;
 };
 
-// Redirect verified to dashboard
-const PublicRoute = ({ children }) => {
+
+// 🔐 Admin Only
+const AdminRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
-  if (isAuthenticated && user?.isVerified) {
+
+  if (!isAuthenticated) {
+    return <Navigate to='/landing' replace />;
+  }
+
+  if (user?.role !== "renter") {
     return <Navigate to='/' replace />;
   }
+
   return children;
 };
+
+
+// 🔓 Public Pages (login/signup)
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated, user } = useAuthStore();
+
+  if (isAuthenticated && user?.isVerified) {
+    if (user?.role === "renter") {
+      return <Navigate to='/admin' replace />;
+    }
+    return <Navigate to='/' replace />;
+  }
+
+  return children;
+};
+
 
 function App() {
   const { isCheckingAuth, checkAuth } = useAuthStore();
@@ -72,60 +105,43 @@ function App() {
 
   return (
     <>
-    
+  
       <Routes>
-        {/* Public routes */}
-           <Route path='/landing' element={<LandingPage />} />
+
+        {/* 🌍 Landing */}
+        <Route path='/landing' element={<LandingPage />} />
+
+        {/* 🌍 Public Pages */}
         <Route element={<PublicLayout />}>
-       
-          <Route 
-            path='/signup' 
-            element={
-              <PublicRoute>
-                <SignUpPage />
-              </PublicRoute>
-            } 
-          />
-          <Route 
-            path='/login' 
-            element={
-              <PublicRoute>
-                <LoginPage />
-              </PublicRoute>
-            } 
-          />
+          <Route path='/signup' element={<PublicRoute><SignUpPage /></PublicRoute>} />
+          <Route path='/login' element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path='/verify-email' element={<EmailVerificationPage />} />
-          <Route 
-            path='/forgot-password' 
-            element={
-              <PublicRoute>
-                <ForgotPasswordPage />
-              </PublicRoute>
-            } 
-          />
-          <Route 
-            path='/reset-password/:token' 
-            element={
-              <PublicRoute>
-                <ResetPasswordPage />
-              </PublicRoute>
-            } 
-          />
+          <Route path='/forgot-password' element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
+          <Route path='/reset-password/:token' element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
         </Route>
 
-        {/* Dashboard routes */}
+        {/* 👤 USER DASHBOARD */}
         <Route path="/" element={<AuthenticatedRoute><DashboardLayout /></AuthenticatedRoute>}>
           <Route index element={<DashboardPage />} />
-          <Route path="home" element={<Home />} />
           <Route path="cars" element={<Category />} />
         </Route>
 
+        {/* 🛠 ADMIN DASHBOARD */}
+  <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>}>
+  <Route index element={<AdminDashboard />} />           {/* /admin */}
+  <Route path="list" element={<CarsListPage />} />       {/* /admin/list */}
+  <Route path="add" element={<AddCar />} />              {/* /admin/add */}
+  <Route path="reports/daily" element={<ReportsPage type="daily" />} />
+  <Route path="reports/monthly" element={<ReportsPage type="monthly" />} />
+</Route>
+        {/* ❌ 404 */}
         <Route path="*" element={<Navigate to="/landing" replace />} />
+
       </Routes>
+
       <Toaster />
     </>
   );
 }
 
 export default App;
-
