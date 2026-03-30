@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
-import toast from "react-hot-toast";
+
+import { toast } from "sonner"
 
 const API_URL =
   import.meta.env.MODE === "development"

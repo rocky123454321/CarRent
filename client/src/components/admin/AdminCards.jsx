@@ -168,7 +168,7 @@ export const AdminCards = () => {
           {/* Footer */}
           <div className="flex items-center justify-between border-t border-gray-100 px-3 py-2.5 mt-1">
             <p className="text-sm font-medium text-gray-900">
-              ₱{car.pricePerDay.toLocaleString()}
+              ₱{car.pricePerDay}
               <span className="text-xs text-gray-400 font-normal"> /day</span>
             </p>
             <span className="text-xs text-gray-400 font-mono bg-gray-50 border border-gray-100 px-2 py-1 rounded-lg">

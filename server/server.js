@@ -21,7 +21,7 @@ app.use(cookieParser());
 
 // 2️⃣ Mount routes
 app.use("/api/auth", authRoutes);
-app.use("/api/admin" ,carRoutes )
+app.use("/api/users" ,carRoutes )
 await connectDb();
 // 3️⃣ Start server
 app.listen(PORT, () => {

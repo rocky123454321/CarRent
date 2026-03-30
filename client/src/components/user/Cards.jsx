@@ -2,8 +2,10 @@ import React, { useEffect } from "react";
 import carImage from "../../assets/carpichero.png";
 import { Fuel, Cog, Users, Heart } from "lucide-react";
 import { useCarStore } from "../../store/CarStore";
+import { useNavigate } from "react-router-dom";
 
 const Cards = ({ limit, filterFuel, filterTransmission, filterPrice }) => {
+  const navigate = useNavigate();
   const { cars = [], getCars, searchQuery } = useCarStore();
 
   useEffect(() => { getCars(); }, []);
@@ -16,6 +18,7 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice }) => {
 
     const fuelMatch = !filterFuel || filterFuel === "all" || car.fuelType === filterFuel;
     const transMatch = !filterTransmission || filterTransmission === "All" || car.transmission === filterTransmission;
+
     const priceMatch = (() => {
       const p = car.pricePerDay;
       if (!filterPrice || filterPrice === "all") return true;
@@ -26,7 +29,9 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice }) => {
       return true;
     })();
 
-    return searchMatch && fuelMatch && transMatch && priceMatch;
+    const available = car.isAvailable == true;
+
+    return searchMatch && fuelMatch && transMatch && priceMatch && available;
   });
 
   const displayCars = limit ? filtered.slice(0, limit) : filtered;
@@ -45,11 +50,15 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice }) => {
       {displayCars.map((car) => (
         <div
           key={car._id}
-          className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:border-gray-200 transition-colors group"
+          className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:border-blue-200 hover:shadow-md transition-all group cursor-pointer"
+          onClick={() => navigate("/car" , {state : {car}})}
         >
           {/* Heart */}
           <div className="flex justify-end p-2.5 pb-0">
-            <button className="text-gray-300 hover:text-red-400 transition-colors">
+            <button
+              className="text-gray-300 hover:text-red-400 transition-colors"
+              onClick={(e) => e.stopPropagation()}
+            >
               <Heart size={15} />
             </button>
           </div>
@@ -82,7 +91,10 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice }) => {
               ₱{car.pricePerDay.toLocaleString()}
               <span className="text-xs text-gray-400 font-normal"> /day</span>
             </p>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg transition-colors">
+            <button
+              className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg transition-colors"
+              onClick={(e) => { e.stopPropagation(); navigate("/car", { state: { car } }); }}
+            >
               Rent now
             </button>
           </div>

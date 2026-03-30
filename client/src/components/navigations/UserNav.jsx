@@ -4,19 +4,26 @@ import brand from "../../assets/brand.png";
 import { useAuthStore } from "../../store/authStore";
 import { useCarStore } from "../../store/CarStore";
 import { Link } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const UserNav = () => {
   const { user, logout } = useAuthStore();
-  const { searchQuery, setSearchQuery } = useCarStore(); // ✅
+  const { searchQuery, setSearchQuery } = useCarStore();
   const handleLogout = () => logout();
-
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
 
   if (!user || user.role === "renter") return null;
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md w-full fixed top-0 left-0 px-6 py-4 shadow-sm z-50 border-b border-gray-100">
+    <nav className="bg-white/80 backdrop-blur-md w-full fixed top-0 left-0 px-6 py-4 z-50 border-b border-slate-100 shadow-sm">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
 
         {/* Logo */}
@@ -24,120 +31,172 @@ const UserNav = () => {
           <img src={brand} alt="brand" className="h-10" />
         </Link>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-4">
+        {/* Desktop */}
+        <div className="hidden md:flex items-center gap-3">
 
-          {/* ✅ Search bar — now controlled */}
+          {/* Search */}
           <div className="relative w-[260px]">
             <input
               type="text"
               placeholder="Search cars..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-2.5 rounded-full bg-gray-100/70 border border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
+              className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none text-sm text-slate-700 placeholder:text-slate-400 transition"
             />
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
-            {/* ✅ Clear button */}
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
               >
-                <X size={14} />
+                <X size={13} />
               </button>
             )}
           </div>
 
-          {/* Favorites & Notifications */}
-          <button className="relative p-2.5 rounded-full bg-gray-100 hover:bg-blue-50 transition group">
-            <Heart size={20} className="text-gray-600 group-hover:text-blue-600" />
-            <span className="absolute -top-1 -right-1 text-[10px] bg-red-500 text-white px-1.5 rounded-full">2</span>
+          {/* Favorites */}
+          <button className="relative w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition">
+            <Heart size={17} />
+            <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">
+              2
+            </span>
           </button>
 
-          <button className="relative p-2.5 rounded-full bg-gray-100 hover:bg-blue-50 transition group">
-            <Bell size={20} className="text-gray-600 group-hover:text-blue-600" />
-            <span className="absolute -top-1 -right-1 text-[10px] bg-red-500 text-white px-1.5 rounded-full">5</span>
+          {/* Notifications */}
+          <button className="relative w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition">
+            <Bell size={17} />
+            <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">
+              5
+            </span>
           </button>
 
           {/* Profile Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setProfileOpen(!profileOpen)}
-              className="p-2.5 rounded-full bg-gray-100 hover:bg-blue-50 transition"
-            >
-              <User size={20} className="text-gray-700" />
-            </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="w-9 h-9 flex items-center justify-center rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 hover:bg-indigo-100 transition cursor-pointer">
+                <span className="text-sm font-bold">
+                  {user?.name?.charAt(0).toUpperCase() || "?"}
+                </span>
+              </button>
+            </DropdownMenuTrigger>
 
-            {profileOpen && (
-              <div className="absolute right-0 mt-4 w-64 bg-white border border-gray-200 rounded-2xl overflow-hidden">
-                <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
-                  <div className="p-2 bg-gray-100 rounded-full">
-                    <User size={16} className="text-gray-600" />
+            <DropdownMenuContent
+              className="w-60 rounded-2xl shadow-xl border border-slate-100 p-0 overflow-hidden"
+              align="end"
+            >
+              {/* User info */}
+              <DropdownMenuLabel className="px-4 py-4 bg-slate-50 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                    <span className="text-indigo-600 font-bold text-sm">
+                      {user?.name?.charAt(0).toUpperCase() || "?"}
+                    </span>
                   </div>
-                  <div className="text-sm">
-                    <p className="font-medium text-gray-800">{user?.email}</p>
-                    <p className="text-xs text-gray-500">Logged in</p>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-800 truncate">
+                      {user?.name || "User"}
+                    </p>
+                    <p className="text-xs text-slate-400 truncate">
+                      {user?.email || ""}
+                    </p>
+                    <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-semibold">
+                      Member
+                    </span>
                   </div>
                 </div>
-                <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 text-sm transition">
-                  <Settings size={16} className="text-gray-600" /> Settings
-                </button>
-                <button
+              </DropdownMenuLabel>
+
+              {/* Settings */}
+              <DropdownMenuGroup className="p-1.5">
+                <DropdownMenuItem className="cursor-pointer rounded-xl px-3 py-2.5 gap-2.5 focus:bg-slate-50">
+                  <Settings size={15} className="text-slate-400" />
+                  <span className="text-sm text-slate-600">Settings</span>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+
+              <DropdownMenuSeparator className="mx-1.5" />
+
+              {/* Logout */}
+              <div className="p-1.5">
+                <DropdownMenuItem
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 text-sm text-red-600 transition border-t border-gray-100"
+                  className="cursor-pointer rounded-xl px-3 py-2.5 gap-2.5 text-red-500 focus:text-red-600 focus:bg-red-50"
                 >
-                  <LogOut size={16} /> Logout
-                </button>
+                  <LogOut size={15} />
+                  <span className="text-sm font-medium">Log out</span>
+                </DropdownMenuItem>
               </div>
-            )}
-          </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
-        {/* Mobile Button */}
-        <div className="md:hidden">
-          <button onClick={() => setMobileOpen(!mobileOpen)}>
-            {!mobileOpen ? <Menu size={24} /> : <X size={24} />}
-          </button>
-        </div>
+        {/* Mobile toggle */}
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:border-slate-300 transition"
+        >
+          {mobileOpen ? <X size={17} /> : <Menu size={17} />}
+        </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md p-6 pt-24 -z-10">
-          {/* ✅ Mobile search — also controlled */}
-          <div className="relative mb-4">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-slate-100 shadow-lg px-5 py-4 flex flex-col gap-3">
+
+          {/* Search */}
+          <div className="relative">
             <input
               type="text"
               placeholder="Search cars..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 rounded-full bg-gray-100 border focus:ring-2 focus:ring-blue-200 outline-none"
+              className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none text-sm text-slate-700 placeholder:text-slate-400 transition"
             />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
               >
-                <X size={14} />
+                <X size={13} />
               </button>
             )}
           </div>
 
-          <div className="flex justify-around mb-4">
-            <div className="relative"><Heart size={24} /><span className="absolute -top-1 -right-2 text-[10px] bg-red-500 text-white px-1 rounded-full">2</span></div>
-            <div className="relative"><Bell size={24} /><span className="absolute -top-1 -right-2 text-[10px] bg-red-500 text-white px-1 rounded-full">5</span></div>
-            <User size={24} />
+          {/* Icon row */}
+          <div className="flex items-center gap-2">
+            <button className="relative flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition">
+              <Heart size={16} /> Favorites
+              <span className="absolute top-1.5 right-3 w-4 h-4 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">2</span>
+            </button>
+            <button className="relative flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition">
+              <Bell size={16} /> Alerts
+              <span className="absolute top-1.5 right-3 w-4 h-4 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">5</span>
+            </button>
           </div>
 
-          <button className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors mb-2">
-            <Settings size={18} /> Settings
+          {/* User info strip */}
+          <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-slate-50 border border-slate-100">
+            <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
+              <span className="text-indigo-600 font-bold text-sm">
+                {user?.name?.charAt(0).toUpperCase() || "?"}
+              </span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-slate-800 truncate">{user?.name || "User"}</p>
+              <p className="text-xs text-slate-400 truncate">{user?.email || ""}</p>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition">
+            <Settings size={16} /> Settings
           </button>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-50 border border-red-100 text-red-500 text-sm font-medium hover:bg-red-100 transition"
           >
-            <LogOut size={18} /> Logout
+            <LogOut size={16} /> Log out
           </button>
         </div>
       )}

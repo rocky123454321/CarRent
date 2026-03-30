@@ -1,5 +1,6 @@
 import React from 'react'
-import { BarChart3, PieChart, Table, TrendingUp, DollarSign, Users, Calendar } from "lucide-react";
+import { BarChart3, PieChart, Table, TrendingUp, DollarSign, Calendar } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, XAxis, ResponsiveContainer, Tooltip, Legend } from "recharts"
 
 const ReportsPage = () => {
   const reportStats = [
@@ -14,6 +15,15 @@ const ReportsPage = () => {
     { id: '#BK003', customer: 'Mike Johnson', car: 'BMW X5', date: '2024-01-13', amount: '₱12,500', status: 'Ongoing' },
   ];
 
+  const chartData = [
+    { month: "Jan", desktop: 186, mobile: 80 },
+    { month: "Feb", desktop: 305, mobile: 200 },
+    { month: "Mar", desktop: 237, mobile: 120 },
+    { month: "Apr", desktop: 73, mobile: 190 },
+    { month: "May", desktop: 209, mobile: 130 },
+    { month: "Jun", desktop: 214, mobile: 140 },
+  ]
+
   return (
     <div className="space-y-8 p-8 max-w-7xl mx-auto">
       {/* Header */}
@@ -27,7 +37,7 @@ const ReportsPage = () => {
         {reportStats.map(({ title, value, change, icon: Icon, color }, index) => (
           <div
             key={index}
-            className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 hover:shadow-md transition-all duration-200 group"
+            className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 hover:shadow-md transition-all duration-200"
           >
             <div className="bg-gray-50 border border-gray-200 rounded-xl w-14 h-14 p-3 mb-4 flex items-center justify-center">
               <Icon size={24} className={color} />
@@ -67,7 +77,7 @@ const ReportsPage = () => {
                     <td className="py-3 text-gray-700">{booking.customer}</td>
                     <td className="py-3 text-gray-700">{booking.car}</td>
                     <td className="py-3 text-gray-700">{booking.date}</td>
-                    <td className="py-3 font-semibold text-green-600">₱{booking.amount}</td>
+                    <td className="py-3 font-semibold text-green-600">{booking.amount}</td>
                     <td>
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                         booking.status === 'Completed' ? 'bg-green-100 text-green-800' :
@@ -83,21 +93,29 @@ const ReportsPage = () => {
           </div>
         </div>
 
-        {/* Charts Placeholder */}
+        {/* Charts */}
         <div className="space-y-6">
+          {/* Bar Chart */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center gap-3 mb-4">
               <BarChart3 size={24} className="text-gray-500" />
               <h3 className="text-xl font-bold text-gray-900">Revenue Overview</h3>
             </div>
-            <div className="h-64 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center border-2 border-dashed border-gray-200">
-              <div className="text-center text-gray-500">
-                <BarChart3 size={48} className="mx-auto mb-2" />
-                <p>Revenue chart would appear here</p>
-                <p className="text-sm">Monthly breakdown • Last 12 months</p>
-              </div>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                  <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={10} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="desktop" fill="#2563eb" radius={4} name="Desktop" />
+                  <Bar dataKey="mobile" fill="#60a5fa" radius={4} name="Mobile" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
+
+          {/* Pie Chart Placeholder */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center gap-3 mb-4">
               <PieChart size={24} className="text-gray-500" />
@@ -118,4 +136,3 @@ const ReportsPage = () => {
 };
 
 export default ReportsPage;
-

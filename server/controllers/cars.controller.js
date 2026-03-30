@@ -1,5 +1,6 @@
 import { Car } from '../models/cars.model.js';
 
+import {User} from '../models/user.model.js'
 // Add new car (Admin)
 export const addCar = async (req, res) => {
   const { brand, model, year, color, pricePerDay, uploadedBy, mileage, fuelType, transmission, licensePlate } = req.body;
@@ -114,20 +115,36 @@ export const getCarById = async (req, res) => {
 // Rent a car
 export const rentCar = async (req, res) => {
   try {
+    const { userId, rentalStartDate, rentalEndDate } = req.body;
+
+    if (!userId || !rentalStartDate || !rentalEndDate) {
+      return res.status(400).json({ message: "userId, rentalStartDate, and rentalEndDate are required" });
+    }
+
     const car = await Car.findById(req.params.id);
-    if (!car || !car.isAvailable) return res.status(400).json({ message: "Car not available" });
+
+    if (!car) return res.status(404).json({ message: "Car not found" });
+    if (!car.isAvailable) return res.status(400).json({ message: "Car is not available" });
+
+    const start = new Date(rentalStartDate);
+    const end = new Date(rentalEndDate);
+
+    if (end <= start) {
+      return res.status(400).json({ message: "Return date must be after pick-up date" });
+    }
 
     car.isAvailable = false;
-    car.currentRenter = req.body.userId || "Guest"; // simple testing
-    car.rentalStartDate = new Date();
-    car.rentalEndDate = new Date(Date.now() + 24*60*60*1000); // 1 day rental
+    car.currentRenter = userId;
+    car.rentalStartDate = start;
+    car.rentalEndDate = end;
     await car.save();
 
-    res.json({ message: "Car rented", car });
+    res.status(200).json({ success: true, message: "Car booked successfully", car });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // Return a car
 export const returnCar = async (req, res) => {
@@ -161,3 +178,5 @@ export const getAllCarbyAdmin = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+

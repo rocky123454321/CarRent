@@ -1,128 +1,132 @@
 import React, { useState } from "react";
-import { User, Bell, Heart, Settings, LogOut, TextAlignStart, X } from "lucide-react";
+import { User, Bell, Settings, LogOut, Menu, X } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const AdminNav = () => {
+const AdminNav = ({ onMenuClick }) => {
   const { user, logout } = useAuthStore();
   const handleLogout = () => logout();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
 
   if (!user || user.role !== "renter") return null;
 
   return (
-    <nav className="bg-white w-full fixed top-0  left-0 px-6 py-4 z-50 border-b border-gray-200 pl-[260px] flex items-center justify-between">
-      {/* Left: Hamburger + Search */}
-      <div className="flex items-center gap-4">
-        <TextAlignStart size={25} className="text-gray-700 cursor-pointer ml-5 border-gray-200" />
+    <header className="sticky top-0 z-30 bg-white border-b border-slate-100 px-6 py-3.5 flex items-center gap-4">
+      {/* Hamburger — mobile only */}
+      <button
+        onClick={onMenuClick}
+        className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:text-slate-800 hover:border-slate-300 transition"
+      >
+        <Menu size={18} />
+      </button>
 
-        <div className="w-full max-w-sm">
-          <input
-            type="text"
-            placeholder="Search cars..."
-            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-gray-700"
-          />
-        </div>
+      {/* Search */}
+      <div className="hidden sm:block w-full max-w-xs">
+        <input
+          type="text"
+          placeholder="Search cars..."
+          className="w-full px-4 py-2 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-slate-700 placeholder:text-slate-400 transition"
+        />
       </div>
 
-      {/* Right: Desktop icons */}
-      <div className="hidden md:flex items-center gap-4">
-        <button className="relative p-2.5 rounded-full bg-gray-100 hover:bg-blue-50 transition">
-          <Heart size={20} className="text-gray-600" />
-          <span className="absolute -top-1 -right-1 text-[10px] bg-red-500 text-white px-1.5 rounded-full">
-            2
-          </span>
-        </button>
+      {/* Spacer */}
+      <div className="flex-1" />
+      
 
-        <button className="relative p-2.5 rounded-full bg-gray-100 hover:bg-blue-50 transition">
-          <Bell size={20} className="text-gray-600" />
-          <span className="absolute -top-1 -right-1 text-[10px] bg-red-500 text-white px-1.5 rounded-full">
+      {/* Right icons */}
+      <div className="flex items-center gap-2">
+        {/* Notification bell */}
+        <button className="relative w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:text-slate-800 hover:border-slate-300 transition">
+          <Bell size={17} />
+          <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">
             5
           </span>
         </button>
 
-        {/* Profile Dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setProfileOpen(!profileOpen)}
-            className="p-2.5 rounded-full bg-gray-100 hover:bg-blue-50 transition"
-          >
-            <User size={20} className="text-gray-700" />
-          </button>
+        {/* Profile dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="w-9 h-9 flex items-center justify-center rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 hover:bg-indigo-100 transition cursor-pointer">
+              <span className="text-sm font-bold">
+                {user?.name?.charAt(0).toUpperCase() || "?"}
+              </span>
+            </button>
+          </DropdownMenuTrigger>
 
-          {profileOpen && (
-            <div className="absolute right-0 mt-4 w-64 bg-white border border-gray-200 rounded-2xl overflow-hidden">
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
-                <div className="p-2 bg-gray-100 rounded-full">
-                  <User size={16} className="text-gray-600" />
+          <DropdownMenuContent className="w-60 rounded-2xl shadow-xl border border-slate-100 p-0 overflow-hidden" align="end">
+            {/* User info */}
+            <DropdownMenuLabel className="px-4 py-4 bg-slate-50 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                  <span className="text-indigo-600 font-bold text-sm">
+                    {user?.name?.charAt(0).toUpperCase() || "?"}
+                  </span>
                 </div>
-                <div className="text-sm">
-                  <p className="font-medium text-gray-800">{user?.email}</p>
-                  <p className="text-xs text-gray-500">Admin</p>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-800 truncate">
+                    {user?.name || "Admin"}
+                  </p>
+                  <p className="text-xs text-slate-400 truncate">
+                    {user?.email || ""}
+                  </p>
+                  <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-semibold">
+                    Admin
+                  </span>
                 </div>
               </div>
+            </DropdownMenuLabel>
 
-              <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 text-sm transition">
-                <Settings size={16} className="text-gray-600" /> Settings
-              </button>
+            {/* Settings */}
+            <DropdownMenuGroup className="p-1.5">
+              <DropdownMenuItem className="cursor-pointer rounded-xl px-3 py-2.5 gap-2.5 focus:bg-slate-50">
+                <Settings size={15} className="text-slate-400" />
+                <span className="text-sm text-slate-600">Settings</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
 
-              <button
+            <DropdownMenuSeparator className="mx-1.5" />
+
+            {/* Logout */}
+            <div className="p-1.5">
+              <DropdownMenuItem
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 text-sm text-red-600 transition border-t border-gray-100"
+                className="cursor-pointer rounded-xl px-3 py-2.5 gap-2.5 text-red-500 focus:text-red-600 focus:bg-red-50"
               >
-                <LogOut size={16} /> Logout
-              </button>
+                <LogOut size={15} />
+                <span className="text-sm font-medium">Log out</span>
+              </DropdownMenuItem>
             </div>
-          )}
-        </div>
-      </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-      {/* Mobile toggle */}
-      <div className="md:hidden">
-        <button onClick={() => setMobileOpen(!mobileOpen)}>
-          {!mobileOpen ? <TextAlignStart size={24} /> : <X size={24} />}
+        {/* Mobile search toggle */}
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="sm:hidden w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:border-slate-300 transition"
+        >
+          {mobileOpen ? <X size={17} /> : <Menu size={17} />}
         </button>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile search bar drop-down */}
       {mobileOpen && (
-        <div className="md:hidden fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md p-6 pt-24 z-40">
-          <div className="flex flex-col gap-4">
-            <input
-              type="text"
-              placeholder="Search cars..."
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-gray-700"
-            />
-
-            <div className="flex justify-around mb-4">
-              <div className="relative">
-                <Heart size={24} />
-                <span className="absolute -top-1 -right-2 text-[10px] bg-red-500 text-white px-1 rounded-full">
-                  2
-                </span>
-              </div>
-              <div className="relative">
-                <Bell size={24} />
-                <span className="absolute -top-1 -right-2 text-[10px] bg-red-500 text-white px-1 rounded-full">
-                  5
-                </span>
-              </div>
-              <User size={24} />
-            </div>
-
-            <button className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors mb-2">
-              <Settings size={18} /> Settings
-            </button>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
-            >
-              <LogOut size={18} /> Logout
-            </button>
-          </div>
+        <div className="sm:hidden absolute top-full left-0 right-0 bg-white border-b border-slate-100 px-4 py-3 shadow-sm">
+          <input
+            type="text"
+            placeholder="Search cars..."
+            className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 text-slate-700 placeholder:text-slate-400 transition"
+          />
         </div>
       )}
-    </nav>
+    </header>
   );
 };
 

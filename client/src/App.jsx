@@ -4,6 +4,7 @@ import Navigation from "./components/navigations/UserNav";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import LandingPage from "./pages/public/LandingPage";
 import Category from "./pages/Users/Category";
+import Settings from "./pages/Users/Settings";
 import CarsListPage from "./components/admin/CarsListPage";
 import AddCarPage from "./components/admin/AddCarPage";
 import ReportsPage from "./components/admin/ReportsPage";
@@ -11,7 +12,7 @@ import AdminSidebarLayout from '../../client/src/pages/layout/AdminSidebarLayout
 
 // ✅ iisa lang (tinanggal duplicate)
 import DashboardPage from "./pages/Users/Home";
-
+import { Toaster } from "sonner";  
 // admin page
 import Admin from "./pages/admin/adminPage";
 import AddCar from "./components/forms/admin/AddCar";
@@ -22,11 +23,12 @@ import ForgotPasswordPage from "./pages/authentication/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/authentication/ResetPasswordPage";
 import AdminPage from "./pages/admin/adminPage";
 import LoadingSpinner from "./components/public/LoadingSpinner";
-import { Toaster } from "react-hot-toast";
+import Bookings from "./components/admin/Bookings"
+
 import { useAuthStore } from "../src/store/authStore"
 import { useEffect } from "react";
 
-
+import Car from "./pages/Users/CarDetailView";
 // 🌐 Public Layout
 const PublicLayout = () => (
   <div className='min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 relative overflow-hidden'>
@@ -105,6 +107,7 @@ function App() {
 
   return (
     <>
+    <Toaster position="top-center" richColors />
   
       <Routes>
 
@@ -124,12 +127,16 @@ function App() {
         <Route path="/" element={<AuthenticatedRoute><DashboardLayout /></AuthenticatedRoute>}>
           <Route index element={<DashboardPage />} />
           <Route path="cars" element={<Category />} />
+          <Route path="car" element={<Car />} />
+           <Route path="settings" element={<Settings />} /> 
         </Route>
 
         {/* 🛠 ADMIN DASHBOARD */}
   <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>}>
   <Route index element={<AdminDashboard />} />           {/* /admin */}
-  <Route path="list" element={<CarsListPage />} />       {/* /admin/list */}
+  <Route path="list" element={<CarsListPage />} />    
+  <Route path="bookings" element={<Bookings />} />   
+    {/* /admin/list */}
   <Route path="add" element={<AddCar />} />              {/* /admin/add */}
   <Route path="reports/daily" element={<ReportsPage type="daily" />} />
   <Route path="reports/monthly" element={<ReportsPage type="monthly" />} />
@@ -139,7 +146,6 @@ function App() {
 
       </Routes>
 
-      <Toaster />
     </>
   );
 }

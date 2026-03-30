@@ -1,67 +1,153 @@
-import React from 'react';
-import carImage from '../../assets/carpichero.png';
+import React, { useEffect, useRef } from "react";
+import carImage from "../../assets/carpichero.png";
+import { Search, CheckSquare, Car } from "lucide-react";
 
 const steps = [
   {
-    number: '01',
-    title: 'Browse and select',
-    description: 'Choose from our wide range of premium cars, select the pickup and return dates and locations that suit you best.'
+    number: "01",
+    icon: Search,
+    title: "Browse & select",
+    description:
+      "Explore our fleet of premium cars. Filter by type, date, and location to find your perfect match.",
+    accent: "#4f46e5",
+    bg: "#EEF2FF",
   },
   {
-    number: '02',
-    title: 'Book and confirm',
-    description: 'Book your desired car with just a few clicks and receive an instant confirmation via email or SMS.'
+    number: "02",
+    icon: CheckSquare,
+    title: "Book & confirm",
+    description:
+      "Reserve your car in a few taps. Receive instant confirmation via email — no waiting, no hassle.",
+    accent: "#0891b2",
+    bg: "#ECFEFF",
   },
   {
-    number: '03',
-    title: 'Enjoy your ride',
-    description: 'Pick up your car at the designated location and enjoy your premium driving experience with our top-quality vehicles.'
-  }
+    number: "03",
+    icon: Car,
+    title: "Pick up & drive",
+    description:
+      "Head to the pickup location and hit the road. Clean, inspected, and ready for your adventure.",
+    accent: "#059669",
+    bg: "#ECFDF5",
+  },
 ];
 
 const HowItWorks = () => {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.querySelectorAll(".step-item").forEach((el, i) => {
+              setTimeout(() => {
+                el.style.opacity = "1";
+                el.style.transform = "translateY(0)";
+              }, i * 130);
+            });
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section className="py-20 px-6 lg:px-24 bg-white">
-      {/* Section Header */}
-      <div className="max-w-6xl mx-auto text-center mb-16">
-        <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-4">How it works</h2>
-        <p className="text-lg lg:text-xl text-slate-600 max-w-3xl mx-auto">
-          Renting a luxury car has never been easier. Our streamlined process makes it simple for you to book and confirm your vehicle of choice online.
-        </p>
-      </div>
-
-      {/* Steps + Image */}
-      <div className="flex flex-col-reverse lg:flex-row items-center gap-12 max-w-7xl mx-auto">
-        
-        {/* Left: Steps */}
-        <div className="flex-1 flex flex-col gap-6">
-          {steps.map((step) => (
-            <div key={step.number} className="flex gap-4 p-6 bg-white shadow-md rounded-2xl items-start hover:shadow-2xl transition-shadow duration-300">
-              
-              {/* Step Number */}
-              <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-blue-50 text-blue-600 font-bold rounded-xl text-lg">
-                {step.number}
-              </div>
-
-              {/* Step Content */}
-              <div>
-                <h3 className="text-xl font-semibold text-slate-900">{step.title}</h3>
-                <p className="text-slate-600 mt-1">{step.description}</p>
-              </div>
-            </div>
-          ))}
+    <section className="py-28 px-6 lg:px-16 bg-slate-50">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-20">
+          <p className="text-indigo-600 font-semibold text-sm tracking-widest uppercase mb-3">
+            Simple Process
+          </p>
+          <h2
+            className="text-4xl lg:text-5xl font-black text-slate-900 leading-tight"
+            style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}
+          >
+            Up and running in{" "}
+            <span className="text-indigo-600">3 steps</span>
+          </h2>
+          <p className="mt-5 text-lg text-slate-500 max-w-xl mx-auto">
+            Renting a premium car has never been this effortless. From browse to
+            drive in under 5 minutes.
+          </p>
         </div>
 
-        {/* Right: Car Image */}
-        <div className="flex-shrink-0 w-full lg:w-1/2 mb-8 lg:mb-0">
-          <img 
-            src={carImage} 
-            alt="Car" 
-            className="w-full h-auto rounded-3xl shadow-xl object-cover"
-          />
-        </div>
+        {/* Content */}
+        <div ref={ref} className="flex flex-col lg:flex-row items-center gap-16">
+          {/* Steps */}
+          <div className="flex-1 flex flex-col gap-4">
+            {steps.map((step, i) => {
+              const Icon = step.icon;
+              return (
+                <div
+                  key={step.number}
+                  className="step-item group flex gap-5 p-6 rounded-2xl bg-white border border-slate-100 transition-all duration-300 hover:border-slate-200 hover:shadow-md"
+                  style={{
+                    opacity: 0,
+                    transform: "translateY(18px)",
+                    transition:
+                      "opacity 0.55s ease, transform 0.55s ease, box-shadow 0.2s, border-color 0.2s",
+                  }}
+                >
+                  <div
+                    className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl"
+                    style={{ background: step.bg, color: step.accent }}
+                  >
+                    <Icon size={20} />
+                  </div>
+                  <div>
+                    <div className="flex items-baseline gap-2 mb-1">
+                      <span
+                        className="text-xs font-black tracking-widest"
+                        style={{ color: step.accent }}
+                      >
+                        {step.number}
+                      </span>
+                      <h3 className="text-base font-bold text-slate-800">
+                        {step.title}
+                      </h3>
+                    </div>
+                    <p className="text-slate-500 text-sm leading-relaxed">
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
+          {/* Image */}
+          <div className="flex-1 relative flex items-center justify-center">
+            <div
+              className="absolute w-[380px] h-[380px] rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle, #e0e7ff 0%, #f0f4ff 55%, transparent 75%)",
+              }}
+            />
+            <img
+              src={carImage}
+              alt="Car"
+              className="relative z-10 w-full max-w-lg"
+              style={{
+                animation: "float 7s ease-in-out infinite",
+                filter: "drop-shadow(0 20px 40px rgba(79,70,229,0.12))",
+              }}
+            />
+          </div>
+        </div>
       </div>
+
+      <style>{`
+        @keyframes float {
+          0%,100% { transform: translateY(0); }
+          50% { transform: translateY(-12px); }
+        }
+      `}</style>
     </section>
   );
 };
