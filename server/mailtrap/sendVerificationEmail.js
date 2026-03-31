@@ -5,8 +5,10 @@ import {
   VERIFICATION_EMAIL_TEMPLATE,
   WELCOME_EMAIL_TEMPLATE
 } from './emailTemplates.js';
+import dotenv from 'dotenv';
 
-const resend = new Resend('re_RZZKwQtQ_2JV5dzX9k7jompgpJs3Qp64K'); // ✅ use env variable
+dotenv.config()
+const resend = new Resend(process.env.RESEND_API_KEY); // ✅ use env variable
 
 const sender = 'onboarding@resend.dev';
 
