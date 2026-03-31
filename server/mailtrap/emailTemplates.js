@@ -27,7 +27,60 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
 </body>
 </html>
 `;
+export const WELCOME_EMAIL_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Supernova!</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  
+  <!-- Header -->
+  <div style="background: linear-gradient(to right, #1a73e8, #0d47a1); padding: 30px 20px; text-align: center; border-radius: 5px 5px 0 0;">
+    <h1 style="color: white; margin: 0; font-size: 28px; letter-spacing: 1px;">Welcome to Supernova </h1>
+    <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0;">We're thrilled to have you on board!</p>
+  </div>
 
+  <!-- Body -->
+  <div style="background-color: #f9f9f9; padding: 30px 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    
+    <p style="font-size: 16px;">Hello, <strong>{name}</strong></p>
+    <p>Your email has been successfully verified. You're all set to start exploring everything Supernova has to offer.</p>
+
+    <!-- What's Next -->
+    <div style="background-color: #e8f0fe; border-left: 4px solid #1a73e8; padding: 15px 20px; border-radius: 0 5px 5px 0; margin: 20px 0;">
+      <p style="margin: 0 0 10px; font-weight: bold; color: #1a73e8;">Here's what you can do next:</p>
+      <ul style="margin: 0; padding-left: 20px; color: #333;">
+        <li style="margin-bottom: 6px;">Browse available cars</li>
+        <li style="margin-bottom: 6px;">Book your first rental</li>
+        <li style="margin-bottom: 6px;">Rate and review your experience</li>
+        <li>👤 Complete your profile</li>
+      </ul>
+    </div>
+
+    <!-- CTA Button -->
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{clientURL}" 
+         style="background: linear-gradient(to right, #1a73e8, #0d47a1); color: white; padding: 14px 32px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 15px; display: inline-block;">
+        Get Started →
+      </a>
+    </div>
+
+    <p style="color: #666; font-size: 14px;">If you have any questions, feel free to reach out to our support team anytime.</p>
+    <p>Best regards,<br><strong>— Supernova App Team</strong></p>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+    <p>This is an automated message, please do not reply to this email.</p>
+    <p style="margin-top: 4px;">© 2026 Supernova. All rights reserved.</p>
+  </div>
+
+</body>
+</html>
+`;
 export const PASSWORD_RESET_SUCCESS_TEMPLATE = `
 <!DOCTYPE html>
 <html lang="en">

@@ -5,7 +5,7 @@ import { connectDb } from './db/connectDb.js';
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.route.js";
 import carRoutes from "./routes/car.routes.js";
-
+import ratingRoutes from "./routes/ratingRoutes.js";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,7 +21,8 @@ app.use(cookieParser());
 
 // 2️⃣ Mount routes
 app.use("/api/auth", authRoutes);
-app.use("/api/users" ,carRoutes )
+app.use("/api/users", carRoutes)
+app.use("/api/ratings", ratingRoutes);
 await connectDb();
 // 3️⃣ Start server
 app.listen(PORT, () => {

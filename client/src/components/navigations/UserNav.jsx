@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { User, Search, Bell, Heart, Settings, LogOut, Menu, X } from "lucide-react";
 import brand from "../../assets/brand.png";
 import { useAuthStore } from "../../store/authStore";
+import { useNavigate } from "react-router-dom";
 import { useCarStore } from "../../store/CarStore";
 import { Link } from "react-router-dom";
 import {
@@ -19,7 +20,7 @@ const UserNav = () => {
   const { searchQuery, setSearchQuery } = useCarStore();
   const handleLogout = () => logout();
   const [mobileOpen, setMobileOpen] = useState(false);
-
+  const navigate = useNavigate();
   if (!user || user.role === "renter") return null;
 
   return (
@@ -108,7 +109,10 @@ const UserNav = () => {
 
               {/* Settings */}
               <DropdownMenuGroup className="p-1.5">
-                <DropdownMenuItem className="cursor-pointer rounded-xl px-3 py-2.5 gap-2.5 focus:bg-slate-50">
+                <DropdownMenuItem
+                  onClick={() => navigate("/settings")}
+                  className="cursor-pointer rounded-xl px-3 py-2.5 gap-2.5 focus:bg-slate-50"
+                >
                   <Settings size={15} className="text-slate-400" />
                   <span className="text-sm text-slate-600">Settings</span>
                 </DropdownMenuItem>
@@ -189,7 +193,7 @@ const UserNav = () => {
           </div>
 
           {/* Actions */}
-          <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition">
+          <button onClick={() => navigate("/settings")} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition">
             <Settings size={16} /> Settings
           </button>
           <button

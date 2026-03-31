@@ -96,4 +96,15 @@ export const useAuthStore = create((set) => ({
 			throw error;
 		}
 	},
+resendVerificationEmail: async () => {
+  set({ isLoading: true, error: null });
+  try {
+    const res = await axios.post(`${API_URL}/resend-verification`); // ✅ use API_URL
+    set({ isLoading: false });
+    return res.data;
+  } catch (error) {
+    set({ isLoading: false, error: error.response?.data?.message || "Failed to resend" });
+    throw error;
+  }
+},
 }));

@@ -1,11 +1,28 @@
 import React, { useState } from "react";
+import { useAuthStore } from "@/store/authStore"; // ✅ import your auth store
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { useNavigate } from "react-router-dom"; // ✅ for redirect after deletion
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useCarStore } from "../../store/CarStore";
 
 export const Settings = () => {
+  const navigate = useNavigate();
+
+  const [confirmationText, setConfirmationText] = useState("");
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -15,67 +32,41 @@ export const Settings = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleToggle = (key) => {
-    setForm({ ...form, [key]: !form[key] });
+  const handleToggle = (field) => {
+    setForm({ ...form, [field]: !form[field] });
   };
+const { deleteUser} = useCarStore()
+const { logout } = useAuthStore();
 
-  // ✅ SAVE SETTINGS (CONNECT TO BACKEND)
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
+const handleDeleteAccount = async () => {
+  try {
+    setLoading(true);
 
-      const res = await fetch("/api/user/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
+    // 1️⃣ Delete account
+    await deleteUser();
 
-      const data = await res.json();
-      console.log(data);
+    // 2️⃣ Log out
+    await logout();
 
-      alert("Settings updated successfully");
-    } catch (err) {
-      console.error(err);
-      alert("Error updating settings");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setLoading(false);
 
-  // ❌ DELETE ACCOUNT
-  const handleDeleteAccount = async () => {
-    const confirmDelete = confirm("Are you sure you want to delete your account? This cannot be undone.");
+    // 3️⃣ Redirect to landing
+    navigate("/landing", { replace: true });
+  } catch (error) {
+    setLoading(false);
+    console.error("Delete failed:", error);
+  }
+};
 
-    if (!confirmDelete) return;
 
-    try {
-      setLoading(true);
-
-      const res = await fetch("/api/user/delete", {
-        method: "DELETE",
-      });
-
-      const data = await res.json();
-      console.log(data);
-
-      alert("Account deleted");
-
-      // redirect after delete
-      window.location.href = "/";
-    } catch (err) {
-      console.error(err);
-      alert("Error deleting account");
-    } finally {
-      setLoading(false);
-    }
+  const handleSubmit = async () => {
+    // your save changes logic
   };
 
   return (
@@ -152,14 +143,41 @@ export const Settings = () => {
 
         {/* Actions */}
         <div className="flex justify-between items-center">
-          <Button
-            variant="destructive"
-            onClick={handleDeleteAccount}
-            disabled={loading}
-            className="rounded-xl"
-          >
-            Delete Account
+        <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="destructive" disabled={loading}>
+            {loading ? "Deleting..." : "Delete Account"}
           </Button>
+        </AlertDialogTrigger>
+
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. To confirm, type{" "}
+              <strong>DELETE</strong> below:
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="my-4">
+            <Input
+              placeholder="Type DELETE to confirm"
+              value={confirmationText}
+              onChange={(e) => setConfirmationText(e.target.value)}
+            />
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAccount}
+              disabled={confirmationText !== "DELETE"}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
           <Button
             onClick={handleSubmit}

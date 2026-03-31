@@ -5,8 +5,8 @@ import { toast } from "sonner"
 
 const API_URL =
   import.meta.env.MODE === "development"
-    ? "http://localhost:5000/api/admin"
-    : "/api/admin";
+    ? "http://localhost:5000/api/users"
+    : "/api/users";
 
 axios.defaults.withCredentials = true;
 
@@ -105,4 +105,19 @@ export const useCarStore = create((set) => ({
       toast.error("Failed to delete car"); // ✅ added toast
     }
   },
+
+  deleteUser: async (id) => {
+  set({ isLoading: true, error: null });
+  try {
+    await axios.delete(`${API_URL}/delete/${id}`); // your backend route for deleting current user
+    set({ user: null, isAuthenticated: false, isLoading: false });
+    toast.success("Account deleted successfully");
+    
+  } catch (error) {
+    set({ error: error.response?.data?.message || "Error deleting account", isLoading: false });
+    toast.error("Failed to delete account");
+    throw error;
+  }
+}
 }));
+

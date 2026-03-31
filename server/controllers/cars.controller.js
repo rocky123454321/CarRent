@@ -180,3 +180,27 @@ export const getAllCarbyAdmin = async (req, res) => {
 };
 
 
+export const Settings = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const user = await User.findByIdAndDelete(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.clearCookie("token");
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    console.log("Error in deleteUser:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

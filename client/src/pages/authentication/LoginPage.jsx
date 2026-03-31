@@ -1,80 +1,115 @@
 import { useState } from "react";
-// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { Mail, Lock, Loader } from "lucide-react";
-import { Link } from "react-router-dom";
-import Input from "../../components/public/Input";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import brand from "../../assets/brand.png";
 
 const LoginPage = () => {
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const { login, isLoading, error, user } = useAuthStore();
 
-	const { login, isLoading, error } = useAuthStore();
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (user?.isVerified === false) {
+      navigate("/verify-email");
+      return;
+    }
+    await login(email, password);
+  };
 
-	const handleLogin = async (e) => {
-		e.preventDefault();
-		await login(email, password);
-	};
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-md"
+      >
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
 
-	return (
-		<div className="flex justify-center items-center min-h-[60vh] px-4">
-		<motion.div
-			initial={{ opacity: 0, y: 20 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.5 }}
-			className='max-w-md w-full mx-auto bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden'
-		>
-			<div className='p-8'>
-				<h2 className='text-3xl font-bold mb-6 text-center bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'>
-					Welcome Back
-				</h2>
+          {/* Header */}
+          <div className="px-8 pt-8 pb-6 text-center border-b border-gray-50">
+            <img src={brand} alt="brand" className="h-10 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900">Welcome back</h2>
+            <p className="text-sm text-gray-400 mt-1">Sign in to your account to continue</p>
+          </div>
 
-				<form onSubmit={handleLogin}>
-					<Input
-						icon={Mail}
-						type='email'
-						placeholder='Email Address'
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
-					/>
+          {/* Form */}
+          <div className="px-8 py-6 space-y-4">
 
-					<Input
-						icon={Lock}
-						type='password'
-						placeholder='Password'
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-					/>
+            {/* Email */}
+            <div>
+              <label className="text-xs font-medium text-gray-600 mb-1.5 block">Email Address</label>
+              <div className="relative">
+                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition bg-gray-50"
+                />
+              </div>
+            </div>
 
-					<div className='flex items-center mb-6'>
-						<Link to='/forgot-password' className='text-sm text-green-400 hover:underline'>
-							Forgot password?
-						</Link>
-					</div>
-					{error && <p className='text-red-500 font-semibold mb-2'>{error}</p>}
+            {/* Password */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-medium text-gray-600">Password</label>
+                <Link to="/forgot-password" className="text-xs text-blue-500 hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
+              <div className="relative">
+                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition bg-gray-50"
+                />
+              </div>
+            </div>
 
-					<motion.button
-						whileHover={{ scale: 1.02 }}
-						whileTap={{ scale: 0.98 }}
-						className='w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200'
-						type='submit'
-						disabled={isLoading}
-					>
-						{isLoading ? <Loader className='w-6 h-6 animate-spin  mx-auto' /> : "Login"}
-					</motion.button>
-				</form>
-			</div>
-			<div className='px-8 py-4 bg-gray-900 bg-opacity-50 flex justify-center'>
-				<p className='text-sm text-gray-400'>
-					Don't have an account?{" "}
-					<Link to='/signup' className='text-green-400 hover:underline'>
-						Sign up
-					</Link>
-				</p>
-			</div>
-		</motion.div>
-		</div>
-	);
+            {/* Error */}
+            {error && (
+              <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-2.5">
+                <p className="text-red-500 text-xs font-medium">{error}</p>
+              </div>
+            )}
+
+            {/* Submit */}
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleLogin}
+              disabled={isLoading}
+              className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold rounded-xl text-sm transition-colors shadow-sm"
+            >
+              {isLoading ? <Loader className="w-5 h-5 animate-spin mx-auto" /> : "Sign In"}
+            </motion.button>
+
+          </div>
+
+          {/* Footer */}
+          <div className="px-8 py-4 bg-gray-50 border-t border-gray-100 text-center">
+            <p className="text-sm text-gray-400">
+              Don't have an account?{" "}
+              <Link to="/signup" className="text-blue-500 font-medium hover:underline">
+                Sign up
+              </Link>
+            </p>
+          </div>
+
+        </div>
+      </motion.div>
+    </div>
+  );
 };
+
 export default LoginPage;

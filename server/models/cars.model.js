@@ -18,3 +18,7 @@ const CarsSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 export const Car = mongoose.model("Car", CarsSchema);
+
+
+
+

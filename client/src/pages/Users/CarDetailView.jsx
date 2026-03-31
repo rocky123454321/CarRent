@@ -119,8 +119,16 @@ const CarDetailView = () => {
 
       {/* ── DIV 2: Reviews ── */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-1">Customer Reviews</h3>
-        <p className="text-xs text-gray-400 mb-5">What renters are saying about this car</p>
+        <div className="flex flex-row justify-between">
+          <div> <h3 className="text-lg font-bold text-gray-900 mb-1">Customer Reviews</h3>
+            <p className="text-xs text-gray-400 mb-5">What renters are saying about this car</p></div>
+          <div>
+            < button className="flex items-center gap-1 text-sm text-blue-600 hover:underline">
+              See all reviews
+            </button>
+          </div>
+          
+       </div>
         <div className="space-y-4">
           {mockReviews.map((review, i) => (
             <div key={i} className="flex gap-4 pb-4 border-b border-gray-50 last:border-0 last:pb-0">

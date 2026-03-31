@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import carImage from "../../assets/carpichero.png";
+import howitwork from "../../assets/process.jpg";
 import { Search, CheckSquare, Car } from "lucide-react";
 
 const steps = [
@@ -130,9 +131,9 @@ const HowItWorks = () => {
               }}
             />
             <img
-              src={carImage}
+              src={howitwork}
               alt="Car"
-              className="relative z-10 w-full max-w-lg"
+              className="relative z-10  w-full rounded-2xl max-w-lg"
               style={{
                 animation: "float 7s ease-in-out infinite",
                 filter: "drop-shadow(0 20px 40px rgba(79,70,229,0.12))",
