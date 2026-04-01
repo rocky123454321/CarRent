@@ -6,7 +6,7 @@ import {
 import { verifyToken } from '../middleware/verifyToken.js';
 
 const router = express.Router();
-
+//
 // ── USER ROUTES ──────────────────────────────────
 router.get('/', getAllCars);                          // GET  /api/cars
 router.post('/:id/rent', verifyToken, rentCar);      // POST /api/cars/:id/rent
