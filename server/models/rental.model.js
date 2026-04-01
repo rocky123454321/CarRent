@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+//done
 const RentalSchema = new mongoose.Schema({
   user: { 
     type: mongoose.Schema.Types.ObjectId, 
