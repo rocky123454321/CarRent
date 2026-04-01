@@ -3,7 +3,7 @@ import { addRating, getCarRatings } from "../controllers/ratingsController.js";
 import { verifyToken } from '../middleware/verifyToken.js';
 
 const router = express.Router();
-
+//
 // POST rating: expects { carId, rating, review } in body
 router.post("/", verifyToken, addRating);
 
