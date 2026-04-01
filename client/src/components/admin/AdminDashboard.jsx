@@ -1,13 +1,41 @@
-import React from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { UsersRound, ShoppingBag, DollarSign, Calendar } from "lucide-react";
+import axios from "axios";
+import { useAuthStore } from "../../store/authStore";
+
+const API_URL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "";
 
 const AdminDashboard = () => {
-  const stats = [
-    { title: 'Customers', value: '3,222', icon: UsersRound, color: 'text-blue-600' },
-    { title: 'Orders', value: '1,456', icon: ShoppingBag, color: 'text-green-600' },
-    { title: 'Revenue', value: '₱245,678', icon: DollarSign, color: 'text-purple-600' },
-    { title: 'Bookings', value: '892', icon: Calendar, color: 'text-indigo-600' },
-  ];
+  const { user } = useAuthStore();
+  const [rentals, setRentals] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/users/admin/rentals`, { withCredentials: true });
+        setRentals(response.data?.data || []);
+      } catch {
+        setRentals([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (user?._id) run();
+  }, [user?._id]);
+
+  const stats = useMemo(() => {
+    const customers = new Set(rentals.map((r) => r.user?._id).filter(Boolean)).size;
+    const orders = rentals.length;
+    const revenue = rentals.reduce((sum, r) => sum + (Number(r.totalPrice) || 0), 0);
+    const activeBookings = rentals.filter((r) => ["pending", "confirmed"].includes(r.status)).length;
+    return [
+      { title: 'Customers', value: customers.toLocaleString(), icon: UsersRound, color: 'text-blue-600' },
+      { title: 'Orders', value: orders.toLocaleString(), icon: ShoppingBag, color: 'text-green-600' },
+      { title: 'Revenue', value: `₱${revenue.toLocaleString()}`, icon: DollarSign, color: 'text-purple-600' },
+      { title: 'Bookings', value: activeBookings.toLocaleString(), icon: Calendar, color: 'text-indigo-600' },
+    ];
+  }, [rentals]);
 
   return (
     <div className="space-y-8 p-8 mt-10 max-w-7xl mx-auto">
@@ -16,6 +44,8 @@ const AdminDashboard = () => {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
         <p className="text-gray-600">Welcome to your admin dashboard. Monitor key metrics at a glance.</p>
       </div>
+
+      {loading && <p className="text-sm text-gray-400">Loading dashboard metrics...</p>}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

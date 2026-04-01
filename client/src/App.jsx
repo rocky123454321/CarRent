@@ -19,7 +19,10 @@ import LoadingSpinner from "./components/public/LoadingSpinner";
 import Bookings from "./components/admin/Bookings";
 import { useAuthStore } from "../src/store/authStore";
 import { useEffect } from "react";
-import Car from "./pages/Users/CarDetailView";
+import CarDetailView from "./pages/Users/CarDetailView";
+import ChatPage from "./pages/Chat/ChatPage";
+import AdminChatPage from './pages/admin/AdminChatPage';
+import MyRentals from "./pages/Users/MyRentals";
 
 // 🌐 Public Layout — white/blue minimal
 const PublicLayout = () => (
@@ -51,7 +54,7 @@ const AuthenticatedRoute = ({ children }) => {
 const AdminRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/landing" replace />;
-  if (user?.role !== "renter") return <Navigate to="/" replace />;
+  if (!(user?.role === "admin" || user?.role === "renter")) return <Navigate to="/" replace />;
   return children;
 };
 
@@ -94,14 +97,21 @@ function App() {
         {/* 👤 USER DASHBOARD */}
         <Route path="/" element={<AuthenticatedRoute><DashboardLayout /></AuthenticatedRoute>}>
           <Route index element={<DashboardPage />} />
-          <Route path="cars" element={<Category />} />
-          <Route path="car" element={<Car />} />
+<Route path="cars" element={<Category />} />
+          {/* canonical car detail route */}
+          <Route path="cars/:id" element={<CarDetailView />} />
+          {/* legacy/backward-compatible route */}
+          <Route path="car/:id" element={<CarDetailView />} />
+          <Route path="my-rentals" element={<MyRentals />} />
+          <Route path="chat" element={<AuthenticatedRoute><ChatPage /></AuthenticatedRoute>} />
           <Route path="settings" element={<Settings />} />
+
         </Route>
 
         {/* 🛠 ADMIN DASHBOARD */}
         <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>}>
           <Route index element={<AdminDashboard />} />
+          <Route path="chat" element={<AdminChatPage />} />
           <Route path="list" element={<CarsListPage />} />
           <Route path="bookings" element={<Bookings />} />
           <Route path="add" element={<AddCar />} />

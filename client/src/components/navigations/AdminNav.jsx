@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { User, Bell, Settings, LogOut, Menu, X } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
+import { useChatStore } from "../../stores/chatStore";
+import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,9 +14,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const AdminNav = ({ onMenuClick }) => {
+  const { unreadCounts, notifications, clearNotifications } = useChatStore();
+const navigate = useNavigate();
+
+const totalUnread = Object.values(unreadCounts || {}).reduce((a, b) => a + b, 0);
   const { user, logout } = useAuthStore();
   const handleLogout = () => logout();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    if (user?._id) useChatStore.getState().initializeSocket(user._id);
+    return () => useChatStore.getState().disconnectSocket();
+  }, [user?._id]);
 
   if (!user || user.role !== "renter") return null;
 
@@ -44,12 +55,63 @@ const AdminNav = ({ onMenuClick }) => {
       {/* Right icons */}
       <div className="flex items-center gap-2">
         {/* Notification bell */}
-        <button className="relative w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:text-slate-800 hover:border-slate-300 transition">
-          <Bell size={17} />
-          <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">
-            5
-          </span>
-        </button>
+      <DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <button className="relative w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:text-slate-800">
+      <Bell size={17} />
+
+      {totalUnread > 0 && (
+        <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">
+          {totalUnread > 99 ? '99+' : totalUnread}
+        </span>
+      )}
+    </button>
+  </DropdownMenuTrigger>
+
+  <DropdownMenuContent className="w-80 rounded-2xl shadow-xl border p-0 overflow-hidden" align="end">
+    
+    {/* HEADER */}
+    <div className="flex justify-between px-4 py-3 border-b">
+      <p className="text-sm font-semibold">Notifications</p>
+      <button onClick={clearNotifications} className="text-xs text-blue-500">
+        Clear
+      </button>
+    </div>
+
+    {/* LIST */}
+    <div className="max-h-80 overflow-y-auto">
+      {notifications.length === 0 ? (
+        <p className="text-center text-xs text-gray-400 py-6">
+          No notifications
+        </p>
+      ) : (
+        notifications.map((n) => (
+          <div
+            key={n.id}
+            className="px-4 py-3 border-b hover:bg-gray-50 cursor-pointer"
+            onClick={() =>
+              navigate("/admin/chat", { state: { userId: n.userId } })
+            }
+          >
+            <p className="text-sm font-medium">
+              {n.text}
+            </p>
+            <p className="text-xs text-gray-400 truncate">
+              {n.message}
+            </p>
+            <p className="text-[10px] text-gray-300 mt-1">
+              {new Date(n.time).toLocaleTimeString()}
+            </p>
+
+            <button className="mt-2 text-xs text-blue-500">
+              View
+            </button>
+          </div>
+        ))
+      )}
+    </div>
+  </DropdownMenuContent>
+</DropdownMenu>
 
         {/* Profile dropdown */}
         <DropdownMenu>

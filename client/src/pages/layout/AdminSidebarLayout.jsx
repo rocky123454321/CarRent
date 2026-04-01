@@ -69,7 +69,7 @@ const AdminSidebarLayout = ({ isOpen, onClose }) => {
                 </Link>
               </li>
               <li>
-                <Link to="/admin/customers" className={linkClass("/admin/customers")} onClick={onClose}>
+                <Link to="/admin/chat" className={linkClass("/admin/chat")} onClick={onClose}>
                   <User size={17} />
                   Customers
                 </Link>

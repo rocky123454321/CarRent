@@ -1,12 +1,12 @@
-import { create } from "zustand";
+ import { create } from "zustand";
 import axios from "axios";
 
 import { toast } from "sonner"
 
 const API_URL =
   import.meta.env.MODE === "development"
-    ? "http://localhost:5000/api/users"
-    : "/api/users";
+    ? "http://localhost:5000/api/cars"
+    : "/api/cars";
 
 axios.defaults.withCredentials = true;
 
@@ -35,11 +35,11 @@ export const useCarStore = create((set) => ({
   getallcarsadmin: async (id) => {
     set({ isLoading: true, error: null });
     try {
-      const res = await axios.get(`${API_URL}/${id}`);
+      const res = await axios.get(`${API_URL}/admin/${id}`);
       set({ cars: res.data.cars, isLoading: false });
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Error fetching cars",
+        error: error.response?.data?.message || "Error fetching admin cars",
         isLoading: false,
       });
     }
@@ -106,18 +106,5 @@ export const useCarStore = create((set) => ({
     }
   },
 
-  deleteUser: async (id) => {
-  set({ isLoading: true, error: null });
-  try {
-    await axios.delete(`${API_URL}/delete/${id}`); // your backend route for deleting current user
-    set({ user: null, isAuthenticated: false, isLoading: false });
-    toast.success("Account deleted successfully");
-    
-  } catch (error) {
-    set({ error: error.response?.data?.message || "Error deleting account", isLoading: false });
-    toast.error("Failed to delete account");
-    throw error;
-  }
-}
 }));
 

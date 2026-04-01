@@ -5,7 +5,8 @@ const userSchema = new mongoose.Schema(
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   name: { type: String, required: true },
-  role: { type: String, enum: ["user", "renter"], default: "user" },
+  // NOTE: existing codebase uses "admin" role checks (e.g. rentals admin endpoints).
+  role: { type: String, enum: ["user", "renter", "admin"], default: "user" },
   lastLogin: { type: Date, default: Date.now },
   isVerified: { type: Boolean, default: false },
   resetPasswordToken: { type: String },

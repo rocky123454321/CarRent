@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore"; // ✅ import your auth store
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom"; // ✅ for redirect after deletion
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,21 +18,28 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useCarStore } from "../../store/CarStore";
-
 export const Settings = () => {
   const navigate = useNavigate();
+  const { user, logout, updateProfile, deleteAccount, isLoading } = useAuthStore();
 
   const [confirmationText, setConfirmationText] = useState("");
   const [form, setForm] = useState({
-    name: "",
-    email: "",
+    name: user?.name || "",
+    email: user?.email || "",
     password: "",
     darkMode: false,
     notifications: true,
   });
 
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setForm((prev) => ({
+      ...prev,
+      name: user?.name || "",
+      email: user?.email || "",
+    }));
+  }, [user?.name, user?.email]);
   
 
   const handleChange = (e) => {
@@ -41,32 +49,38 @@ export const Settings = () => {
   const handleToggle = (field) => {
     setForm({ ...form, [field]: !form[field] });
   };
-const { deleteUser} = useCarStore()
-const { logout } = useAuthStore();
-
 const handleDeleteAccount = async () => {
   try {
     setLoading(true);
-
-    // 1️⃣ Delete account
-    await deleteUser();
-
-    // 2️⃣ Log out
+    await deleteAccount();
     await logout();
 
     setLoading(false);
 
-    // 3️⃣ Redirect to landing
+    toast.success("Account deleted successfully");
     navigate("/landing", { replace: true });
   } catch (error) {
     setLoading(false);
-    console.error("Delete failed:", error);
+    toast.error(error?.response?.data?.message || "Delete failed");
   }
 };
 
 
   const handleSubmit = async () => {
-    // your save changes logic
+    try {
+      setLoading(true);
+      await updateProfile({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password.trim() || undefined,
+      });
+      setForm((prev) => ({ ...prev, password: "" }));
+      toast.success("Profile updated");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to save changes");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -145,8 +159,8 @@ const handleDeleteAccount = async () => {
         <div className="flex justify-between items-center">
         <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant="destructive" disabled={loading}>
-            {loading ? "Deleting..." : "Delete Account"}
+          <Button variant="destructive" disabled={loading || isLoading}>
+            {loading || isLoading ? "Deleting..." : "Delete Account"}
           </Button>
         </AlertDialogTrigger>
 
@@ -171,7 +185,7 @@ const handleDeleteAccount = async () => {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteAccount}
-              disabled={confirmationText !== "DELETE"}
+              disabled={confirmationText !== "DELETE" || loading || isLoading}
             >
               Continue
             </AlertDialogAction>
@@ -181,10 +195,10 @@ const handleDeleteAccount = async () => {
 
           <Button
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || isLoading}
             className="rounded-xl"
           >
-            {loading ? "Saving..." : "Save Changes"}
+            {loading || isLoading ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </div>

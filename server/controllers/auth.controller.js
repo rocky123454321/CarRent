@@ -9,6 +9,20 @@ import  {
 	sendVerificationEmail,
 	sendWelcomeEmail,
 }from '../mailtrap/sendVerificationEmail.js';
+
+export const getAdminId = async (req, res) => {
+	try {
+		const admin =
+			(await User.findOne({ role: "admin" }).select("_id name email role")) ||
+			(await User.findOne({ role: "renter" }).select("_id name email role"));
+		if (!admin) {
+			return res.status(404).json({ success: false, message: "Admin user not found" });
+		}
+		res.status(200).json({ success: true, admin: { _id: admin._id, name: admin.name } });
+	} catch (error) {
+		res.status(500).json({ success: false, message: error.message });
+	}
+};
 export const signup = async (req, res) => {
 	const { email, password, name, role } = req.body;
 
@@ -297,6 +311,38 @@ export const resendVerificationEmail = async (req, res) => {
 
   } catch (error) {
     console.log("Error in resendVerificationEmail:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    if (email && email !== user.email) {
+      const existing = await User.findOne({ email });
+      if (existing && existing._id.toString() !== user._id.toString()) {
+        return res.status(400).json({ success: false, message: "Email is already in use" });
+      }
+      user.email = email;
+      // Require re-verification when email changes
+      user.isVerified = false;
+      user.verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+      user.verificationTokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
+    }
+
+    if (name) user.name = name;
+    if (password) user.password = await bcryptjs.hash(password, 10);
+
+    await user.save();
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: { ...user._doc, password: undefined },
+    });
+  } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };

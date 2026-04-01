@@ -167,12 +167,7 @@ export const returnCar = async (req, res) => {
 
 export const getAllCarbyAdmin = async (req, res) => {
   try {
-    const cars = await Car.find({ uploadedBy: req.params.id });
-    
-    if (!cars.length) {
-      return res.status(404).json({ success: false, message: "No cars found" });
-    }
-
+    const cars = await Car.find({ uploadedBy: req.params.adminId });
     res.status(200).json({ success: true, cars });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

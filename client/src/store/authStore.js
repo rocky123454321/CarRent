@@ -107,4 +107,25 @@ resendVerificationEmail: async () => {
     throw error;
   }
 },
+  updateProfile: async ({ name, email, password }) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.patch(`${API_URL}/profile`, { name, email, password });
+      set({ user: response.data.user, isLoading: false, error: null });
+      return response.data;
+    } catch (error) {
+      set({ isLoading: false, error: error.response?.data?.message || "Failed to update profile" });
+      throw error;
+    }
+  },
+  deleteAccount: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      await axios.delete(`${API_URL}/delete/me`);
+      set({ user: null, isAuthenticated: false, isLoading: false, error: null });
+    } catch (error) {
+      set({ isLoading: false, error: error.response?.data?.message || "Failed to delete account" });
+      throw error;
+    }
+  },
 }));

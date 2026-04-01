@@ -24,7 +24,7 @@ export const AdminCards = () => {
 
   useEffect(() => {
     if (user?._id) getallcarsadmin(user._id);
-  }, [user]);
+  }, [user?._id, getallcarsadmin]);
 
   const handleDelete = async (id) => {
     await deleteCar(id);

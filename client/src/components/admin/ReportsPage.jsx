@@ -1,28 +1,68 @@
-import React from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { BarChart3, PieChart, Table, TrendingUp, DollarSign, Calendar } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, ResponsiveContainer, Tooltip, Legend } from "recharts"
+import axios from "axios";
+import { useAuthStore } from "../../store/authStore";
+
+const API_URL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "";
 
 const ReportsPage = () => {
-  const reportStats = [
-    { title: 'Total Revenue', value: '₱1,245,678', change: '+12.5%', icon: DollarSign, color: 'text-green-600' },
-    { title: 'Total Bookings', value: '2,456', change: '+8.2%', icon: Calendar, color: 'text-blue-600' },
-    { title: 'Avg Rating', value: '4.8/5', change: '+0.3', icon: TrendingUp, color: 'text-purple-600' },
-  ];
+  const { user } = useAuthStore();
+  const [rentals, setRentals] = useState([]);
 
-  const recentBookings = [
-    { id: '#BK001', customer: 'John Doe', car: 'Toyota Camry', date: '2024-01-15', amount: '₱5,200', status: 'Completed' },
-    { id: '#BK002', customer: 'Jane Smith', car: 'Honda Civic', date: '2024-01-14', amount: '₱4,800', status: 'Completed' },
-    { id: '#BK003', customer: 'Mike Johnson', car: 'BMW X5', date: '2024-01-13', amount: '₱12,500', status: 'Ongoing' },
-  ];
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/users/admin/rentals`, { withCredentials: true });
+        setRentals(response.data?.data || []);
+      } catch {
+        setRentals([]);
+      }
+    };
+    if (user?._id) run();
+  }, [user?._id]);
 
-  const chartData = [
-    { month: "Jan", desktop: 186, mobile: 80 },
-    { month: "Feb", desktop: 305, mobile: 200 },
-    { month: "Mar", desktop: 237, mobile: 120 },
-    { month: "Apr", desktop: 73, mobile: 190 },
-    { month: "May", desktop: 209, mobile: 130 },
-    { month: "Jun", desktop: 214, mobile: 140 },
-  ]
+  const reportStats = useMemo(() => {
+    const totalRevenue = rentals.reduce((sum, r) => sum + (Number(r.totalPrice) || 0), 0);
+    const totalBookings = rentals.length;
+    const completed = rentals.filter((r) => r.status === "completed").length;
+    const completionRate = totalBookings ? ((completed / totalBookings) * 100).toFixed(1) : "0.0";
+    return [
+      { title: 'Total Revenue', value: `₱${totalRevenue.toLocaleString()}`, change: `${completed} completed`, icon: DollarSign, color: 'text-green-600' },
+      { title: 'Total Bookings', value: totalBookings.toLocaleString(), change: `${completionRate}% completion`, icon: Calendar, color: 'text-blue-600' },
+      { title: 'Active Rentals', value: rentals.filter((r) => ["pending", "confirmed"].includes(r.status)).length.toLocaleString(), change: `Cancelled: ${rentals.filter((r) => r.status === "cancelled").length}`, icon: TrendingUp, color: 'text-purple-600' },
+    ];
+  }, [rentals]);
+
+  const recentBookings = useMemo(
+    () =>
+      rentals.slice(0, 6).map((r) => ({
+        id: `#${r._id?.slice(-6) || "N/A"}`,
+        customer: r.user?.name || "Unknown",
+        car: `${r.car?.brand || ""} ${r.car?.model || ""}`.trim() || "Unknown",
+        date: new Date(r.createdAt).toLocaleDateString(),
+        amount: `₱${Number(r.totalPrice || 0).toLocaleString()}`,
+        status: r.status,
+      })),
+    [rentals]
+  );
+
+  const chartData = useMemo(() => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const grouped = {};
+    rentals.forEach((r) => {
+      const d = new Date(r.createdAt);
+      const key = months[d.getMonth()];
+      if (!grouped[key]) grouped[key] = { bookings: 0, revenue: 0 };
+      grouped[key].bookings += 1;
+      grouped[key].revenue += Number(r.totalPrice || 0);
+    });
+    return Object.entries(grouped).map(([month, data]) => ({
+      month,
+      bookings: data.bookings,
+      revenue: data.revenue,
+    }));
+  }, [rentals]);
 
   return (
     <div className="space-y-8 p-8 max-w-7xl mx-auto">
@@ -99,7 +139,7 @@ const ReportsPage = () => {
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center gap-3 mb-4">
               <BarChart3 size={24} className="text-gray-500" />
-              <h3 className="text-xl font-bold text-gray-900">Revenue Overview</h3>
+            <h3 className="text-xl font-bold text-gray-900">Bookings & Revenue Overview</h3>
             </div>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -108,8 +148,8 @@ const ReportsPage = () => {
                   <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={10} />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="desktop" fill="#2563eb" radius={4} name="Desktop" />
-                  <Bar dataKey="mobile" fill="#60a5fa" radius={4} name="Mobile" />
+                  <Bar dataKey="bookings" fill="#2563eb" radius={4} name="Bookings" />
+                  <Bar dataKey="revenue" fill="#60a5fa" radius={4} name="Revenue" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -119,13 +159,13 @@ const ReportsPage = () => {
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center gap-3 mb-4">
               <PieChart size={24} className="text-gray-500" />
-              <h3 className="text-xl font-bold text-gray-900">Bookings by Category</h3>
+              <h3 className="text-xl font-bold text-gray-900">Status Distribution</h3>
             </div>
             <div className="h-64 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl flex items-center justify-center border-2 border-dashed border-gray-200">
               <div className="text-center text-gray-500">
                 <PieChart size={48} className="mx-auto mb-2" />
-                <p>Category distribution chart</p>
-                <p className="text-sm">SUV • Sedan • Compact</p>
+                <p>Pending: {rentals.filter((r) => r.status === "pending").length}</p>
+                <p className="text-sm">Confirmed: {rentals.filter((r) => r.status === "confirmed").length} • Completed: {rentals.filter((r) => r.status === "completed").length}</p>
               </div>
             </div>
           </div>

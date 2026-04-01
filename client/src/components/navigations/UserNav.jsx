@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { User, Search, Bell, Heart, Settings, LogOut, Menu, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Search, Bell, Heart, Settings, LogOut, Menu, X, MessageSquare, CarFront } from "lucide-react";
 import brand from "../../assets/brand.png";
 import { useAuthStore } from "../../store/authStore";
-import { useNavigate } from "react-router-dom";
 import { useCarStore } from "../../store/CarStore";
-import { Link } from "react-router-dom";
+import { useChatStore } from "../../stores/chatStore";
+import { useNavigate, Link } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,10 +18,31 @@ import {
 const UserNav = () => {
   const { user, logout } = useAuthStore();
   const { searchQuery, setSearchQuery } = useCarStore();
-  const handleLogout = () => logout();
+  const {
+    initializeSocket,
+    disconnectSocket,
+    unreadCounts,
+    notifications,
+    clearNotifications,
+  } = useChatStore();
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
+
+  const totalUnread = Object.values(unreadCounts || {}).reduce((a, b) => a + b, 0);
+  const favorites = [
+    { id: 1, car: "Toyota Camry" },
+    { id: 2, car: "Honda Civic" },
+  ];
+
+  useEffect(() => {
+    if (!user?._id || user.role === "renter") return;
+    initializeSocket(user._id);
+    return () => disconnectSocket();
+  }, [user?._id, user?.role, initializeSocket, disconnectSocket]);
+
   if (!user || user.role === "renter") return null;
+
+  const handleLogout = () => logout();
 
   return (
     <nav className="bg-white/80 backdrop-blur-md w-full fixed top-0 left-0 px-6 py-4 z-50 border-b border-slate-100 shadow-sm">
@@ -34,6 +55,26 @@ const UserNav = () => {
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-3">
+          <Link
+            to="/cars"
+            className="px-3 py-2 text-sm rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50"
+          >
+            Cars
+          </Link>
+          <Link
+            to="/my-rentals"
+            className="px-3 py-2 text-sm rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center gap-1.5"
+          >
+            <CarFront size={14} />
+            My Rentals
+          </Link>
+          <Link
+            to="/chat"
+            className="px-3 py-2 text-sm rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center gap-1.5"
+          >
+            <MessageSquare size={14} />
+            Chat
+          </Link>
 
           {/* Search */}
           <div className="relative w-[260px]">
@@ -55,64 +96,96 @@ const UserNav = () => {
             )}
           </div>
 
-          {/* Favorites */}
-          <button className="relative w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition">
-            <Heart size={17} />
-            <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">
-              2
-            </span>
-          </button>
+          {/* Favorites Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="relative w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition">
+                <Heart size={17} />
+                {favorites.length > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">
+                    {favorites.length > 99 ? "99+" : favorites.length}
+                  </span>
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-64 rounded-2xl shadow-xl border p-0 overflow-hidden" align="end">
+              <div className="flex justify-between px-4 py-3 border-b">
+                <p className="text-sm font-semibold">Favorites</p>
+              </div>
+              <div className="max-h-80 overflow-y-auto">
+                {favorites.length === 0 ? (
+                  <p className="text-center text-xs text-gray-400 py-6">No favorites yet</p>
+                ) : (
+                  favorites.map(f => (
+                    <DropdownMenuItem key={f.id} className="px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                      {f.car}
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-          {/* Notifications */}
-          <button className="relative w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition">
-            <Bell size={17} />
-            <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">
-              5
-            </span>
-          </button>
+          {/* Notifications Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="relative w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition">
+                <Bell size={17} />
+                {totalUnread > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">
+                    {totalUnread > 99 ? "99+" : totalUnread}
+                  </span>
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-80 rounded-2xl shadow-xl border p-0 overflow-hidden" align="end">
+              <div className="flex justify-between px-4 py-3 border-b">
+                <p className="text-sm font-semibold">Notifications</p>
+                <button onClick={clearNotifications} className="text-xs text-blue-500">Clear</button>
+              </div>
+              <div className="max-h-80 overflow-y-auto">
+                {notifications.length === 0 ? (
+                  <p className="text-center text-xs text-gray-400 py-6">No notifications</p>
+                ) : (
+                  notifications.map(n => (
+                    <div
+                      key={n.id}
+                      className="px-4 py-3 border-b hover:bg-gray-50 cursor-pointer"
+                      onClick={() => navigate("/chat", { state: { adminId: n.userId } })}
+                    >
+                      <p className="text-sm font-medium">{n.text}</p>
+                      <p className="text-xs text-gray-400 truncate">{n.message}</p>
+                      <p className="text-[10px] text-gray-300 mt-1">{new Date(n.time).toLocaleTimeString()}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="w-9 h-9 flex items-center justify-center rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 hover:bg-indigo-100 transition cursor-pointer">
-                <span className="text-sm font-bold">
-                  {user?.name?.charAt(0).toUpperCase() || "?"}
-                </span>
+                <span className="text-sm font-bold">{user?.name?.charAt(0).toUpperCase() || "?"}</span>
               </button>
             </DropdownMenuTrigger>
-
-            <DropdownMenuContent
-              className="w-60 rounded-2xl shadow-xl border border-slate-100 p-0 overflow-hidden"
-              align="end"
-            >
-              {/* User info */}
+            <DropdownMenuContent className="w-60 rounded-2xl shadow-xl border border-slate-100 p-0 overflow-hidden" align="end">
               <DropdownMenuLabel className="px-4 py-4 bg-slate-50 border-b border-slate-100">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                    <span className="text-indigo-600 font-bold text-sm">
-                      {user?.name?.charAt(0).toUpperCase() || "?"}
-                    </span>
+                    <span className="text-indigo-600 font-bold text-sm">{user?.name?.charAt(0).toUpperCase() || "?"}</span>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-slate-800 truncate">
-                      {user?.name || "User"}
-                    </p>
-                    <p className="text-xs text-slate-400 truncate">
-                      {user?.email || ""}
-                    </p>
-                    <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-semibold">
-                      Member
-                    </span>
+                    <p className="text-sm font-semibold text-slate-800 truncate">{user?.name || "User"}</p>
+                    <p className="text-xs text-slate-400 truncate">{user?.email || ""}</p>
+                    <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-semibold">Member</span>
                   </div>
                 </div>
               </DropdownMenuLabel>
 
-              {/* Settings */}
               <DropdownMenuGroup className="p-1.5">
-                <DropdownMenuItem
-                  onClick={() => navigate("/settings")}
-                  className="cursor-pointer rounded-xl px-3 py-2.5 gap-2.5 focus:bg-slate-50"
-                >
+                <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer rounded-xl px-3 py-2.5 gap-2.5 focus:bg-slate-50">
                   <Settings size={15} className="text-slate-400" />
                   <span className="text-sm text-slate-600">Settings</span>
                 </DropdownMenuItem>
@@ -120,12 +193,8 @@ const UserNav = () => {
 
               <DropdownMenuSeparator className="mx-1.5" />
 
-              {/* Logout */}
               <div className="p-1.5">
-                <DropdownMenuItem
-                  onClick={handleLogout}
-                  className="cursor-pointer rounded-xl px-3 py-2.5 gap-2.5 text-red-500 focus:text-red-600 focus:bg-red-50"
-                >
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer rounded-xl px-3 py-2.5 gap-2.5 text-red-500 focus:text-red-600 focus:bg-red-50">
                   <LogOut size={15} />
                   <span className="text-sm font-medium">Log out</span>
                 </DropdownMenuItem>
@@ -146,7 +215,6 @@ const UserNav = () => {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-slate-100 shadow-lg px-5 py-4 flex flex-col gap-3">
-
           {/* Search */}
           <div className="relative">
             <input
@@ -158,10 +226,7 @@ const UserNav = () => {
             />
             <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
-              >
+              <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                 <X size={13} />
               </button>
             )}
@@ -171,20 +236,18 @@ const UserNav = () => {
           <div className="flex items-center gap-2">
             <button className="relative flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition">
               <Heart size={16} /> Favorites
-              <span className="absolute top-1.5 right-3 w-4 h-4 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">2</span>
+              <span className="absolute top-1.5 right-3 w-4 h-4 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">{favorites.length}</span>
             </button>
             <button className="relative flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition">
               <Bell size={16} /> Alerts
-              <span className="absolute top-1.5 right-3 w-4 h-4 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">5</span>
+              <span className="absolute top-1.5 right-3 w-4 h-4 flex items-center justify-center text-[9px] font-bold bg-red-500 text-white rounded-full">{totalUnread > 99 ? "99+" : totalUnread}</span>
             </button>
           </div>
 
-          {/* User info strip */}
+          {/* User info */}
           <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-slate-50 border border-slate-100">
             <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
-              <span className="text-indigo-600 font-bold text-sm">
-                {user?.name?.charAt(0).toUpperCase() || "?"}
-              </span>
+              <span className="text-indigo-600 font-bold text-sm">{user?.name?.charAt(0).toUpperCase() || "?"}</span>
             </div>
             <div className="min-w-0">
               <p className="text-sm font-semibold text-slate-800 truncate">{user?.name || "User"}</p>
@@ -196,10 +259,7 @@ const UserNav = () => {
           <button onClick={() => navigate("/settings")} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition">
             <Settings size={16} /> Settings
           </button>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-50 border border-red-100 text-red-500 text-sm font-medium hover:bg-red-100 transition"
-          >
+          <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-50 border border-red-100 text-red-500 text-sm font-medium hover:bg-red-100 transition">
             <LogOut size={16} /> Log out
           </button>
         </div>

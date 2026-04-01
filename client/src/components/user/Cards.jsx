@@ -4,11 +4,21 @@ import { Fuel, Cog, Users, Heart } from "lucide-react";
 import { useCarStore } from "../../store/CarStore";
 import { useNavigate } from "react-router-dom";
 
-const Cards = ({ limit, filterFuel, filterTransmission, filterPrice }) => {
+const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect }) => {
   const navigate = useNavigate();
   const { cars = [], getCars, searchQuery } = useCarStore();
 
-  useEffect(() => { getCars(); }, []);
+  useEffect(() => { getCars(); }, [getCars]);
+
+  // When a card is clicked — use onSelect if provided (inline mode),
+  // otherwise navigate via router (standalone route mode)
+  const handleSelect = (car) => {
+    if (onSelect) {
+      onSelect(car);
+    } else {
+      navigate("/cars/" + car._id, { state: { car } });
+    }
+  };
 
   const filtered = cars.filter((car) => {
     const searchMatch = !searchQuery ||
@@ -29,9 +39,7 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice }) => {
       return true;
     })();
 
-    const available = car.isAvailable == true;
-
-    return searchMatch && fuelMatch && transMatch && priceMatch && available;
+    return searchMatch && fuelMatch && transMatch && priceMatch && car.isAvailable === true;
   });
 
   const displayCars = limit ? filtered.slice(0, limit) : filtered;
@@ -51,7 +59,7 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice }) => {
         <div
           key={car._id}
           className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:border-blue-200 hover:shadow-md transition-all group cursor-pointer"
-          onClick={() => navigate("/car" , {state : {car}})}
+          onClick={() => handleSelect(car)}
         >
           {/* Heart */}
           <div className="flex justify-end p-2.5 pb-0">
@@ -93,7 +101,7 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice }) => {
             </p>
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg transition-colors"
-              onClick={(e) => { e.stopPropagation(); navigate("/car", { state: { car } }); }}
+              onClick={(e) => { e.stopPropagation(); handleSelect(car); }}
             >
               Rent now
             </button>
