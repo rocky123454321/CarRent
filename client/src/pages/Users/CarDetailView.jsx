@@ -11,41 +11,44 @@ import { useAuthStore } from '../../store/authStore.js';
 import { useRatingStore } from '../../store/RatingStore';
 import { format } from 'date-fns';
 
-
-
 const CarDetailView = ({ car: carProp, onBack }) => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  // Accept car from prop (inline usage in Category) OR from router state (direct URL nav)
   const car = carProp || state?.car;
   const { user, isAuthenticated } = useAuthStore();
-  const ratingStore = useRatingStore();
 
-  const ratingStore = useRatingStore();
-  const ratings = ratingStore.ratings;
-  const averageRating = ratingStore.averageRating;
-  const loading = ratingStore.isLoading;
-  const submittingReview = ratingStore.submitting;
-  const [showReviewForm, setShowReviewForm] = useState(false);
+  // ✅ Single declaration langEEEEEEEEEEEEEEEEE    
+  const ratings          = useRatingStore((s) => s.ratings);
+  const averageRating    = useRatingStore((s) => s.averageRating);
+  const loading          = useRatingStore((s) => s.isLoading);
+  const submittingReview = useRatingStore((s) => s.submitting);
+  const fetchRatings     = useRatingStore((s) => s.fetchRatings);
+  const submitReviewFn   = useRatingStore((s) => s.submitReview);
+
+  const [showReviewForm, setShowReviewForm]   = useState(false);
   const [showBookingForm, setShowBookingForm] = useState(false);
-  const [reviewRating, setReviewRating] = useState(0);
-  const [reviewText, setReviewText] = useState('');
+  const [reviewRating, setReviewRating]       = useState(0);
+  const [reviewText, setReviewText]           = useState('');
 
- const fetchRatings = useCallback(() => {
-  ratingStore.fetchRatings(car._id);
-}, [car?._id, ratingStore]);
-
+  // ✅ Stable reference — hindi mag-re-render infinitely
   useEffect(() => {
-    if (car?._id) fetchRatings();
-  }, [car?._id, fetchRatings]);
+    if (car?._id) fetchRatings(car._id);
+  }, [car?._id]);
 
- const submitReview = async (e) => {
+  const reset = useRatingStore((s) => s.reset);
+
+useEffect(() => {
+  if (car?._id) fetchRatings(car._id);
+  return () => reset(); // ✅ i-clear ang ratings kapag nag-leave ng page
+}, [car?._id]);
+
+  const submitReview = async (e) => {
     e.preventDefault();
     if (!isAuthenticated || !user || reviewRating === 0) {
       toast.error('Please login and select a rating');
       return;
     }
-    const success = await ratingStore.submitReview(car._id, reviewRating, reviewText);
+    const success = await submitReviewFn(car._id, reviewRating, reviewText);
     if (success) {
       setReviewRating(0);
       setReviewText('');
@@ -59,24 +62,12 @@ const CarDetailView = ({ car: carProp, onBack }) => {
     navigate('/my-rentals');
   };
 
-  // Navigate to chat with the admin who posted this car
   const handleChatWithAdmin = () => {
-    if (!isAuthenticated) {
-      toast.error('Please login to chat');
-      return;
-    }
+    if (!isAuthenticated) { toast.error('Please login to chat'); return; }
     const adminId = car?.uploadedBy;
-    if (!adminId) {
-      toast.error('Could not find the car owner');
-      return;
-    }
+    if (!adminId) { toast.error('Could not find the car owner'); return; }
     navigate('/chat', {
-      state: {
-        adminId,
-        context: 'car',
-        carId: car._id,
-        carName: `${car.brand} ${car.model}`,
-      }
+      state: { adminId, context: 'car', carId: car._id, carName: `${car.brand} ${car.model}` }
     });
   };
 
@@ -115,23 +106,12 @@ const CarDetailView = ({ car: carProp, onBack }) => {
           {/* Left: Images */}
           <div className="lg:w-[55%] p-5 space-y-3">
             <div className="bg-gray-50 rounded-2xl flex items-center justify-center h-56 overflow-hidden">
-              <img
-                src={mainImage}
-                alt={`${car.brand} ${car.model}`}
-                className="h-full object-contain"
-              />
+              <img src={mainImage} alt={`${car.brand} ${car.model}`} className="h-full object-contain" />
             </div>
             <div className="grid grid-cols-3 gap-3">
               {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="bg-gray-50 rounded-xl flex items-center justify-center h-20 overflow-hidden border-2 border-transparent hover:border-blue-400 cursor-pointer transition-all"
-                >
-                  <img
-                    src={mainImage}
-                    alt={`view ${i}`}
-                    className="h-full object-contain opacity-80 hover:opacity-100 transition-opacity"
-                  />
+                <div key={i} className="bg-gray-50 rounded-xl flex items-center justify-center h-20 overflow-hidden border-2 border-transparent hover:border-blue-400 cursor-pointer transition-all">
+                  <img src={mainImage} alt={`view ${i}`} className="h-full object-contain opacity-80 hover:opacity-100 transition-opacity" />
                 </div>
               ))}
             </div>
@@ -140,7 +120,6 @@ const CarDetailView = ({ car: carProp, onBack }) => {
           {/* Right: Info */}
           <div className="lg:w-[45%] p-6 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-gray-100">
             <div>
-              {/* Title + availability badge */}
               <div className="flex items-start justify-between gap-2 mb-1">
                 <h2 className="text-2xl font-bold text-gray-900">{car.brand} {car.model}</h2>
                 <span className={`text-xs font-medium px-2 py-1 rounded-full shrink-0 ${
@@ -150,20 +129,11 @@ const CarDetailView = ({ car: carProp, onBack }) => {
                 </span>
               </div>
 
-              {/* Star rating */}
               <div className="flex items-center gap-1 mb-4">
                 {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={13}
-                    className={i < Math.floor(averageRating)
-                      ? "text-yellow-400 fill-yellow-400"
-                      : "text-gray-200 fill-gray-200"}
-                  />
+                  <Star key={i} size={13} className={i < Math.floor(averageRating) ? "text-yellow-400 fill-yellow-400" : "text-gray-200 fill-gray-200"} />
                 ))}
-                <span className="text-xs text-gray-400 ml-1">
-                  {averageRating} ({ratings.length} reviews)
-                </span>
+                <span className="text-xs text-gray-400 ml-1">{averageRating} ({ratings.length} reviews)</span>
               </div>
 
               <p className="text-sm text-gray-500 leading-relaxed mb-5">
@@ -172,7 +142,6 @@ const CarDetailView = ({ car: carProp, onBack }) => {
                 drives and long road trips, offering a smooth and enjoyable ride.
               </p>
 
-              {/* Specs grid */}
               <div className="grid grid-cols-2 gap-3 mb-5">
                 {[
                   { icon: Fuel,     label: "Fuel Type",    value: car.fuelType },
@@ -184,37 +153,30 @@ const CarDetailView = ({ car: carProp, onBack }) => {
                 ].map((item) => {
                   const ItemIcon = item.icon;
                   return (
-                  <div key={item.label} className="bg-gray-50 rounded-xl px-3 py-2.5">
-                    <p className="text-xs text-gray-400 mb-0.5 flex items-center gap-1">
-                      <ItemIcon size={11} /> {item.label}
-                    </p>
-                    <p className="text-sm font-medium text-gray-800">{item.value}</p>
-                  </div>
-                )})}
+                    <div key={item.label} className="bg-gray-50 rounded-xl px-3 py-2.5">
+                      <p className="text-xs text-gray-400 mb-0.5 flex items-center gap-1">
+                        <ItemIcon size={11} /> {item.label}
+                      </p>
+                      <p className="text-sm font-medium text-gray-800">{item.value}</p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Price + actions */}
             <div className="border-t border-gray-100 pt-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">
-                    ₱{car.pricePerDay?.toLocaleString()}
-                  </p>
+                  <p className="text-2xl font-bold text-gray-900">₱{car.pricePerDay?.toLocaleString()}</p>
                   <p className="text-xs text-gray-400">per day</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {/* Chat with admin who posted the car */}
                   <button
                     onClick={handleChatWithAdmin}
-                    title="Chat with car owner"
                     className="flex items-center gap-1.5 border border-blue-200 text-blue-600 hover:bg-blue-50 text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
                   >
-                    <MessageSquare size={15} />
-                    Chat
+                    <MessageSquare size={15} /> Chat
                   </button>
-
-                  {/* Book Now */}
                   <button
                     onClick={() => {
                       if (!isAuthenticated) { toast.error('Please login to book'); return; }
@@ -237,17 +199,12 @@ const CarDetailView = ({ car: carProp, onBack }) => {
       {showBookingForm && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg relative">
-            <button
-              onClick={() => setShowBookingForm(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors"
-            >
+            <button onClick={() => setShowBookingForm(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors">
               <X size={20} />
             </button>
             <div className="p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-1">Book this Car</h3>
-              <p className="text-sm text-gray-400 mb-4">
-                {car.brand} {car.model} · ₱{car.pricePerDay?.toLocaleString()}/day
-              </p>
+              <p className="text-sm text-gray-400 mb-4">{car.brand} {car.model} · ₱{car.pricePerDay?.toLocaleString()}/day</p>
               <BookingForm car={car} onSuccess={handleRentalSuccess} />
             </div>
           </div>
@@ -281,12 +238,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
               <div className="flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button key={star} type="button" onClick={() => setReviewRating(star)}>
-                    <Star
-                      size={24}
-                      className={reviewRating >= star
-                        ? "text-yellow-400 fill-yellow-400"
-                        : "text-gray-300 hover:text-yellow-300 transition-colors"}
-                    />
+                    <Star size={24} className={reviewRating >= star ? "text-yellow-400 fill-yellow-400" : "text-gray-300 hover:text-yellow-300 transition-colors"} />
                   </button>
                 ))}
               </div>
@@ -322,9 +274,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
           {loading ? (
             <p className="text-sm text-gray-400 text-center py-6">Loading reviews...</p>
           ) : ratings.length === 0 ? (
-            <p className="text-gray-500 text-center py-8 text-sm">
-              No reviews yet. Be the first to review!
-            </p>
+            <p className="text-gray-500 text-center py-8 text-sm">No reviews yet. Be the first to review!</p>
           ) : (
             ratings.slice(0, 3).map((review) => (
               <div key={review._id} className="flex gap-4 pb-4 border-b border-gray-50 last:border-0 last:pb-0">
@@ -335,27 +285,15 @@ const CarDetailView = ({ car: carProp, onBack }) => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <p className="text-sm font-semibold text-gray-900 truncate">
-                      {review.user?.name || 'Anonymous'}
-                    </p>
-                    <span className="text-xs text-gray-400 shrink-0">
-                      {format(new Date(review.createdAt), 'MMM dd, yyyy')}
-                    </span>
+                    <p className="text-sm font-semibold text-gray-900 truncate">{review.user?.name || 'Anonymous'}</p>
+                    <span className="text-xs text-gray-400 shrink-0">{format(new Date(review.createdAt), 'MMM dd, yyyy')}</span>
                   </div>
                   <div className="flex items-center gap-0.5 mb-1.5">
                     {[...Array(5)].map((_, j) => (
-                      <Star
-                        key={j}
-                        size={13}
-                        className={j < review.rating
-                          ? "text-yellow-400 fill-yellow-400"
-                          : "text-gray-200 fill-gray-200"}
-                      />
+                      <Star key={j} size={13} className={j < review.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-200 fill-gray-200"} />
                     ))}
                   </div>
-                  {review.review && (
-                    <p className="text-sm text-gray-600 leading-relaxed">{review.review}</p>
-                  )}
+                  {review.review && <p className="text-sm text-gray-600 leading-relaxed">{review.review}</p>}
                 </div>
               </div>
             ))

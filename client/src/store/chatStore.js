@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { io } from 'socket.io-client';
 
-const API_URL = import.meta.env.MODE === 'development' ? 'https://car-rent-nine-murex.vercel.app/' : '';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export const useChatStore = create((set, get) => ({
   socket: null,

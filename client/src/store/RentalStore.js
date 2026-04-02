@@ -2,9 +2,8 @@ import { create } from "zustand";
 import axios from "axios";
 import { toast } from "sonner";
 
-const API_URL = import.meta.env.MODE === "development" 
-  ? "https://car-rent-nine-murex.vercel.app/api/users" 
-  : "/api/users";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 
 axios.defaults.withCredentials = true;
 
