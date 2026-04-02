@@ -124,6 +124,7 @@ function App() {
 
         {/* ❌ 404 */}
         <Route path="*" element={<Navigate to="/landing" replace />} />
+        <Route path="/" element={<Navigate to="/landing" replace />} />
       </Routes>
     </>
   );
