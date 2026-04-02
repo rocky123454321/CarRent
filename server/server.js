@@ -18,8 +18,8 @@ const app = express();
 const httpServer = createServer(app);
 
 const allowedOrigins = [
-  process.env.CLIENT_URL,
-  'http://localhost:5173',
+  "https://car-rent-a89s.vercel.app",
+  "http://localhost:5173",
 ].filter(Boolean);
 
 const io = new Server(httpServer, {
