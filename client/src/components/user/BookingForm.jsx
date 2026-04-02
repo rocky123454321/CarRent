@@ -25,7 +25,7 @@ const schema = yup.object({
   address:         yup.string().required('Address required'),
 });
 
-const API_URL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "";
+const API_URL = import.meta.env.MODE === "development" ? "https://car-rent-nine-murex.vercel.app/" : "";
 
 const BookingForm = ({ car, onSuccess }) => {
   const { user, isAuthenticated } = useAuthStore();

@@ -8,7 +8,7 @@ export default defineConfig({
  
   server: {
     proxy: {
-      "/api": "http://localhost:5000",
+      "/api": "https://car-rent-nine-murex.vercel.app/",
     },
   },  plugins: [react()],
   resolve: {

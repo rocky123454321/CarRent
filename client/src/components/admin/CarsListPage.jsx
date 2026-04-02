@@ -3,7 +3,7 @@ import { AdminCards } from './AdminCards'
 import { Skeleton } from '@/components/ui/skeleton'
 import axios from 'axios'
 
-const API_URL = import.meta.env.MODE === 'development' ? 'http://localhost:5000' : ''
+const API_URL = import.meta.env.MODE === 'development' ? 'https://car-rent-nine-murex.vercel.app/' : ''
 
 const CarsListPage = () => {
   const [cars, setCars] = useState([])

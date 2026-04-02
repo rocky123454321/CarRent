@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { useAuthStore } from '../../store/authStore.js';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "";
+const API_URL = import.meta.env.MODE === "development" ? "https://car-rent-nine-murex.vercel.app/" : "";
 
 const CarDetailView = ({ car: carProp, onBack }) => {
   const { state } = useLocation();

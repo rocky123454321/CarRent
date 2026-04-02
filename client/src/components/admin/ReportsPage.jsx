@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartContainer, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const API_URL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "";
+const API_URL = import.meta.env.MODE === "development" ? "https://car-rent-nine-murex.vercel.app/" : "";
 
 const pieChartConfig = {
   pending:   { label: "Pending",   color: "var(--chart-1)" },

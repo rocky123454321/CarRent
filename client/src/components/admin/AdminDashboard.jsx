@@ -8,7 +8,7 @@ import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartToo
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const API_URL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "";
+const API_URL = import.meta.env.MODE === "development" ? "https://car-rent-nine-murex.vercel.app/" : "";
 
 const chartConfig = {
   revenue:  { label: "Revenue",  color: "var(--chart-1)" },

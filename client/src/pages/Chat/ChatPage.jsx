@@ -6,7 +6,7 @@ import { Send, Wifi, WifiOff, UserCircle, ShieldCheck, Car, ArrowLeft } from 'lu
 import axios from 'axios';
 import { toast } from 'sonner';
 
-const API_URL = import.meta.env.MODE === 'development' ? 'http://localhost:5000' : '';
+const API_URL = import.meta.env.MODE === 'development' ? 'https://car-rent-nine-murex.vercel.app/' : '';
 
 const ChatPage = () => {
   const { user } = useAuthStore();

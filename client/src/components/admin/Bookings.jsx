@@ -6,7 +6,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const API_URL = import.meta.env.MODE === 'development' ? 'http://localhost:5000' : '';
+const API_URL = import.meta.env.MODE === 'development' ? 'https://car-rent-nine-murex.vercel.app/' : '';
 
 const BADGE_CLASS = {
   pending:   "bg-amber-50 text-amber-700 border border-amber-100",

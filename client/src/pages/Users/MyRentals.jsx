@@ -4,7 +4,7 @@ import { MessageSquare, Calendar, CarFront, BadgeCheck, ArrowLeft } from 'lucide
 import axios from 'axios';
 import { toast } from 'sonner';
 
-const API_URL = import.meta.env.MODE === 'development' ? 'http://localhost:5000' : '';
+const API_URL = import.meta.env.MODE === 'development' ? 'https://car-rent-nine-murex.vercel.app/' : '';
 
 const statusStyles = {
   pending:   { bg: 'bg-yellow-100', text: 'text-yellow-800' },
