@@ -19,7 +19,7 @@ const httpServer = createServer(app);
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
-  'http://localhost:5173',
+  'https://car-rent-4bgz.vercel.app/',
   'http://localhost:5174',
 ].filter(Boolean);
 
