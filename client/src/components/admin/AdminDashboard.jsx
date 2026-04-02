@@ -8,8 +8,6 @@ import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartToo
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
-
-
 const chartConfig = {
   revenue:  { label: "Revenue",  color: "var(--chart-1)" },
   bookings: { label: "Bookings", color: "var(--chart-2)" },
@@ -17,14 +15,14 @@ const chartConfig = {
 
 const AdminDashboard = () => {
   const { user } = useAuthStore();
-  const rentalStore = useRentalStore();
-  const rentals = rentalStore.adminRentals;
-  const loading = rentalStore.isLoading;
+  const rentals  = useRentalStore((s) => s.adminRentals);
+  const loading  = useRentalStore((s) => s.isLoading);
+  const fetchAdminRentals = useRentalStore((s) => s.fetchAdminRentals); // ✅ stable reference
   const [timeRange, setTimeRange] = useState("90d");
 
   useEffect(() => {
-    rentalStore.fetchAdminRentals();
-  }, [rentalStore]);
+    fetchAdminRentals(); // ✅ called once lang
+  }, []); // ✅ empty dependency — no more infinite loop
 
   const stats = useMemo(() => {
     const customers      = new Set(rentals.map((r) => r.user?._id).filter(Boolean)).size;
@@ -61,7 +59,7 @@ const AdminDashboard = () => {
   }, [chartData, timeRange]);
 
   return (
-    <div className="space-y-8   max-w-7xl" style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}>
+    <div className="space-y-8 max-w-7xl" style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}>
 
       {/* Header */}
       <div>
@@ -80,10 +78,10 @@ const AdminDashboard = () => {
                 <Skeleton className="h-7 w-28 rounded-full" />
               </div>
             ))
-            : stats.map(({ title, value, icon, color, bg, border }, i) => (
+          : stats.map(({ title, value, icon: Icon, color, bg, border }, i) => (
               <div key={i} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 hover:shadow-md hover:border-slate-200 transition-all duration-200">
                 <div className={`w-11 h-11 flex items-center justify-center rounded-xl mb-4 ${bg} border ${border}`}>
-                  <UsersRound size={20} className={color} />
+                  <Icon size={20} className={color} /> {/* ✅ dynamic icon na */}
                 </div>
                 <h3 className="text-sm font-semibold text-slate-400 mb-1">{title}</h3>
                 <div className="text-2xl font-black text-slate-900">{value}</div>
@@ -161,7 +159,6 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
       )}
-
     </div>
   );
 };

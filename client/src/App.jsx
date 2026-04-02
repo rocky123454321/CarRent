@@ -53,12 +53,13 @@ const AuthenticatedRoute = ({ children }) => {
 
 // 🔐 Admin Only
 const AdminRoute = ({ children }) => {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, isCheckingAuth } = useAuthStore();
+  
+  if (isCheckingAuth) return <LoadingSpinner />; // ✅ hintayin muna
   if (!isAuthenticated) return <Navigate to="/landing" replace />;
   if (!(user?.role === "admin" || user?.role === "renter")) return <Navigate to="/" replace />;
   return children;
 };
-
 // 🔓 Public Pages (login/signup)
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
