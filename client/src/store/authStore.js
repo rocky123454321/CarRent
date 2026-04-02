@@ -114,7 +114,7 @@ export const useAuthStore = create((set) => ({
       throw error;
     }
   },
-
+//
   deleteAccount: async () => {
     set({ isLoading: true, error: null });
     try {
