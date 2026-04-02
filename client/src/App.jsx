@@ -110,7 +110,7 @@ function App() {
 
         </Route>
 
-        {/* 🛠 ADMIN DASHBOARD */}
+        {/* 🛠 ADMIN DASHBOARD */}    
         <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>}>
           <Route index element={<AdminDashboard />} />
           <Route path="chat" element={<AdminChatPage />} />

@@ -101,61 +101,6 @@ const SectionHeader = ({ eyebrow, title, highlight, sub, center = true }) => (
   </div>
 );
 
-/* ─── STATS ─── */
-const StatsSection = () => {
-  const ref = useRef(null);
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.querySelectorAll(".stat-card").forEach((el, i) => {
-              setTimeout(() => {
-                el.style.opacity = "1";
-                el.style.transform = "translateY(0)";
-              }, i * 90);
-            });
-          }
-        });
-      },
-      { threshold: 0.2 }
-    );
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
-
-  return (
-    <section className="py-16 px-6 lg:px-16 bg-white border-y border-slate-100">
-      <div ref={ref} className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-5">
-        {stats.map(({ icon: Icon, value, label, color, bg }) => (
-          <div
-            key={label}
-            className="stat-card flex flex-col items-center text-center p-7 rounded-2xl border border-slate-100 bg-white transition-all duration-300 hover:shadow-md hover:border-slate-200"
-            style={{
-              opacity: 0,
-              transform: "translateY(16px)",
-              transition: "opacity 0.5s ease, transform 0.5s ease, box-shadow 0.2s",
-            }}
-          >
-            <div
-              className="w-12 h-12 flex items-center justify-center rounded-xl mb-4"
-              style={{ background: bg, color }}
-            >
-              <Icon size={22} />
-            </div>
-            <div
-              className="text-3xl font-black text-slate-900 mb-1"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-            >
-              {value}
-            </div>
-            <div className="text-slate-400 text-sm">{label}</div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-};
 
 /* ─── FEATURES ─── */
 const FeaturesSection = () => {
@@ -389,7 +334,7 @@ const LandingPage = () => {
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}>
       <Nav />
       <Hero />
-      <StatsSection />
+     
       <HowItWorks />
       <FeaturesSection />
       <FeaturedCarsSection/>
