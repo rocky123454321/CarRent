@@ -44,6 +44,7 @@ const ForgotPasswordPage = () => {
                 <div className="relative">
                   <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
+                  maxLength={36}
                     type="email"
                     placeholder="you@example.com"
                     value={email}

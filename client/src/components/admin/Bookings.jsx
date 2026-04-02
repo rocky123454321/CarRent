@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from './../../store/authStore.js';
-import { Button } from './../ui/button';
-import { MessageSquare, Calendar, CarFront, DollarSign, BadgeCheck } from 'lucide-react';
+import { MessageSquare, Calendar, CarFront, BadgeCheck, ChevronDown } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { Badge } from './../ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const API_URL = import.meta.env.MODE === 'development' ? 'http://localhost:5000' : '';
+
 const BADGE_CLASS = {
-  pending: "bg-yellow-100 text-yellow-800",
-  confirmed: "bg-blue-100 text-blue-800",
-  completed: "bg-green-100 text-green-800",
-  cancelled: "bg-red-100 text-red-800",
+  pending:   "bg-amber-50 text-amber-700 border border-amber-100",
+  confirmed: "bg-blue-50 text-blue-700 border border-blue-100",
+  completed: "bg-emerald-50 text-emerald-700 border border-emerald-100",
+  cancelled: "bg-red-50 text-red-700 border border-red-100",
 };
 
 const Bookings = () => {
@@ -23,15 +23,13 @@ const Bookings = () => {
   const [updatingStatus, setUpdatingStatus] = useState({});
 
   useEffect(() => {
-    if (user?.role === 'admin' || user?.role === 'renter') {
-      fetchRentals();
-    }
+    if (user?.role === 'admin' || user?.role === 'renter') fetchRentals();
   }, [user]);
 
   const fetchRentals = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/users/admin/rentals`, { withCredentials: true });
-      setRentals(response.data.data || []);
+      const res = await axios.get(`${API_URL}/api/users/admin/rentals`, { withCredentials: true });
+      setRentals(res.data.data || []);
     } catch {
       toast.error('Failed to load bookings');
     } finally {
@@ -44,7 +42,7 @@ const Bookings = () => {
     try {
       await axios.patch(`${API_URL}/api/users/${rentalId}/status`, { status }, { withCredentials: true });
       toast.success('Status updated');
-      fetchRentals(); // Refresh list
+      fetchRentals();
     } catch {
       toast.error('Failed to update status');
     } finally {
@@ -52,105 +50,218 @@ const Bookings = () => {
     }
   };
 
-  const formatDate = (date) => new Date(date).toLocaleDateString();
-
-  if (loading) return <div className="flex items-center justify-center h-64 text-gray-500">Loading bookings...</div>;
+  const formatDate = (date) => new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold text-gray-900">Bookings</h2>
-          <p className="text-gray-500">{rentals.length} total rentals</p>
-        </div>
+    <div className="max-w-7xl  space-y-6" style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}>
+
+      {/* Header */}
+      <div className="space-y-1">
+        <p className="text-indigo-600 font-semibold text-sm tracking-widest uppercase">Management</p>
+        <h1 className="text-3xl font-black text-slate-900">Bookings</h1>
+        {!loading && <p className="text-slate-500">{rentals.length} total rental{rentals.length !== 1 ? "s" : ""}</p>}
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rental ID</th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Car</th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Renter</th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dates</th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {rentals.map((rental) => (
-              <tr key={rental._id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  #{rental._id.slice(-6)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <CarFront className="w-5 h-5 text-gray-400 mr-2" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{rental.car?.brand} {rental.car?.model}</div>
-                      <div className="text-xs text-gray-500">{rental.car?.licensePlate}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">{rental.user?.name}</div>
-                    <div className="text-xs text-gray-500">{rental.user?.email}</div>
-                    <div className="text-xs text-gray-400">{rental.personalDetails.phone}</div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <div className="flex items-center">
-                    <Calendar className="w-4 h-4 mr-1" />
-                    {formatDate(rental.rentalStartDate)} - {formatDate(rental.rentalEndDate)}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge className={`${BADGE_CLASS[rental.status] || "bg-gray-100 text-gray-700"} px-3 py-1 rounded-full text-xs font-medium`}>
-                    {rental.status.toUpperCase()}
-                  </Badge>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900">
-                  <DollarSign className="inline w-4 h-4 mr-1" />
-                  ₱{rental.totalPrice?.toLocaleString()}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={() => navigate('/admin/chat', { state: { userId: rental.user._id, renterName: rental.user?.name } })}
-                    className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                  >
-                    <MessageSquare className="w-4 h-4 mr-1" />
-                    Chat
-                  </Button>
-                  <select
-                    value={rental.status}
-                    disabled={updatingStatus[rental._id]}
-                    onChange={(e) => updateRentalStatus(rental._id, e.target.value)}
-                    className="text-xs border border-gray-200 rounded-lg px-2 py-1.5"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </td>
-              </tr>
+      {/* ── DESKTOP TABLE (md+) ── */}
+      <div className="hidden md:block bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 w-380">
+        {loading ? (
+          <div className="p-6 space-y-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4">
+                <Skeleton className="w-6 h-6 rounded-full" />
+                <Skeleton className="h-4 w-32 rounded-md" />
+                <Skeleton className="h-4 w-20 rounded-md" />
+              </div>
             ))}
-          </tbody>
-        </table>
-        {rentals.length === 0 && !loading && (
-          <div className="text-center py-12 text-gray-500">
-            <BadgeCheck className="w-12 h-12 mx-auto mb-4 opacity-25" />
-            <p>No bookings yet</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/60">
+                  {["ID", "Car", "Renter", "Dates", "Status", "Total", "Actions"].map((h) => (
+                    <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {rentals.length === 0 ? (
+                  <tr>
+                    <td colSpan={7}>
+                      <div className="text-center py-16">
+                        <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto mb-4">
+                          <BadgeCheck size={24} className="text-slate-300" />
+                        </div>
+                        <p className="text-slate-400 text-sm font-medium">No bookings yet</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : rentals.map((rental) => (
+                  <tr key={rental._id} className="hover:bg-slate-50/60 transition-colors group">
+                    <td className="px-5 py-4 font-mono text-xs text-slate-400">#{rental._id.slice(-6)}</td>
+
+                    {/* Car */}
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
+                          <CarFront size={14} className="text-indigo-600" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-slate-800 text-sm">{rental.car?.brand} {rental.car?.model}</p>
+                          <p className="text-xs text-slate-400">{rental.car?.licensePlate}</p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Renter */}
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                          <span className="text-xs font-bold text-slate-500">{rental.user?.name?.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <div>
+                          <p className="font-medium text-slate-800 text-sm">{rental.user?.name}</p>
+                          <p className="text-xs text-slate-400">{rental.user?.email}</p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Dates */}
+                    <td className="px-5 py-4 flex w-50 items-center gap-1.5">
+                      <Calendar size={13} className="text-slate-400 shrink-0" />
+                      <span className="text-xs text-slate-600">{formatDate(rental.rentalStartDate)} — {formatDate(rental.rentalEndDate)}</span>
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-5 py-4">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${BADGE_CLASS[rental.status] || "bg-slate-50 text-slate-600 border border-slate-100"}`}>
+                        {rental.status}
+                      </span>
+                    </td>
+
+                    {/* Total */}
+                    <td className="px-5 py-4 font-bold text-slate-800">₱{rental.totalPrice?.toLocaleString()}</td>
+
+                    {/* Actions */}
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => navigate('/admin/chat', { state: { userId: rental.user._id, renterName: rental.user?.name } })}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-100 hover:bg-blue-100 transition"
+                        >
+                          <MessageSquare size={13} /> Chat
+                        </button>
+
+                        <div className="relative">
+                          <select
+                            value={rental.status}
+                            disabled={updatingStatus[rental._id]}
+                            onChange={(e) => updateRentalStatus(rental._id, e.target.value)}
+                            className="appearance-none pl-3 pr-7 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition cursor-pointer disabled:opacity-50"
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                          </select>
+                          <ChevronDown size={11} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
+
+      {/* ── MOBILE CARDS (< md) ── */}
+      <div className="md:hidden space-y-3">
+        {loading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
+              <Skeleton className="h-4 w-20 rounded-full" />
+              <Skeleton className="h-4 w-32 rounded-md" />
+              <Skeleton className="h-4 w-14 rounded-md" />
+            </div>
+          ))
+        ) : rentals.length === 0 ? (
+          <div className="text-center py-16 bg-white rounded-2xl border border-slate-100">
+            <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto mb-4">
+              <BadgeCheck size={24} className="text-slate-300" />
+            </div>
+            <p className="text-slate-400 text-sm font-medium">No bookings yet</p>
+          </div>
+        ) : rentals.map((rental) => (
+          <div key={rental._id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3 hover:shadow-md transition-all duration-200">
+            {/* Top row — ID + Status */}
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-xs text-slate-400">#{rental._id.slice(-6)}</span>
+              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${BADGE_CLASS[rental.status] || "bg-slate-50 text-slate-600 border border-slate-100"}`}>{rental.status}</span>
+            </div>
+
+            {/* Car */}
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
+                <CarFront size={16} className="text-indigo-600" />
+              </div>
+              <div>
+                <p className="font-bold text-slate-800 text-sm">{rental.car?.brand} {rental.car?.model}</p>
+                <p className="text-xs text-slate-400">{rental.car?.licensePlate}</p>
+              </div>
+            </div>
+
+            {/* Renter */}
+            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+              <div className="w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center shrink-0">
+                <span className="text-xs font-bold text-slate-500">{rental.user?.name?.charAt(0).toUpperCase()}</span>
+              </div>
+              <div className="min-w-0">
+                <p className="font-semibold text-slate-800 text-sm truncate">{rental.user?.name}</p>
+                <p className="text-xs text-slate-400 truncate">{rental.user?.email}</p>
+              </div>
+            </div>
+
+            {/* Dates + Total */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Calendar size={13} className="text-slate-400" />
+                <span className="text-xs text-slate-500">{formatDate(rental.rentalStartDate)} — {formatDate(rental.rentalEndDate)}</span>
+              </div>
+              <span className="font-black text-slate-900 text-sm">₱{rental.totalPrice?.toLocaleString()}</span>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => navigate('/admin/chat', { state: { userId: rental.user._id, renterName: rental.user?.name } })}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-100 hover:bg-blue-100 transition"
+              >
+                <MessageSquare size={13} /> Chat
+              </button>
+
+              <div className="relative flex-1">
+                <select
+                  value={rental.status}
+                  disabled={updatingStatus[rental._id]}
+                  onChange={(e) => updateRentalStatus(rental._id, e.target.value)}
+                  className="w-full appearance-none pl-3 pr-7 py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition cursor-pointer disabled:opacity-50"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+                <ChevronDown size={11} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
     </div>
   );
 };
 
 export default Bookings;
-

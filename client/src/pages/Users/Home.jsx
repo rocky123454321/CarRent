@@ -3,6 +3,14 @@ import Cards from "../../components/user/Cards";
 import Categorysidebar from "../../components/navigations/Categorysidebar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 
 const priceRanges = [
   { label: "Any price", value: "all" },
@@ -30,6 +38,17 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+       <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/">Home</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>Category</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
       <div className="w-full px-4 py-6">
         <div className="flex gap-4 items-start">
 

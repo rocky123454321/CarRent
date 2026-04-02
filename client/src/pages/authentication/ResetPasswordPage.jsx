@@ -51,6 +51,7 @@ const ResetPasswordPage = () => {
 
 				<form onSubmit={handleSubmit}>
 					<Input
+					maxLength={20}
 						icon={Lock}
 						type='password'
 						placeholder='New Password'
@@ -60,6 +61,7 @@ const ResetPasswordPage = () => {
 					/>
 
 					<Input
+					maxLength={20}
 						icon={Lock}
 						type='password'
 						placeholder='Confirm New Password'

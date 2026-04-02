@@ -23,6 +23,7 @@ import CarDetailView from "./pages/Users/CarDetailView";
 import ChatPage from "./pages/Chat/ChatPage";
 import AdminChatPage from './pages/admin/AdminChatPage';
 import MyRentals from "./pages/Users/MyRentals";
+import SettingsAdmin from "./pages/admin/SettingsAdmin";
 
 // 🌐 Public Layout — white/blue minimal
 const PublicLayout = () => (
@@ -96,8 +97,8 @@ function App() {
 
         {/* 👤 USER DASHBOARD */}
         <Route path="/" element={<AuthenticatedRoute><DashboardLayout /></AuthenticatedRoute>}>
-          <Route index element={<DashboardPage />} />
-<Route path="cars" element={<Category />} />
+          <Route index element={<Category /> } />
+<Route path="cars" element={<DashboardPage />} />
           {/* canonical car detail route */}
           <Route path="cars/:id" element={<CarDetailView />} />
           {/* legacy/backward-compatible route */}
@@ -116,6 +117,7 @@ function App() {
           <Route path="bookings" element={<Bookings />} />
           <Route path="add" element={<AddCar />} />
           <Route path="reports/daily" element={<ReportsPage type="daily" />} />
+          <Route path="settings" element={<SettingsAdmin/>} />
           <Route path="reports/monthly" element={<ReportsPage type="monthly" />} />
         </Route>
 

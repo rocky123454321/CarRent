@@ -48,6 +48,7 @@ const SignUpPage = () => {
             <div className="relative">
               <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
+              maxLength={20}
                 type="text"
                 placeholder="Juan dela Cruz"
                 value={name}
@@ -63,6 +64,7 @@ const SignUpPage = () => {
             <div className="relative">
               <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
+              maxLength={36}  
                 type="email"
                 placeholder="you@example.com"
                 value={email}
@@ -78,7 +80,8 @@ const SignUpPage = () => {
             <div className="relative">
               <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
-                type="password"
+              maxLength={20}
+                    type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
