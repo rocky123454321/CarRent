@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useChatStore } from '../../stores/chatStore.js';
+import { useChatStore } from '../../store/chatStore.js';
 import { useAuthStore } from '../../store/authStore.js';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Send, Wifi, WifiOff, UserCircle, ShieldCheck, Car, ArrowLeft } from 'lucide-react';

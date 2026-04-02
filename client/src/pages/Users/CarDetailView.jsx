@@ -6,12 +6,12 @@ import {
   Fuel, Cog, ArrowLeft, Star, MapPin,
   Shield, Calendar, MessageSquare, X
 } from "lucide-react";
-import axios from 'axios';
 import { toast } from 'sonner';
 import { useAuthStore } from '../../store/authStore.js';
+import { useRatingStore } from '../../store/RatingStore';
 import { format } from 'date-fns';
 
-const API_URL = import.meta.env.MODE === "development" ? "https://car-rent-nine-murex.vercel.app/" : "";
+
 
 const CarDetailView = ({ car: carProp, onBack }) => {
   const { state } = useLocation();
@@ -19,54 +19,37 @@ const CarDetailView = ({ car: carProp, onBack }) => {
   // Accept car from prop (inline usage in Category) OR from router state (direct URL nav)
   const car = carProp || state?.car;
   const { user, isAuthenticated } = useAuthStore();
+  const ratingStore = useRatingStore();
 
-  const [ratings, setRatings] = useState([]);
-  const [averageRating, setAverageRating] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [submittingReview, setSubmittingReview] = useState(false);
+  const ratingStore = useRatingStore();
+  const ratings = ratingStore.ratings;
+  const averageRating = ratingStore.averageRating;
+  const loading = ratingStore.isLoading;
+  const submittingReview = ratingStore.submitting;
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
 
- const fetchRatings = useCallback(async () => {
-  try {
-    const response = await axios.get(`${API_URL}/api/ratings/${car._id}`);
-    setRatings(response.data.data || []);
-    setAverageRating(Number(response.data.averageRating || 0).toFixed(1));
-  } catch {
-    toast.error('Failed to load reviews');
-  } finally {
-    setLoading(false);
-  }
-}, [car?._id]);
+ const fetchRatings = useCallback(() => {
+  ratingStore.fetchRatings(car._id);
+}, [car?._id, ratingStore]);
 
   useEffect(() => {
     if (car?._id) fetchRatings();
   }, [car?._id, fetchRatings]);
 
-  const submitReview = async (e) => {
+ const submitReview = async (e) => {
     e.preventDefault();
     if (!isAuthenticated || !user || reviewRating === 0) {
       toast.error('Please login and select a rating');
       return;
     }
-    setSubmittingReview(true);
-    try {
-    await axios.post(
-  `${API_URL}/api/ratings`,
-  { carId: car._id, rating: reviewRating, review: reviewText },
-  { withCredentials: true }
-);
-      toast.success('Review submitted!');
+    const success = await ratingStore.submitReview(car._id, reviewRating, reviewText);
+    if (success) {
       setReviewRating(0);
       setReviewText('');
       setShowReviewForm(false);
-      fetchRatings();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to submit review');
-    } finally {
-      setSubmittingReview(false);
     }
   };
 

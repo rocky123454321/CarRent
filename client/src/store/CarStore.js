@@ -106,5 +106,21 @@ export const useCarStore = create((set) => ({
     }
   },
 
+  getAdminCars: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const ADMIN_API = import.meta.env.MODE === "development" 
+        ? "https://car-rent-nine-murex.vercel.app/api/admin/cars" 
+        : "/api/admin/cars";
+      const res = await axios.get(ADMIN_API, { withCredentials: true });
+      set({ cars: res.data.data || res.data.cars || [], isLoading: false });
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || "Error fetching admin cars list",
+        isLoading: false,
+      });
+    }
+  },
+
 }));
 

@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { UsersRound, ShoppingBag, DollarSign, Calendar } from "lucide-react";
-import axios from "axios";
 import { useAuthStore } from "../../store/authStore";
+import { useRentalStore } from "../../store/RentalStore.js";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const API_URL = import.meta.env.MODE === "development" ? "https://car-rent-nine-murex.vercel.app/" : "";
+
 
 const chartConfig = {
   revenue:  { label: "Revenue",  color: "var(--chart-1)" },
@@ -17,20 +17,14 @@ const chartConfig = {
 
 const AdminDashboard = () => {
   const { user } = useAuthStore();
-  const [rentals, setRentals] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const rentalStore = useRentalStore();
+  const rentals = rentalStore.adminRentals;
+  const loading = rentalStore.isLoading;
   const [timeRange, setTimeRange] = useState("90d");
 
   useEffect(() => {
-    const run = async () => {
-      try {
-        const res = await axios.get(`${API_URL}/api/users/admin/rentals`, { withCredentials: true });
-        setRentals(res.data?.data || []);
-      } catch { setRentals([]); }
-      finally { setLoading(false); }
-    };
-    if (user?._id) run();
-  }, [user?._id]);
+    rentalStore.fetchAdminRentals();
+  }, [rentalStore]);
 
   const stats = useMemo(() => {
     const customers      = new Set(rentals.map((r) => r.user?._id).filter(Boolean)).size;
@@ -86,10 +80,10 @@ const AdminDashboard = () => {
                 <Skeleton className="h-7 w-28 rounded-full" />
               </div>
             ))
-          : stats.map(({ title, value, icon: Icon, color, bg, border }, i) => (
+            : stats.map(({ title, value, icon, color, bg, border }, i) => (
               <div key={i} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 hover:shadow-md hover:border-slate-200 transition-all duration-200">
                 <div className={`w-11 h-11 flex items-center justify-center rounded-xl mb-4 ${bg} border ${border}`}>
-                  <Icon size={20} className={color} />
+                  <UsersRound size={20} className={color} />
                 </div>
                 <h3 className="text-sm font-semibold text-slate-400 mb-1">{title}</h3>
                 <div className="text-2xl font-black text-slate-900">{value}</div>

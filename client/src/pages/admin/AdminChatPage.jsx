@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useChatStore } from "../../stores/chatStore.js";
+import { useChatStore } from "../../store/chatStore.js";
 import { useAuthStore } from "../../store/authStore.js";
 import { useLocation } from "react-router-dom";
 import { Send, Wifi, WifiOff, UserCircle, Menu, X } from "lucide-react";
@@ -16,8 +16,8 @@ const AdminChatPage = () => {
   const {
     initializeSocket,
     disconnectSocket,
-    sendPrivateMessage,
-    setActiveConversation,
+    sendPrivateMessage, 
+    setActiveConversation,                              
     setTyping,
     conversations,
     typingUsers,

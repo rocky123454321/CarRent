@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Calendar, CarFront, BadgeCheck, ArrowLeft } from 'lucide-react';
-import axios from 'axios';
-import { toast } from 'sonner';
 
-const API_URL = import.meta.env.MODE === 'development' ? 'https://car-rent-nine-murex.vercel.app/' : '';
+import { useRentalStore } from '../../store/RentalStore.js';
+
+
 
 const statusStyles = {
   pending:   { bg: 'bg-yellow-100', text: 'text-yellow-800' },
@@ -15,25 +15,13 @@ const statusStyles = {
 
 const MyRentals = () => {
   const navigate = useNavigate();
-  const [rentals, setRentals] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const rentalStore = useRentalStore();
+  const rentals = rentalStore.userRentals;
+  const loading = rentalStore.isLoading;
 
   useEffect(() => {
-    fetchRentals();
-  }, []);
-
-  const fetchRentals = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/users/my-rentals`, {
-        withCredentials: true,
-      });
-      setRentals(response.data.data || []);
-    } catch {
-      toast.error('Failed to load your rentals');
-    } finally {
-      setLoading(false);
-    }
-  };
+    rentalStore.fetchUserRentals();
+  }, [rentalStore]);
 
   const formatDate = (date) =>
     new Date(date).toLocaleDateString('en-PH', {
