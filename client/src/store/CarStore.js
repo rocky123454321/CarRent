@@ -5,7 +5,7 @@ import { toast } from "sonner"
 
 const API_URL =
   import.meta.env.MODE === "development"
-    ? "http://localhost:5000/api/cars"
+    ? "https://car-rent-nine-murex.vercel.app/api/cars"
     : "/api/cars";
 
 axios.defaults.withCredentials = true;
