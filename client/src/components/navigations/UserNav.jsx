@@ -3,7 +3,7 @@ import { Search, Bell, Settings, LogOut, Menu, X, MessageSquare, CarFront } from
 import brand from "../../assets/brand.png";
 import { useAuthStore } from "../../store/authStore";
 import { useCarStore } from "../../store/CarStore";
-import { useChatStore } from "../../stores/chatStore";
+import { useChatStore } from "../../store/chatStore";
 import { useNavigate, Link } from "react-router-dom";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuGroup,

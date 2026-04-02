@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Bell, Settings, LogOut, Menu, X, Search } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
-import { useChatStore } from "../../stores/chatStore";
+import { useChatStore } from "../../store/chatStore";
 import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuGroup,
