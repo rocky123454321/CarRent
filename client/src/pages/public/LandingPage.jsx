@@ -1,13 +1,16 @@
 import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../store/authStore"; // Siguraduhing tugma ang casing sa filename
+import { 
+  Car, Users, MapPin, Star, Quote, Shield, Zap, Clock, ChevronRight 
+} from "lucide-react";
+
+// Components
 import Hero from "../../components/public/hero.jsx";
-import Cards from "../../components/user/Cards.jsx";
-import FeaturedCarsSection from '../../components/public/FeaturedCarsSection.jsx'
 import HowItWorks from "../../components/public/HowItWorks.jsx";
+import FeaturedCarsSection from '../../components/public/FeaturedCarsSection.jsx';
 import Footer from "../../components/public/Footer.jsx";
 import Nav from "../../components/public/navigation.jsx";
-import { useAuthStore } from "../../store/authStore.js";
-import { Car, Users, MapPin, Star, Quote, Shield, Zap, Clock } from "lucide-react";
 
 /* ─── DATA ─── */
 const stats = [
@@ -82,25 +85,20 @@ const features = [
 const SectionHeader = ({ eyebrow, title, highlight, sub, center = true }) => (
   <div className={`mb-16 ${center ? "text-center" : ""}`}>
     {eyebrow && (
-      <p className="text-indigo-600 font-semibold text-sm tracking-widest uppercase mb-3">
+      <p className="text-indigo-600 font-bold text-[11px] tracking-[0.2em] uppercase mb-3">
         {eyebrow}
       </p>
     )}
-    <h2
-      className="text-4xl lg:text-5xl font-black text-slate-900 leading-tight"
-      style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}
-    >
-      {title}{" "}
-      {highlight && <span className="text-indigo-600">{highlight}</span>}
+    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 leading-[1.1] tracking-tight">
+      {title} {highlight && <span className="text-indigo-600">{highlight}</span>}
     </h2>
     {sub && (
-      <p className="mt-4 text-lg text-slate-500 max-w-xl mx-auto leading-relaxed">
+      <p className="mt-5 text-base md:text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
         {sub}
       </p>
     )}
   </div>
 );
-
 
 /* ─── FEATURES ─── */
 const FeaturesSection = () => {
@@ -119,40 +117,33 @@ const FeaturesSection = () => {
           }
         });
       },
-      { threshold: 0.15 }
+      { threshold: 0.1 }
     );
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, []);
 
   return (
-    <section className="py-28 px-6 lg:px-16 bg-white">
+    <section className="py-24 px-6 lg:px-16 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <SectionHeader
-          eyebrow="Why choose us"
-          title="Everything you need,"
-          highlight="nothing you don't."
-          sub="We stripped away the complexity so you can focus on the drive."
+          eyebrow="Core Benefits"
+          title="Drive with"
+          highlight="Confidence."
+          sub="Experience a premium rental service designed for the modern driver."
         />
-        <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map(({ icon: Icon, title, desc, color, bg }) => (
             <div
               key={title}
-              className="feat-card p-7 rounded-2xl border border-slate-100 bg-white transition-all duration-300 hover:shadow-md hover:border-slate-200"
-              style={{
-                opacity: 0,
-                transform: "translateY(16px)",
-                transition: "opacity 0.5s ease, transform 0.5s ease, box-shadow 0.2s",
-              }}
+              className="feat-card p-8 rounded-[2rem] border border-slate-100 bg-white hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-500"
+              style={{ opacity: 0, transform: "translateY(30px)" }}
             >
-              <div
-                className="w-11 h-11 flex items-center justify-center rounded-xl mb-5"
-                style={{ background: bg, color }}
-              >
-                <Icon size={20} />
+              <div className="w-12 h-12 flex items-center justify-center rounded-2xl mb-6 shadow-sm" style={{ background: bg, color }}>
+                <Icon size={22} />
               </div>
-              <h3 className="text-base font-bold text-slate-800 mb-2">{title}</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
+              <h3 className="text-lg font-bold text-slate-900 mb-3">{title}</h3>
+              <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
             </div>
           ))}
         </div>
@@ -173,58 +164,49 @@ const TestimonialsSection = () => {
               setTimeout(() => {
                 el.style.opacity = "1";
                 el.style.transform = "translateY(0)";
-              }, i * 130);
+              }, i * 150);
             });
           }
         });
       },
-      { threshold: 0.15 }
+      { threshold: 0.1 }
     );
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, []);
 
   return (
-    <section className="py-28 px-6 lg:px-16 bg-slate-50">
+    <section className="py-24 px-6 lg:px-16 bg-slate-50/50">
       <div className="max-w-7xl mx-auto">
         <SectionHeader
-          eyebrow="Reviews"
-          title="Loved by"
+          eyebrow="Community Feedback"
+          title="Trusted by"
           highlight="thousands."
-          sub="Real renters, real stories. Here's what they say about us."
+          sub="Don't just take our word for it. Hear from our global community of explorers."
         />
-        <div ref={ref} className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div ref={ref} className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((t) => (
             <div
               key={t.name}
-              className="tcard flex flex-col gap-5 p-7 rounded-2xl bg-white border border-slate-100 transition-all duration-300 hover:shadow-md hover:border-slate-200"
-              style={{
-                opacity: 0,
-                transform: "translateY(16px)",
-                transition: "opacity 0.6s ease, transform 0.6s ease, box-shadow 0.2s",
-              }}
+              className="tcard p-8 rounded-[2.5rem] bg-white border border-slate-100 flex flex-col gap-6 shadow-sm hover:shadow-xl transition-all duration-500"
+              style={{ opacity: 0, transform: "translateY(30px)" }}
             >
-              <Quote size={22} style={{ color: t.color }} className="opacity-50" />
-              <div className="flex gap-0.5">
-                {[...Array(t.rating)].map((_, i) => (
-                  <Star key={i} size={13} fill="#f59e0b" color="#f59e0b" />
-                ))}
+              <div className="flex justify-between items-start">
+                <Quote size={28} style={{ color: t.color }} className="opacity-20" />
+                <div className="flex gap-0.5">
+                  {[...Array(t.rating)].map((_, i) => (
+                    <Star key={i} size={14} fill="#f59e0b" color="#f59e0b" />
+                  ))}
+                </div>
               </div>
-              <p className="text-slate-600 text-sm leading-relaxed flex-1">
-                "{t.text}"
-              </p>
-              <div
-                className="flex items-center gap-3 pt-4 border-t border-slate-100"
-              >
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                  style={{ background: t.color }}
-                >
+              <p className="text-slate-600 text-[15px] leading-relaxed flex-1 font-medium italic">"{t.text}"</p>
+              <div className="flex items-center gap-4 pt-6 border-t border-slate-50">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-black text-white shadow-lg" style={{ background: t.color }}>
                   {t.initials}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-800">{t.name}</p>
-                  <p className="text-xs text-slate-400">{t.role}</p>
+                  <p className="text-sm font-bold text-slate-900">{t.name}</p>
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tight">{t.role}</p>
                 </div>
               </div>
             </div>
@@ -240,57 +222,36 @@ const CTASection = () => {
   const navigate = useNavigate();
   return (
     <section className="py-24 px-6 lg:px-16 bg-white">
-      <div className="max-w-4xl mx-auto text-center">
-        <div
-          className="py-16 px-10 rounded-3xl border border-indigo-100"
-          style={{
-            background:
-              "linear-gradient(135deg, #EEF2FF 0%, #f0f9ff 50%, #ECFDF5 100%)",
-          }}
-        >
-          <p className="text-indigo-600 font-semibold text-sm tracking-widest uppercase mb-4">
-            Ready to drive?
-          </p>
-          <h2
-            className="text-4xl lg:text-5xl font-black text-slate-900 leading-tight mb-5"
-            style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}
-          >
-            Start your journey{" "}
-            <span className="text-indigo-600">today.</span>
-          </h2>
-          <p className="text-slate-500 text-lg max-w-md mx-auto mb-10">
-            Join 20,000+ renters. No hidden fees. No surprises. Just great cars.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button
-              onClick={() => navigate("/cars")}
-              className="px-8 py-4 rounded-xl text-white font-semibold text-base bg-indigo-600 hover:bg-indigo-700 transition-all duration-200"
-              style={{ boxShadow: "0 4px 20px rgba(79,70,229,0.3)" }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-1px)";
-                e.currentTarget.style.boxShadow = "0 8px 28px rgba(79,70,229,0.4)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "0 4px 20px rgba(79,70,229,0.3)";
-              }}
-            >
-              Browse All Cars
-            </button>
-            <button
-              onClick={() => navigate("/register")}
-              className="px-8 py-4 rounded-xl font-semibold text-base text-slate-600 bg-white border border-slate-200 hover:border-slate-300 hover:text-slate-900 transition-all duration-200"
-            >
-              Create Free Account
-            </button>
+      <div className="max-w-5xl mx-auto">
+        <div className="relative overflow-hidden py-20 px-8 md:px-16 rounded-[3rem] text-center border border-indigo-50 shadow-2xl shadow-indigo-100" style={{ background: "linear-gradient(145deg, #ffffff 0%, #f8faff 100%)" }}>
+          <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-50 rounded-full blur-3xl opacity-50" />
+          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-50" />
+          
+          <div className="relative z-10">
+            <p className="text-indigo-600 font-bold text-[11px] tracking-[0.3em] uppercase mb-6">Ready to hit the road?</p>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 leading-tight mb-8">Start your journey <span className="text-indigo-600">now.</span></h2>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <button 
+                onClick={() => navigate("/login")} 
+                className="group w-full sm:w-auto px-10 py-5 rounded-2xl bg-indigo-600 text-white font-bold text-base hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200 active:scale-95 flex items-center justify-center gap-2"
+              >
+                Browse Fleet <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              </button>
+              <button 
+                onClick={() => navigate("/signup")} 
+                className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-white text-slate-700 font-bold text-base border border-slate-200 hover:bg-slate-50 transition-all active:scale-95"
+              >
+                Join Now — It's Free
+              </button>
+            </div>
+            <p className="mt-8 text-slate-400 text-xs font-medium">No hidden fees • 24/7 Support • Flexible Cancellation</p>
           </div>
         </div>
       </div>
     </section>
   );
 };
-
-
 
 /* ─── MAIN PAGE ─── */
 const LandingPage = () => {
@@ -299,47 +260,34 @@ const LandingPage = () => {
 
   useEffect(() => {
     if (!isCheckingAuth && isAuthenticated) {
-      if (user?.role === "renter") {
-        navigate("/admin", { replace: true });
-      } else {
-        navigate("/", { replace: true });
-      }
+      const target = (user?.role === "renter" || user?.role === "admin") ? "/admin" : "/";
+      navigate(target, { replace: true });
     }
   }, [isCheckingAuth, isAuthenticated, user, navigate]);
 
-  if (isCheckingAuth)
+  if (isCheckingAuth) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white">
-        <div className="flex gap-1.5">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="w-2.5 h-2.5 rounded-full bg-indigo-500"
-              style={{
-                animation: `dotBounce 0.7s ease-in-out ${i * 0.15}s infinite alternate`,
-              }}
-            />
-          ))}
+        <div className="flex gap-2">
+          <div className="w-3 h-3 rounded-full bg-indigo-600 animate-bounce [animation-delay:-0.3s]"></div>
+          <div className="w-3 h-3 rounded-full bg-indigo-600 animate-bounce [animation-delay:-0.15s]"></div>
+          <div className="w-3 h-3 rounded-full bg-indigo-600 animate-bounce"></div>
         </div>
-        <style>{`
-          @keyframes dotBounce {
-            from { transform: scaleY(0.4); opacity: 0.4; }
-            to { transform: scaleY(1); opacity: 1; }
-          }
-        `}</style>
       </div>
     );
+  }
 
   return (
-    <div className="min-h-screen bg-white" style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}>
+    <div className="min-h-screen bg-white selection:bg-indigo-600 selection:text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <Nav />
-      <Hero />
-     
-      <HowItWorks />
-      <FeaturesSection />
-      <FeaturedCarsSection/>
-      <TestimonialsSection />
-      <CTASection />
+      <main>
+        <Hero />
+        <HowItWorks />
+        <FeaturesSection />
+        <FeaturedCarsSection />
+        <TestimonialsSection />
+        <CTASection />
+      </main>
       <Footer />
     </div>
   );

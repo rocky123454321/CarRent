@@ -2,10 +2,21 @@ import React, { useEffect, useRef } from "react";
 import car from "../../assets/carpichero.png";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../store/authStore"; // 1. Import ang auth store
 
 const Hero = () => {
   const navigate = useNavigate();
   const ref = useRef(null);
+  const { isAuthenticated } = useAuthStore(); // 2. Kunin ang auth status
+
+  // 3. Logic para sa Protected Navigation
+  const handleBrowseCars = () => {
+    if (isAuthenticated) {
+      navigate("/cars"); // Kung login na, punta sa listahan ng cars
+    } else {
+      navigate("/login"); // Else, login muna
+    }
+  };
 
   useEffect(() => {
     const el = ref.current;
@@ -27,7 +38,6 @@ const Hero = () => {
       className="relative w-full min-h-screen flex items-center bg-white overflow-hidden"
       style={{ paddingTop: "72px" }}
     >
-      {/* Soft indigo blush background */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -37,7 +47,6 @@ const Hero = () => {
       />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-16 grid lg:grid-cols-2 gap-12 items-center py-24">
-        {/* Left */}
         <div className="space-y-8">
           <div className="fu inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-xs font-semibold text-slate-500 tracking-widest uppercase shadow-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
@@ -46,7 +55,7 @@ const Hero = () => {
 
           <h1
             className="fu text-[3.4rem] lg:text-[4.2rem] xl:text-[4.8rem] font-black text-slate-900 leading-[1.06] tracking-tight"
-            style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
             Drive your
             <br />
@@ -61,22 +70,16 @@ const Hero = () => {
           </p>
 
           <div className="fu flex flex-wrap items-center gap-3">
+            {/* 4. Ginabmit ang handleBrowseCars dito */}
             <button
-              onClick={() => navigate("/cars")}
-              className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-white font-semibold text-base transition-all duration-200 bg-indigo-600 hover:bg-indigo-700"
+              onClick={handleBrowseCars}
+              className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-white font-semibold text-base transition-all duration-200 bg-indigo-600 hover:bg-indigo-700 active:scale-95"
               style={{ boxShadow: "0 4px 20px rgba(79,70,229,0.3)" }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-1px)";
-                e.currentTarget.style.boxShadow = "0 8px 28px rgba(79,70,229,0.4)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "0 4px 20px rgba(79,70,229,0.3)";
-              }}
             >
               Browse Cars
               <ArrowRight size={17} className="transition-transform group-hover:translate-x-0.5" />
             </button>
+            
             <button
               onClick={() => navigate("/how-it-works")}
               className="inline-flex items-center gap-1 px-5 py-3.5 text-slate-500 font-semibold text-base hover:text-slate-800 transition-colors"
@@ -85,7 +88,6 @@ const Hero = () => {
             </button>
           </div>
 
-          {/* Social proof */}
           <div className="fu flex items-center gap-4 pt-1">
             <div className="flex -space-x-2.5">
               {["#6366f1", "#818cf8", "#a5b4fc", "#c7d2fe"].map((c, i) => (
@@ -97,24 +99,19 @@ const Hero = () => {
               ))}
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-700">
-                Trusted by 20,000+ renters
-              </p>
+              <p className="text-sm font-semibold text-slate-700">Trusted by 20,000+ renters</p>
               <p className="text-xs text-amber-500 font-medium">
-                ★★★★★{" "}
-                <span className="text-slate-400 font-normal">4.9 average rating</span>
+                ★★★★★ <span className="text-slate-400 font-normal">4.9 average rating</span>
               </p>
             </div>
           </div>
         </div>
 
-        {/* Right */}
         <div className="fu relative hidden lg:flex items-center justify-center">
           <div
             className="absolute w-[480px] h-[480px] rounded-full"
             style={{
-              background:
-                "radial-gradient(circle, #e0e7ff 0%, #f0f4ff 50%, transparent 75%)",
+              background: "radial-gradient(circle, #e0e7ff 0%, #f0f4ff 50%, transparent 75%)",
             }}
           />
           <img
@@ -126,14 +123,13 @@ const Hero = () => {
               filter: "drop-shadow(0 28px 44px rgba(79,70,229,0.13))",
             }}
           />
-          {/* Floating chips */}
           {[
             { text: "500+ Cars", icon: "🚗", style: { top: "6%", right: "0" }, delay: "0s" },
             { text: "Instant Booking", icon: "⚡", style: { bottom: "12%", left: "0" }, delay: "1.2s" },
           ].map(({ text, icon, style, delay }) => (
             <div
               key={text}
-              className="absolute flex items-center gap-2.5 px-4 py-2.5 z-88 rounded-2xl bg-white border border-slate-100 shadow-md text-sm font-semibold text-slate-700"
+              className="absolute flex items-center gap-2.5 px-4 py-2.5 z-[20] rounded-2xl bg-white border border-slate-100 shadow-md text-sm font-semibold text-slate-700"
               style={{ ...style, animation: `chipFloat 5s ease-in-out ${delay} infinite` }}
             >
               <span>{icon}</span> {text}
