@@ -1,12 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from './../../store/authStore.js';
+import { useBookingStore } from './../../store/BookingStore.js';
 import { MessageSquare, Calendar, CarFront, BadgeCheck, ChevronDown } from 'lucide-react';
-import axios from 'axios';
-import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const API_URL = import.meta.env.MODE === 'development' ? 'https://car-rent-nine-murex.vercel.app/' : '';
 
 const BADGE_CLASS = {
   pending:   "bg-amber-50 text-amber-700 border border-amber-100",
@@ -16,44 +13,24 @@ const BADGE_CLASS = {
 };
 
 const Bookings = () => {
-  const { user } = useAuthStore();
-  const navigate = useNavigate();
-  const [rentals, setRentals] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [updatingStatus, setUpdatingStatus] = useState({});
+  const { user }     = useAuthStore();
+  const navigate     = useNavigate();
+  const rentals      = useBookingStore((s) => s.rentals);
+  const loading      = useBookingStore((s) => s.isLoading);
+  const updating     = useBookingStore((s) => s.updating);
+  const fetchRentals = useBookingStore((s) => s.fetchRentals);
+  const updateStatus = useBookingStore((s) => s.updateStatus);
 
   useEffect(() => {
     if (user?.role === 'admin' || user?.role === 'renter') fetchRentals();
-  }, [user]);
+  }, []);
 
-  const fetchRentals = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/api/users/admin/rentals`, { withCredentials: true });
-      setRentals(res.data.data || []);
-    } catch {
-      toast.error('Failed to load bookings');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateRentalStatus = async (rentalId, status) => {
-    setUpdatingStatus(prev => ({ ...prev, [rentalId]: true }));
-    try {
-      await axios.patch(`${API_URL}/api/users/${rentalId}/status`, { status }, { withCredentials: true });
-      toast.success('Status updated');
-      fetchRentals();
-    } catch {
-      toast.error('Failed to update status');
-    } finally {
-      setUpdatingStatus(prev => ({ ...prev, [rentalId]: false }));
-    }
-  };
-
-  const formatDate = (date) => new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const formatDate = (date) => new Date(date).toLocaleDateString("en-US", {
+    month: "short", day: "numeric", year: "numeric",
+  });
 
   return (
-    <div className="max-w-7xl  space-y-6" style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}>
+    <div className="max-w-7xl space-y-6" style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}>
 
       {/* Header */}
       <div className="space-y-1">
@@ -63,24 +40,25 @@ const Bookings = () => {
       </div>
 
       {/* ── DESKTOP TABLE (md+) ── */}
-      <div className="hidden md:block bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 w-380">
+      <div className="hidden md:block bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-200">
         {loading ? (
           <div className="p-6 space-y-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="flex items-center gap-4">
-                <Skeleton className="w-6 h-6 rounded-full" />
+                <Skeleton className="w-8 h-8 rounded-xl" />
                 <Skeleton className="h-4 w-32 rounded-md" />
                 <Skeleton className="h-4 w-20 rounded-md" />
+                <Skeleton className="h-4 w-24 rounded-md" />
               </div>
             ))}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+            <table className="w-full min-w-[900px] text-sm">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/60">
                   {["ID", "Car", "Renter", "Dates", "Status", "Total", "Actions"].map((h) => (
-                    <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">{h}</th>
+                    <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -97,11 +75,15 @@ const Bookings = () => {
                     </td>
                   </tr>
                 ) : rentals.map((rental) => (
-                  <tr key={rental._id} className="hover:bg-slate-50/60 transition-colors group">
-                    <td className="px-5 py-4 font-mono text-xs text-slate-400">#{rental._id.slice(-6)}</td>
+                  <tr key={rental._id} className="hover:bg-slate-50/60 transition-colors">
+
+                    {/* ID */}
+                    <td className="px-5 py-4 font-mono text-xs text-slate-400 whitespace-nowrap">
+                      #{rental._id.slice(-6)}
+                    </td>
 
                     {/* Car */}
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
                           <CarFront size={14} className="text-indigo-600" />
@@ -114,7 +96,7 @@ const Bookings = () => {
                     </td>
 
                     {/* Renter */}
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
                           <span className="text-xs font-bold text-slate-500">{rental.user?.name?.charAt(0).toUpperCase()}</span>
@@ -127,23 +109,29 @@ const Bookings = () => {
                     </td>
 
                     {/* Dates */}
-                    <td className="px-5 py-4 flex w-50 items-center gap-1.5">
-                      <Calendar size={13} className="text-slate-400 shrink-0" />
-                      <span className="text-xs text-slate-600">{formatDate(rental.rentalStartDate)} — {formatDate(rental.rentalEndDate)}</span>
+                    <td className="px-5 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar size={13} className="text-slate-400 shrink-0" />
+                        <span className="text-xs text-slate-600">
+                          {formatDate(rental.rentalStartDate)} — {formatDate(rental.rentalEndDate)}
+                        </span>
+                      </div>
                     </td>
 
                     {/* Status */}
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-4 whitespace-nowrap">
                       <span className={`px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${BADGE_CLASS[rental.status] || "bg-slate-50 text-slate-600 border border-slate-100"}`}>
                         {rental.status}
                       </span>
                     </td>
 
                     {/* Total */}
-                    <td className="px-5 py-4 font-bold text-slate-800">₱{rental.totalPrice?.toLocaleString()}</td>
+                    <td className="px-5 py-4 whitespace-nowrap font-bold text-slate-800">
+                      ₱{rental.totalPrice?.toLocaleString()}
+                    </td>
 
                     {/* Actions */}
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => navigate('/admin/chat', { state: { userId: rental.user._id, renterName: rental.user?.name } })}
@@ -151,12 +139,11 @@ const Bookings = () => {
                         >
                           <MessageSquare size={13} /> Chat
                         </button>
-
                         <div className="relative">
                           <select
                             value={rental.status}
-                            disabled={updatingStatus[rental._id]}
-                            onChange={(e) => updateRentalStatus(rental._id, e.target.value)}
+                            disabled={updating[rental._id]}
+                            onChange={(e) => updateStatus(rental._id, e.target.value)}
                             className="appearance-none pl-3 pr-7 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition cursor-pointer disabled:opacity-50"
                           >
                             <option value="pending">Pending</option>
@@ -195,10 +182,13 @@ const Bookings = () => {
           </div>
         ) : rentals.map((rental) => (
           <div key={rental._id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3 hover:shadow-md transition-all duration-200">
-            {/* Top row — ID + Status */}
+
+            {/* Top row */}
             <div className="flex items-center justify-between">
               <span className="font-mono text-xs text-slate-400">#{rental._id.slice(-6)}</span>
-              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${BADGE_CLASS[rental.status] || "bg-slate-50 text-slate-600 border border-slate-100"}`}>{rental.status}</span>
+              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${BADGE_CLASS[rental.status] || "bg-slate-50 text-slate-600 border border-slate-100"}`}>
+                {rental.status}
+              </span>
             </div>
 
             {/* Car */}
@@ -227,7 +217,9 @@ const Bookings = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <Calendar size={13} className="text-slate-400" />
-                <span className="text-xs text-slate-500">{formatDate(rental.rentalStartDate)} — {formatDate(rental.rentalEndDate)}</span>
+                <span className="text-xs text-slate-500">
+                  {formatDate(rental.rentalStartDate)} — {formatDate(rental.rentalEndDate)}
+                </span>
               </div>
               <span className="font-black text-slate-900 text-sm">₱{rental.totalPrice?.toLocaleString()}</span>
             </div>
@@ -240,12 +232,11 @@ const Bookings = () => {
               >
                 <MessageSquare size={13} /> Chat
               </button>
-
               <div className="relative flex-1">
                 <select
                   value={rental.status}
-                  disabled={updatingStatus[rental._id]}
-                  onChange={(e) => updateRentalStatus(rental._id, e.target.value)}
+                  disabled={updating[rental._id]}
+                  onChange={(e) => updateStatus(rental._id, e.target.value)}
                   className="w-full appearance-none pl-3 pr-7 py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition cursor-pointer disabled:opacity-50"
                 >
                   <option value="pending">Pending</option>
@@ -259,7 +250,6 @@ const Bookings = () => {
           </div>
         ))}
       </div>
-
     </div>
   );
 };
