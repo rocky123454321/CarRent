@@ -58,12 +58,12 @@ export const AdminCards = () => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {cars.map(car => (
-        <div key={car._id} className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:border-gray-200 transition-colors">
+        <div key={car._id} className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:border-gray-200 transition-colors shadow-sm">
 
-          {/* Header */}
+          {/* Header Status Badge */}
           <div className="flex items-start justify-between p-3 pb-0">
-            <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${car.isAvailable ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
-              {car.isAvailable ? "Available" : "Unavailable"}
+            <span className={`text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full ${car.isAvailable ? "bg-green-50 text-green-700 border border-green-100" : "bg-red-50 text-red-700 border border-red-100"}`}>
+              {car.isAvailable ? "● Available" : "○ Unavailable"}
             </span>
 
             <div className="flex gap-1.5">
@@ -82,45 +82,44 @@ export const AdminCards = () => {
                 }}
               >
                 <DialogTrigger asChild>
-                  <button className="w-7 h-7 flex items-center justify-center border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                  <button className="w-7 h-7 flex items-center justify-center border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
                     <Pencil size={13} className="text-gray-500" />
                   </button>
                 </DialogTrigger>
 
-                <DialogContent className="sm:max-w-sm">
+                <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
                   <form onSubmit={(e) => { e.preventDefault(); handleUpdate(); }}>
                     <DialogHeader>
-                      <DialogTitle>Edit Car</DialogTitle>
-                      <DialogDescription>Update all details below and click save when done.</DialogDescription>
+                      <DialogTitle>Edit Vehicle Details</DialogTitle>
+                      <DialogDescription>Make changes to the car listing here. Click save when you're done.</DialogDescription>
                     </DialogHeader>
 
                     {editingCar && (
-                      <div className="my-4 flex flex-col gap-3">
-
-                        {/* Image Upload */}
-                        <div>
-                          <Label>Vehicle Photo</Label>
+                      <div className="my-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        {/* Full Width Image Upload */}
+                        <div className="md:col-span-2">
+                          <Label className="text-xs font-semibold text-gray-600">Vehicle Photo</Label>
                           <div
                             onClick={() => !preview && fileInputRef.current?.click()}
-                            className={`relative h-48 w-full rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer overflow-hidden
+                            className={`relative h-40 w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer overflow-hidden mt-1
                               ${preview ? 'border-indigo-200 bg-gray-50' : 'border-gray-200 hover:border-indigo-400 hover:bg-indigo-50/30'}`}
                           >
                             {preview ? (
                               <>
-                                <img src={preview} alt="Preview" className="h-full w-full object-cover" />
+                                <img src={preview} alt="Preview" className="h-full w-full object-contain p-2" />
                                 <button type="button" onClick={(e) => { e.stopPropagation(); removeImage(); }}
                                   className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-lg transition">
                                   <X size={14} />
                                 </button>
-                                <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-white/90 text-emerald-600 text-[10px] font-semibold px-2 py-1 rounded-full">
+                                <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-white/90 text-emerald-600 text-[10px] font-semibold px-2 py-1 rounded-full border border-emerald-100">
                                   <CheckCircle size={10} /> Photo ready
                                 </div>
                               </>
                             ) : (
                               <div className="text-center">
-                                <ImagePlus className="mx-auto text-gray-300 mb-2" size={32} />
-                                <p className="text-xs font-medium text-gray-500">Click to upload car image</p>
-                                <p className="text-[10px] text-gray-400 mt-1">PNG, JPG, WEBP up to 5MB</p>
+                                <ImagePlus className="mx-auto text-gray-300 mb-2" size={28} />
+                                <p className="text-[11px] font-medium text-gray-500">Click to upload</p>
                               </div>
                             )}
                           </div>
@@ -131,76 +130,94 @@ export const AdminCards = () => {
                         <InputField label="Brand" value={editingCar.brand} onChange={(val) => setEditingCar({ ...editingCar, brand: val })} />
                         <InputField label="Model" value={editingCar.model} onChange={(val) => setEditingCar({ ...editingCar, model: val })} />
                         <InputField label="Color" value={editingCar.color} onChange={(val) => setEditingCar({ ...editingCar, color: val })} />
-                        <InputField label="Year" type="number" min={1990} max={new Date().getFullYear()+1} value={editingCar.year} onChange={(val) => setEditingCar({ ...editingCar, year: parseInt(val) || 0 })} />
-                        <InputField label="Mileage (km)" type="number" min={0} value={editingCar.mileage || ""} onChange={(val) => setEditingCar({ ...editingCar, mileage: parseFloat(val) || 0 })} />
-                        <InputField label="Price / day (₱)" type="number" min={0} value={editingCar.pricePerDay} onChange={(val) => setEditingCar({ ...editingCar, pricePerDay: parseFloat(val) || 0 })} />
+                        <InputField label="Year" type="number" value={editingCar.year} onChange={(val) => setEditingCar({ ...editingCar, year: parseInt(val) || 0 })} />
+                        <InputField label="Price / day (₱)" type="number" value={editingCar.pricePerDay} onChange={(val) => setEditingCar({ ...editingCar, pricePerDay: parseFloat(val) || 0 })} />
+                        <InputField label="Mileage (km)" type="number" value={editingCar.mileage || ""} onChange={(val) => setEditingCar({ ...editingCar, mileage: parseFloat(val) || 0 })} />
 
                         <SelectField label="Fuel Type" value={editingCar.fuelType} options={["Petrol","Diesel","Electric","Hybrid"]} onChange={(val) => setEditingCar({ ...editingCar, fuelType: val })} />
                         <SelectField label="Transmission" value={editingCar.transmission} options={["Automatic","Manual"]} onChange={(val) => setEditingCar({ ...editingCar, transmission: val })} />
-                        <SelectField label="Availability" value={editingCar.isAvailable} options={[true,false]} onChange={(val) => setEditingCar({ ...editingCar, isAvailable: val })} />
-
+                        
+                        {/* Availability Selector */}
+                        <div className="md:col-span-2">
+                           <SelectField 
+                            label="Current Availability" 
+                            value={editingCar.isAvailable} 
+                            options={[true, false]} 
+                            onChange={(val) => setEditingCar({ ...editingCar, isAvailable: val })} 
+                          />
+                        </div>
                       </div>
                     )}
 
-                    <DialogFooter>
+                    <DialogFooter className="gap-2">
                       <DialogClose asChild>
-                        <Button type="button" variant="outline">Cancel</Button>
+                        <Button type="button" variant="outline" className="flex-1 md:flex-none">Cancel</Button>
                       </DialogClose>
-                      <Button type="submit">Save changes</Button>
+                      <Button type="submit" className="flex-1 md:flex-none bg-indigo-600 hover:bg-indigo-700">Save Changes</Button>
                     </DialogFooter>
                   </form>
                 </DialogContent>
               </Dialog>
 
-              {/* Delete Dialog */}
+              {/* Delete Alert */}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <button className="w-7 h-7 flex items-center justify-center border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
-                    <Trash2Icon size={13} className="text-red-500" />
+                  <button className="w-7 h-7 flex items-center justify-center border border-gray-100 rounded-lg hover:bg-red-50 transition-colors shadow-sm group">
+                    <Trash2Icon size={13} className="text-gray-400 group-hover:text-red-500" />
                   </button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Delete car?</AlertDialogTitle>
-                    <AlertDialogDescription>This will permanently delete this car from the system.</AlertDialogDescription>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete <strong>{car.brand} {car.model}</strong> from the database.
+                    </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleDelete(car._id)}>Delete</AlertDialogAction>
+                    <AlertDialogAction onClick={() => handleDelete(car._id)} className="bg-red-600 hover:bg-red-700">Delete Vehicle</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
             </div>
           </div>
 
-          {/* Image */}
-          <div className="mx-3 my-3 bg-gray-50 rounded-xl flex justify-center p-3">
-            <img src={car.image || carImage} alt={`${car.brand} ${car.model}`} className="h-20 object-contain" />
+          {/* Vehicle Image Display */}
+          <div className="mx-3 my-3 bg-gray-50 rounded-xl flex justify-center items-center p-4 h-32">
+            <img 
+              src={car.image || carImage} 
+              alt={`${car.brand} ${car.model}`} 
+              className="max-h-full w-auto object-contain transition-transform hover:scale-110 duration-300" 
+            />
           </div>
 
-          {/* Info */}
-          <div className="px-3 pb-2">
-            <p className="font-medium text-sm text-gray-900">{car.brand} {car.model}</p>
-            <p className="text-xs text-gray-400 mt-0.5">{car.color} · {car.year}</p>
-            <div className="flex flex-wrap gap-1.5 mt-2">
-              <span className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 border border-gray-100 px-2 py-1 rounded-full">
-                <Fuel size={11} /> {car.fuelType}
+          {/* Main Info */}
+          <div className="px-4 pb-2">
+            <h3 className="font-bold text-sm text-gray-900 leading-tight">{car.brand} {car.model}</h3>
+            <p className="text-[11px] text-gray-400 font-medium uppercase tracking-tight mt-0.5">{car.color} • {car.year}</p>
+            
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              <span className="flex items-center gap-1 text-[10px] font-medium text-gray-600 bg-gray-100/80 px-2 py-1 rounded-md">
+                <Fuel size={10} /> {car.fuelType}
               </span>
-              <span className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 border border-gray-100 px-2 py-1 rounded-full">
-                <Cog size={11} /> {car.transmission}
+              <span className="flex items-center gap-1 text-[10px] font-medium text-gray-600 bg-gray-100/80 px-2 py-1 rounded-md">
+                <Cog size={10} /> {car.transmission}
               </span>
-              <span className="text-xs text-gray-500 bg-gray-50 border border-gray-100 px-2 py-1 rounded-full">
-                {car.mileage} km
+              <span className="text-[10px] font-medium text-gray-600 bg-gray-100/80 px-2 py-1 rounded-md">
+                {car.mileage.toLocaleString()} km
               </span>
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between border-t border-gray-100 px-3 py-2.5 mt-1">
-            <p className="text-sm font-medium text-gray-900">
-              ₱{car.pricePerDay}<span className="text-xs text-gray-400 font-normal"> /day</span>
-            </p>
-            <span className="text-xs text-gray-400 font-mono bg-gray-50 border border-gray-100 px-2 py-1 rounded-lg">{car.licensePlate}</span>
+          {/* Pricing & License Footer */}
+          <div className="flex items-center justify-between border-t border-gray-50 px-4 py-3 mt-2 bg-gray-50/30">
+            <div>
+              <span className="text-lg font-bold text-indigo-600">₱{car.pricePerDay}</span>
+              <span className="text-[10px] text-gray-400 font-normal"> / day</span>
+            </div>
+            <span className="text-[10px] font-mono font-bold text-gray-500 bg-white border border-gray-200 px-2 py-1 rounded shadow-sm">
+              {car.licensePlate}
+            </span>
           </div>
         </div>
       ))}
@@ -208,21 +225,37 @@ export const AdminCards = () => {
   );
 };
 
-// Helper Components for cleaner code
+/** * UI Helper Components 
+ */
 const InputField = ({ label, value, onChange, type = "text", min, max }) => (
-  <div>
-    <Label>{label}</Label>
-    <Input type={type} min={min} max={max} value={value} onChange={e => onChange(e.target.value)} />
+  <div className="space-y-1">
+    <Label className="text-[11px] font-bold text-gray-500 uppercase tracking-tight">{label}</Label>
+    <Input 
+      type={type} 
+      min={min} 
+      max={max} 
+      value={value} 
+      onChange={e => onChange(e.target.value)} 
+      className="h-9 focus-visible:ring-indigo-500"
+    />
   </div>
 );
 
 const SelectField = ({ label, value, options, onChange }) => (
-  <div>
-    <Label>{label}</Label>
-    <select value={value} onChange={e => onChange(e.target.value === "true" ? true : e.target.value === "false" ? false : e.target.value)}
-      className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:border-gray-400">
+  <div className="space-y-1">
+    <Label className="text-[11px] font-bold text-gray-500 uppercase tracking-tight">{label}</Label>
+    <select 
+      value={value} 
+      onChange={e => {
+        const val = e.target.value;
+        onChange(val === "true" ? true : val === "false" ? false : val);
+      }}
+      className="w-full border border-gray-200 rounded-md h-9 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all bg-white"
+    >
       {options.map(opt => (
-        <option key={opt} value={opt}>{opt}</option>
+        <option key={opt.toString()} value={opt}>
+          {opt === true ? "Available for Rent" : opt === false ? "Currently Unavailable" : opt}
+        </option>
       ))}
     </select>
   </div>
