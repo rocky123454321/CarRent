@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from './../../store/authStore.js';
-import { useBookingStore } from './../../store/BookingStore.js';
+import { useRentalStore } from './../../store/RentalStore.js';
 import { MessageSquare, Calendar, CarFront, BadgeCheck, ChevronDown } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -15,15 +15,15 @@ const BADGE_CLASS = {
 const Bookings = () => {
   const { user }     = useAuthStore();
   const navigate     = useNavigate();
-  const rentals      = useBookingStore((s) => s.rentals);
-  const loading      = useBookingStore((s) => s.isLoading);
-  const updating     = useBookingStore((s) => s.updating);
-  const fetchRentals = useBookingStore((s) => s.fetchRentals);
-  const updateStatus = useBookingStore((s) => s.updateStatus);
+  const rentals      = useRentalStore((s) => s.adminRentals);
+  const loading      = useRentalStore((s) => s.isLoading);
+  const updating     = useRentalStore((s) => s.updating);
+  const fetchRentals = useRentalStore((s) => s.fetchAdminRentals);
+  const updateStatus = useRentalStore((s) => s.updateRentalStatus);
 
   useEffect(() => {
     if (user?.role === 'admin' || user?.role === 'renter') fetchRentals();
-  }, []);
+  }, [fetchRentals]); // stable ref
 
   const formatDate = (date) => new Date(date).toLocaleDateString("en-US", {
     month: "short", day: "numeric", year: "numeric",

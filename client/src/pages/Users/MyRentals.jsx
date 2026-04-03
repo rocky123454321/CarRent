@@ -21,7 +21,7 @@ const MyRentals = () => {
 
   useEffect(() => {
     rentalStore.fetchUserRentals();
-  }, [rentalStore]);
+  }, []);
 
   const formatDate = (date) =>
     new Date(date).toLocaleDateString('en-PH', {

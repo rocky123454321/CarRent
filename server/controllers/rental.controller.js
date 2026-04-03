@@ -69,8 +69,8 @@ export const adminGetAllRentals = async (req, res) => {
     const userId = req.userId;
     const user   = await User.findById(userId);
 
-    if (!user || !['admin', 'renter'].includes(user.role)) {
-      return res.status(403).json({ message: 'Admin access only' });
+    if (!user || user.role !== 'renter') {
+      return res.status(403).json({ message: 'Renter access only' });
     }
 
     const rentals = await Rental.find()
@@ -87,8 +87,8 @@ export const adminGetAllRentals = async (req, res) => {
 export const updateRentalStatus = async (req, res) => {
   try {
     const user = await User.findById(req.userId);
-    if (!user || !['admin', 'renter'].includes(user.role)) {
-      return res.status(403).json({ message: 'Admin access only' });
+    if (!user || user.role !== 'renter') {
+      return res.status(403).json({ message: 'Renter access only' });
     }
 
     const rental = await Rental.findById(req.params.id);
