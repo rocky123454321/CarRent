@@ -3,20 +3,35 @@ import { User } from '../models/user.model.js';
 import { cloudinary } from '../config/cloudinary.js';
 
 export const addCar = async (req, res) => {
+  console.log("REQ.BODY:", req.body);
+  console.log("REQ.FILE:", req.file);
+
   const {
     brand, model, year, color, pricePerDay,
     uploadedBy, mileage, fuelType, transmission,
     licensePlate, isAvailable
   } = req.body;
 
+  // Validate required fields
+  if (!brand || !model || !year || !pricePerDay || !licensePlate || !uploadedBy) {
+    return res.status(400).json({ success: false, message: "Required fields missing" });
+  }
+
   try {
     const car = await Car.create({
-      brand, model, year, color, pricePerDay,
-      mileage, fuelType, transmission, licensePlate,
+      brand,
+      model,
+      year,
+      color,
+      pricePerDay,
+      mileage,
+      fuelType,
+      transmission,
+      licensePlate,
       uploadedBy,
       isAvailable: isAvailable ?? true,
-      image:   req.file?.path     || "",  // ✅ Cloudinary URL
-      imageId: req.file?.filename || "",  // ✅ Cloudinary public_id
+      image: req.file?.path || "",    // ✅ Cloudinary URL
+      imageId: req.file?.filename || "", // ✅ Cloudinary public_id
       currentRenter: null,
       rentalStartDate: null,
       rentalEndDate: null,
@@ -24,6 +39,7 @@ export const addCar = async (req, res) => {
 
     res.status(201).json({ success: true, message: "Car added successfully", car });
   } catch (err) {
+    console.error("ADD CAR ERROR:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 };

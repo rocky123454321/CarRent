@@ -11,36 +11,40 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ImagePlus, X, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 const AddCar = () => {
   const [form, setForm] = useState({
     brand: "", model: "", year: "", color: "",
-    pricePerDay: "", fuelType: "Petrol",
+    pricePerDay: "", mileage: "", fuelType: "Petrol",
     transmission: "Automatic", licensePlate: "",
-    isAvailable: true,
-    image: null,
+    isAvailable: true, image: null,
   });
-  const [preview, setPreview]   = useState(null);
-  const [loading, setLoading]   = useState(false);
-  const fileInputRef            = useRef(null);
+  const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
 
-  const { user }        = useAuthStore();
-  const fetchAdminCars  = useAdminCarStore((s) => s.fetchAdminCars);
+  const { user } = useAuthStore();
+  const fetchAdminCars = useAdminCarStore((s) => s.fetchAdminCars);
 
   const handle = (field) => (e) =>
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    setForm(prev => ({ ...prev, [field]: e.target.value }));
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
-    setForm((prev) => ({ ...prev, image: file }));
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+    setForm(prev => ({ ...prev, image: file }));
     const reader = new FileReader();
     reader.onloadend = () => setPreview(reader.result);
     reader.readAsDataURL(file);
   };
 
   const removeImage = () => {
-    setForm((prev) => ({ ...prev, image: null }));
+    setForm(prev => ({ ...prev, image: null }));
     setPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -51,37 +55,35 @@ const AddCar = () => {
 
     setLoading(true);
     try {
-      // ✅ FormData para sa multipart/form-data (image upload)
       const formData = new FormData();
-      formData.append("brand",        form.brand);
-      formData.append("model",        form.model);
-      formData.append("year",         form.year);
-      formData.append("color",        form.color);
-      formData.append("pricePerDay",  form.pricePerDay);
-      formData.append("fuelType",     form.fuelType);
+      formData.append("brand", form.brand);
+      formData.append("model", form.model);
+      formData.append("year", form.year);
+      formData.append("color", form.color);
+      formData.append("pricePerDay", form.pricePerDay);
+      formData.append("mileage", form.mileage || 0);
+      formData.append("fuelType", form.fuelType);
       formData.append("transmission", form.transmission);
-      formData.append("licensePlate", form.licensePlate);
-      formData.append("isAvailable",  form.isAvailable);
-      formData.append("uploadedBy",   user._id);
-      if (form.image) formData.append("image", form.image); // ✅ file
+      formData.append("licensePlate", form.licensePlate.toUpperCase());
+      formData.append("isAvailable", form.isAvailable);
+      formData.append("uploadedBy", user._id);
+      if (form.image) formData.append("image", form.image);
 
-      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
       const res = await fetch(`${API_URL}/api/cars`, {
-        method:      "POST",
-        body:        formData,
-        credentials: "include", // ✅ para ma-send ang cookie
+        method: "POST",
+        body: formData,
+        credentials: "include",
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to add car");
 
       toast.success("Car added successfully!");
-      fetchAdminCars(); // ✅ refresh list
+      fetchAdminCars();
 
-      // Reset form
       setForm({
         brand: "", model: "", year: "", color: "",
-        pricePerDay: "", fuelType: "Petrol",
+        pricePerDay: "", mileage: "", fuelType: "Petrol",
         transmission: "Automatic", licensePlate: "",
         isAvailable: true, image: null,
       });
@@ -97,8 +99,7 @@ const AddCar = () => {
   const labelClass = "text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5 block";
 
   return (
-    <div className="max-w-xl mx-auto mt-10 mb-10 p-8 bg-white rounded-[2rem] border border-gray-100 shadow-sm"
-      style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}>
+    <div className="max-w-xl mx-auto mt-10 mb-10 p-8 bg-white rounded-[2rem] border border-gray-100 shadow-sm">
       <div className="mb-6">
         <p className="text-indigo-600 font-semibold text-sm tracking-widest uppercase mb-1">Management</p>
         <h2 className="text-2xl font-black text-gray-900">Add New Vehicle</h2>
@@ -162,7 +163,7 @@ const AddCar = () => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Year</label>
-            <Input className="rounded-xl" type="number" placeholder="2024" value={form.year} onChange={handle("year")} required />
+            <Input className="rounded-xl" type="number" min={1990} max={new Date().getFullYear()+1} placeholder="2024" value={form.year} onChange={handle("year")} required />
           </div>
           <div>
             <label className={labelClass}>Color</label>
@@ -170,11 +171,24 @@ const AddCar = () => {
           </div>
         </div>
 
+        {/* Mileage */}
+        <div>
+          <label className={labelClass}>Mileage (km)</label>
+          <Input
+            className="rounded-xl"
+            type="number"
+            min={0}
+            placeholder="e.g. 50000"
+            value={form.mileage || ""}
+            onChange={handle("mileage")}
+          />
+        </div>
+
         {/* Price & License Plate */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Rate per Day (₱)</label>
-            <Input className="rounded-xl font-bold text-indigo-600" type="number" placeholder="1500" value={form.pricePerDay} onChange={handle("pricePerDay")} required />
+            <Input className="rounded-xl font-bold text-indigo-600" type="number" min={0} placeholder="1500" value={form.pricePerDay} onChange={handle("pricePerDay")} required />
           </div>
           <div>
             <label className={labelClass}>License Plate</label>
