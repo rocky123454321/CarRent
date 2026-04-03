@@ -4,7 +4,8 @@
 import React, { useEffect } from 'react'
 import { AdminCards } from './AdminCards'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useCarStore } from '@/store/carStore' // adjust path
+
+import {useCarStore } from '../../store/CarStore'
 
 const CarsListPage = () => {
   const { cars, isLoading, getAdminCars } = useCarStore()
