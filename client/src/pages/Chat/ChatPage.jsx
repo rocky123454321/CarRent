@@ -7,7 +7,7 @@ import { Send, Wifi, WifiOff, ShieldCheck, Car, ArrowLeft } from 'lucide-react';
 
 const ChatPage = () => {
   const { user } = useAuthStore();
-  const location = useNavigate();
+  const location = useLocation();
   const navigate = useNavigate();
 
   const routeAdminId = location.state?.adminId || null;
@@ -20,8 +20,7 @@ const ChatPage = () => {
     isConnected, onlineUsers, userProfiles,
   } = useChatStore();
 
-  const fetchedAdmin   = useChatPageStore((s) => s.fetchedAdmin);
-  const fetchAdminId   = useChatPageStore((s) => s.fetchAdminId);
+
 
   const [message, setMessage] = useState('');
 
@@ -29,8 +28,8 @@ const ChatPage = () => {
   const messagesEndRef = useRef(null);
   const inputRef       = useRef(null);
 
-  const adminId       = routeAdminId || fetchedAdmin?._id || null;
-  const adminName     = (adminId && userProfiles[adminId]) || fetchedAdmin?.name || 'Admin';
+  const adminId       = routeAdminId || (Object.keys(userProfiles)[0] || null);
+  const adminName     = userProfiles[adminId] || 'Admin';
   const messages      = adminId ? (conversations[adminId] || []) : [];
   const isAdminOnline = adminId ? onlineUsers.includes(adminId) : false;
   const adminIsTyping = adminId ? typingUsers[adminId] : false;
@@ -40,10 +39,7 @@ const ChatPage = () => {
     return () => disconnectSocket();
   }, [user?._id]);
 
-  useEffect(() => {
-    if (routeAdminId) return;
-    fetchAdminId(); // ✅ store na ang bahala, walang axios dito
-  }, [routeAdminId]);
+
 
   useEffect(() => {
     if (adminId && isConnected) setActiveConversation(adminId);

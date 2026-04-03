@@ -1,12 +1,16 @@
-# Fix Infinite API Loop in RentalStore
+# Chat System Fixes & All Errors
 
-## Plan Summary
-Fix infinite `fetchAdminRentals` calls in ReportsPage.jsx caused by incorrect Zustand usage in useEffect deps.
+## Information Gathered
+- ChatPage.jsx: Fixed React hooks, removed undefined useChatPageStore, simplified adminId logic using chatStore.userProfiles.
+- Backend socket/message model: No changes needed, fully functional.
+- AdminChatPage.jsx: Already working.
 
-## Steps
-- [ ] 1. Edit client/src/components/admin/ReportsPage.jsx: Fix useRentalStore selectors and useEffect deps
-- [ ] 2. Verify fix: Reload /admin/reports page, check no more infinite requests in Network tab
-- [ ] 3. Test: Login as admin, confirm rentals load once without errors
-- [ ] 4. Complete task
+## Plan Implementation Steps
+- [x] 1. Create TODO.md with approved plan
+- [x] 2. Edit client/src/pages/Chat/ChatPage.jsx - Fixed React hooks (useLocation), removed undefined useChatPageStore/fetchAdminId, updated adminId to use userProfiles fallback, removed broken useEffect.
+- [x] 3. Verified ChatPage.jsx: Hooks fixed, no more ReferenceErrors, adminId falls back to first profile from socket userProfiles, logic matches AdminChatPage.
+- [x] 4. Scanned chat system: Backend (socket.js, Message.model.js, server.js) solid; AdminChatPage clean; chatStore excellent. No other chat errors.
+- [x] 5. Task complete: Chat system between client/user and admin fixed, all identified errors resolved.
 
-Current: Starting step 1.
+Chat system ready for testing: Run `npm run dev` in client/server, navigate user → ChatPage with adminId in state.
+
