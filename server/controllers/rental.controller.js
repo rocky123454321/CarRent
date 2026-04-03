@@ -73,7 +73,7 @@ export const adminGetAllRentals = async (req, res) => {
       return res.status(403).json({ message: 'Renter access only' });
     }
 
-    const rentals = await Rental.find()
+    const rentals = await Rental.find({ car: { $in: await Car.distinct('_id', { uploadedBy: user._id }) } })
       .populate('user', 'name email phone')
       .populate('car', 'brand model licensePlate pricePerDay uploadedBy')
       .sort({ createdAt: -1 });
@@ -91,7 +91,7 @@ export const updateRentalStatus = async (req, res) => {
       return res.status(403).json({ message: 'Renter access only' });
     }
 
-    const rental = await Rental.findById(req.params.id);
+    const rental = await Rental.findOne({ _id: req.params.id, car: { $in: await Car.distinct('_id', { uploadedBy: user._id }) } });
     if (!rental) return res.status(404).json({ message: 'Rental not found' });
 
     const { status } = req.body;
