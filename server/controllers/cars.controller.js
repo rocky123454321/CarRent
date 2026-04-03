@@ -1,107 +1,90 @@
 import { Car } from '../models/cars.model.js';
+import { User } from '../models/user.model.js';
+import { cloudinary } from '../config/cloudinary.js';
 
-import {User} from '../models/user.model.js'
-// Add new car (Admin)
 export const addCar = async (req, res) => {
-  const { brand, model, year, color, pricePerDay, uploadedBy, mileage, fuelType, transmission, licensePlate } = req.body;
+  const {
+    brand, model, year, color, pricePerDay,
+    uploadedBy, mileage, fuelType, transmission,
+    licensePlate, isAvailable
+  } = req.body;
 
   try {
     const car = await Car.create({
-      brand,
-      model,
-      year,
-      color,
-      pricePerDay,
-      mileage,
-      fuelType,
-      transmission,
-      licensePlate,
+      brand, model, year, color, pricePerDay,
+      mileage, fuelType, transmission, licensePlate,
       uploadedBy,
-      isAvailable: true,
+      isAvailable: isAvailable ?? true,
+      image:   req.file?.path     || "",  // ✅ Cloudinary URL
+      imageId: req.file?.filename || "",  // ✅ Cloudinary public_id
       currentRenter: null,
       rentalStartDate: null,
-      rentalEndDate: null
+      rentalEndDate: null,
     });
 
-
-    res.status(201).json({
-      success: true,
-      message: "Car added successfully",
-      car
-    });
-
+    res.status(201).json({ success: true, message: "Car added successfully", car });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// Update car
-
-
-
-
-
-
 export const updateCar = async (req, res) => {
   try {
-    
     const carId = req.params.id;
-
-   
     if (!carId.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({ success: false, message: "Invalid Car ID" });
     }
 
-    
-    const car = await Car.findByIdAndUpdate(carId, req.body, { new: true });
+    const car = await Car.findById(carId);
+    if (!car) return res.status(404).json({ success: false, message: "Car not found" });
 
-    if (!car) {
-      return res.status(404).json({ success: false, message: "Car not found" });
+    // ✅ Delete old image sa Cloudinary kung may bagong image
+    if (req.file && car.imageId) {
+      await cloudinary.uploader.destroy(car.imageId);
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Car updated successfully",
-      car
-    });
+    const updated = await Car.findByIdAndUpdate(
+      carId,
+      {
+        ...req.body,
+        ...(req.file && {
+          image:   req.file.path,
+          imageId: req.file.filename,
+        }),
+      },
+      { new: true }
+    );
+
+    res.status(200).json({ success: true, message: "Car updated successfully", car: updated });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-
-
-// Delete car
 export const deleteCar = async (req, res) => {
   try {
- 
-   
-    const car = await Car.findByIdAndDelete(req.params.id)
+    const car = await Car.findById(req.params.id);
+    if (!car) return res.status(404).json({ success: false, message: "Car not found" });
 
-    if (!car){
-       return res.status(404).json({ success: false, message: "Car not found" });
-    }
-       res.status(200).json({
-      success: true,
-      message: "Car delete successfully",
-      car
-    });
+    // ✅ Delete image sa Cloudinary
+    if (car.imageId) await cloudinary.uploader.destroy(car.imageId);
+
+    await Car.findByIdAndDelete(req.params.id);
+    res.status(200).json({ success: true, message: "Car deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// Get all cars
 export const getAllCars = async (req, res) => {
   try {
-    const cars = await Car.find();
+    const cars = await Car.find().sort({ createdAt: -1 });
     res.json(cars);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// Get car by ID
 export const getCarById = async (req, res) => {
   try {
     const car = await Car.findById(req.params.id);
@@ -112,31 +95,25 @@ export const getCarById = async (req, res) => {
   }
 };
 
-// Rent a car
 export const rentCar = async (req, res) => {
   try {
     const { userId, rentalStartDate, rentalEndDate } = req.body;
-
     if (!userId || !rentalStartDate || !rentalEndDate) {
       return res.status(400).json({ message: "userId, rentalStartDate, and rentalEndDate are required" });
     }
 
     const car = await Car.findById(req.params.id);
-
     if (!car) return res.status(404).json({ message: "Car not found" });
     if (!car.isAvailable) return res.status(400).json({ message: "Car is not available" });
 
     const start = new Date(rentalStartDate);
-    const end = new Date(rentalEndDate);
+    const end   = new Date(rentalEndDate);
+    if (end <= start) return res.status(400).json({ message: "Return date must be after pick-up date" });
 
-    if (end <= start) {
-      return res.status(400).json({ message: "Return date must be after pick-up date" });
-    }
-
-    car.isAvailable = false;
-    car.currentRenter = userId;
+    car.isAvailable     = false;
+    car.currentRenter   = userId;
     car.rentalStartDate = start;
-    car.rentalEndDate = end;
+    car.rentalEndDate   = end;
     await car.save();
 
     res.status(200).json({ success: true, message: "Car booked successfully", car });
@@ -145,17 +122,15 @@ export const rentCar = async (req, res) => {
   }
 };
 
-
-// Return a car
 export const returnCar = async (req, res) => {
   try {
     const car = await Car.findById(req.params.id);
     if (!car || car.isAvailable) return res.status(400).json({ message: "Car is not rented" });
 
-    car.isAvailable = true;
-    car.currentRenter = null;
+    car.isAvailable     = true;
+    car.currentRenter   = null;
     car.rentalStartDate = null;
-    car.rentalEndDate = null;
+    car.rentalEndDate   = null;
     await car.save();
 
     res.json({ message: "Car returned", car });
@@ -163,7 +138,6 @@ export const returnCar = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 
 export const getAllCarbyAdmin = async (req, res) => {
   try {
@@ -174,28 +148,13 @@ export const getAllCarbyAdmin = async (req, res) => {
   }
 };
 
-
 export const Settings = async (req, res) => {
   try {
-    const userId = req.userId;
-
-    const user = await User.findByIdAndDelete(userId);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
+    const user = await User.findByIdAndDelete(req.userId);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
     res.clearCookie("token");
-
-    res.status(200).json({
-      success: true,
-      message: "User deleted successfully",
-    });
+    res.status(200).json({ success: true, message: "User deleted successfully" });
   } catch (error) {
-    console.log("Error in deleteUser:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
