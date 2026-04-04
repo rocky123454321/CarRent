@@ -84,37 +84,72 @@ export const adminGetAllRentals = async (req, res) => {
   }
 };
 
+
 export const updateRentalStatus = async (req, res) => {
   try {
-    const user = await User.findById(req.userId);
-    if (!user || user.role !== 'renter') {
-      return res.status(403).json({ message: 'Renter access only' });
-    }
-
-    const rental = await Rental.findOne({ _id: req.params.id, car: { $in: await Car.distinct('_id', { uploadedBy: user._id }) } });
-    if (!rental) return res.status(404).json({ message: 'Rental not found' });
-
+    const { id } = req.params;
     const { status } = req.body;
-    if (!['pending', 'confirmed', 'completed', 'cancelled'].includes(status)) {
-      return res.status(400).json({ message: 'Invalid status' });
-    }
+    const userId = req.userId; // Galing sa verifyToken
 
-    rental.status = status;
-    await rental.save();
+    const rental = await Rental.findById(id).populate('car');
+    if (!rental) return res.status(404).json({ success: false, message: "Rental not found" });
 
-    if (status === 'completed' || status === 'cancelled') {
-      const car = await Car.findById(rental.car);
-      if (car) {
-        car.isAvailable    = true;
-        car.currentRenter  = null;
-        car.rentalStartDate = null;
-        car.rentalEndDate   = null;
-        await car.save();
+    // --- SMART SECURITY CHECK ---
+    
+    const isOwner = rental.car.uploadedBy.toString() === userId;
+    const isRenter = rental.user.toString() === userId;
+
+    if (isOwner) {
+      // ADMIN/OWNER LOGIC: Pwedeng mag-approve, reject, o complete
+      rental.status = status;
+    } else if (isRenter) {
+      // USER LOGIC: Pwedeng mag-cancel lang
+      if (status !== 'cancelled') {
+        return res.status(403).json({ success: false, message: "You can only cancel your own rental" });
       }
+      rental.status = 'cancelled';
+    } else {
+      // STRANGER: Walang kinalaman sa rental
+      return res.status(403).json({ success: false, message: "Unauthorized access" });
     }
 
-    res.json({ success: true, rental });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    // --- AUTO-UPDATE CAR AVAILABILITY ---
+    // Kung kinansela o natapos na, gawing available ulit ang kotse
+    if (['cancelled', 'completed'].includes(status)) {
+      await Car.findByIdAndUpdate(rental.car._id, { 
+        isAvailable: true, 
+        currentRenter: null 
+      });
+    }
+
+    await rental.save();
+    res.status(200).json({ success: true, message: `Status updated to ${status}`, data: rental });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+// controllers/rental.controller.js
+
+export const deleteRental = async (req, res) => {
+  try {
+    const { id } = req.params; // Kinukuha ang :id mula sa route
+    
+    // Hanapin at i-delete (Siguraduhin na ang User ID ay tugma para sa security)
+    const rental = await Rental.findById(id);
+
+    if (!rental) {
+      return res.status(404).json({ success: false, message: "Rental record not found" });
+    }
+
+    // Security: Only allow delete if status is completed or cancelled
+    if (rental.status !== 'completed' && rental.status !== 'cancelled') {
+      return res.status(400).json({ success: false, message: "Cannot delete an active rental" });
+    }
+
+    await Rental.findByIdAndDelete(id);
+    res.status(200).json({ success: true, message: "Rental deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };

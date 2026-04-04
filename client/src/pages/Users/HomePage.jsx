@@ -1,33 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { getSeasonalAnnouncements } from '../../utils/seasonalAnnouncements';
-import {
-  ChevronRight, Star, Bell, MapPin,
-  Calendar, Clock, CheckCircle, XCircle,
-  Megaphone, Gift, AlertCircle
-} from 'lucide-react';
+import { ChevronRight, Bell, Calendar, Clock, CheckCircle, Star, MapPin } from 'lucide-react';
 import Cards from '../../components/user/Cards';
 import CarDetailView from './CarDetailView';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useRentalStore } from '../../store/RentalStore';
 
-// ── Static announcements (swap with API later) ──
-
 const STATUS_STYLE = {
-  pending:   { bg: 'bg-yellow-50',  text: 'text-yellow-700',  dot: 'bg-yellow-400',  label: 'Pending'   },
-  active:    { bg: 'bg-green-50',   text: 'text-green-700',   dot: 'bg-green-500',   label: 'Active'    },
-  approved:  { bg: 'bg-blue-50',    text: 'text-blue-700',    dot: 'bg-blue-500',    label: 'Approved'  },
-  completed: { bg: 'bg-slate-100',  text: 'text-slate-600',   dot: 'bg-slate-400',   label: 'Completed' },
-  cancelled: { bg: 'bg-red-50',     text: 'text-red-600',     dot: 'bg-red-400',     label: 'Cancelled' },
+  pending:   { bg: 'bg-yellow-50',  text: 'text-yellow-700', dot: 'bg-yellow-400', label: 'Pending'   },
+  active:    { bg: 'bg-green-50',   text: 'text-green-700',  dot: 'bg-green-500',  label: 'Active'    },
+  approved:  { bg: 'bg-blue-50',    text: 'text-blue-700',   dot: 'bg-blue-500',   label: 'Approved'  },
+  completed: { bg: 'bg-slate-100',  text: 'text-slate-600',  dot: 'bg-slate-400',  label: 'Completed' },
+  cancelled: { bg: 'bg-red-50',     text: 'text-red-600',    dot: 'bg-red-400',    label: 'Cancelled' },
 };
-// palitan ang ANNOUNCEMENTS constant
-const ANNOUNCEMENTS = getSeasonalAnnouncements();
 
 const AnnouncementBanner = () => {
+  const ANNOUNCEMENTS = getSeasonalAnnouncements();
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    const t = setInterval(() => setCurrent(p => (p + 1) % ANNOUNCEMENTS.length), 4000);
+    const t = setInterval(() => setCurrent(p => (p + 1) % ANNOUNCEMENTS.length), 5000);
     return () => clearInterval(t);
   }, []);
 
@@ -36,7 +29,6 @@ const AnnouncementBanner = () => {
 
   return (
     <div className={`${ann.color} rounded-2xl p-5 relative overflow-hidden transition-all duration-500`}>
-      {/* Decorative circles */}
       <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/10" />
       <div className="absolute right-8 -bottom-8 w-20 h-20 rounded-full bg-white/10" />
 
@@ -54,7 +46,6 @@ const AnnouncementBanner = () => {
         Learn more →
       </button>
 
-      {/* Dots */}
       <div className="flex gap-1.5 mt-4">
         {ANNOUNCEMENTS.map((_, i) => (
           <button
@@ -77,16 +68,8 @@ const HomePage = () => {
   useEffect(() => { fetchUserRentals(); }, [fetchUserRentals]);
 
   const firstName = user?.name?.split(' ')[0] || 'there';
-
-  // Active rental (approved or active status)
-  const activeRental = userRentals.find(r =>
-    r.status === 'active' || r.status === 'approved'
-  );
-
-  // Recent rentals (last 2, excluding active)
-  const recentRentals = userRentals
-    .filter(r => r._id !== activeRental?._id)
-    .slice(0, 2);
+  const activeRental = userRentals.find(r => r.status === 'active' || r.status === 'approved');
+  const recentRentals = userRentals.filter(r => r._id !== activeRental?._id).slice(0, 2);
 
   if (selectedCar) {
     return <CarDetailView car={selectedCar} onBack={() => setSelectedCar(null)} />;
@@ -95,7 +78,7 @@ const HomePage = () => {
   return (
     <div className="space-y-8 pb-10">
 
-      {/* ── 1. Welcome Header ── */}
+      {/* ── 1. Header ── */}
       <header className="flex items-center justify-between">
         <div>
           <p className="text-slate-400 text-xs font-medium uppercase tracking-widest mb-0.5">Dashboard</p>
@@ -104,54 +87,14 @@ const HomePage = () => {
           </h1>
           <p className="text-slate-500 text-sm mt-0.5">Ready for your next trip?</p>
         </div>
-        <button
-          onClick={() => navigate('/notifications')}
-          className="relative w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-300 transition"
-        >
-          <Bell size={18} className="text-slate-500" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full" />
-        </button>
+      
       </header>
 
       {/* ── 2. Announcement Banner ── */}
       <AnnouncementBanner />
 
-      {/* ── 3. Quick Stats ── */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          {
-            label: 'Total Rentals',
-            value: isLoading ? '—' : userRentals.length,
-            icon: Calendar,
-            color: 'text-blue-600',
-            bg: 'bg-blue-50',
-          },
-          {
-            label: 'Active Now',
-            value: isLoading ? '—' : userRentals.filter(r => r.status === 'active' || r.status === 'approved').length,
-            icon: CheckCircle,
-            color: 'text-green-600',
-            bg: 'bg-green-50',
-          },
-          {
-            label: 'Completed',
-            value: isLoading ? '—' : userRentals.filter(r => r.status === 'completed').length,
-            icon: Star,
-            color: 'text-violet-600',
-            bg: 'bg-violet-50',
-          },
-        ].map(({ label, value, icon: Icon, color, bg }) => (
-          <div key={label} className="bg-white border border-slate-200 rounded-2xl p-3.5 flex flex-col gap-2">
-            <div className={`${bg} w-8 h-8 rounded-xl flex items-center justify-center`}>
-              <Icon size={16} className={color} />
-            </div>
-            <p className="text-xl font-bold text-slate-800">{value}</p>
-            <p className="text-[11px] text-slate-400 font-medium leading-tight">{label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* ── 4. Active Rental Card ── */}
+   
+      {/* ── 4. Active Rental ── */}
       {activeRental && (
         <section>
           <div className="flex justify-between items-center mb-3">
@@ -263,7 +206,7 @@ const HomePage = () => {
         </section>
       )}
 
-      {/* ── 6. Popular Section ── */}
+      {/* ── 6. Popular ── */}
       <section>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-slate-800">Popular</h2>
@@ -277,7 +220,7 @@ const HomePage = () => {
         <Cards limit={3} onSelect={(car) => setSelectedCar(car)} />
       </section>
 
-      {/* ── 7. Recommended Section ── */}
+      {/* ── 7. Recommended ── */}
       <section>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-slate-800">Recommended for You</h2>

@@ -1,24 +1,25 @@
+// rental.routes.js
 import express from 'express';
 import {
   getUserRentals,
   rentCar,
   adminGetAllRentals,
-  updateRentalStatus
+  updateRentalStatus,
+  deleteRental // Siguraduhin na i-import mo ito kung gagawa ka ng bago
 } from '../controllers/rental.controller.js';
 import { verifyToken } from '../middleware/verifyToken.js';
 
 const router = express.Router({ mergeParams: true });
 
-// User: get own rentals  →  GET /api/users/my-rentals
 router.get('/my-rentals', verifyToken, getUserRentals);
-
-// User: rent a car  →  POST /api/users/:carId/rent
 router.post('/:carId/rent', verifyToken, rentCar);
-
-// Admin: all rentals  →  GET /api/users/admin/rentals
 router.get('/admin/rentals', verifyToken, adminGetAllRentals);
 
-// Admin: update rental status  →  PATCH /api/users/:id/status
+// PATCH /api/users/:id/status -> Ito ang ginagamit mo sa Cancel at Admin update
+// Siguraduhin na ang updateRentalStatus controller ay handle ang parehong Admin at User logic
 router.patch('/:id/status', verifyToken, updateRentalStatus);
+
+// DELETE /api/users/:id -> ITO ANG KULANG KAYA KA NAG-404
+router.delete('/:id', verifyToken, deleteRental); 
 
 export default router;

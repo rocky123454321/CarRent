@@ -38,6 +38,16 @@ const CarDetailView = ({ car: carProp, onBack }) => {
     if (car?._id) fetchRatings(car._id);
   }, [car?._id]);
 
+  useEffect(() => {
+    if (showBookingForm) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    // cleanup kapag nag-unmount
+    return () => { document.body.style.overflow = ''; };
+  }, [showBookingForm]);
+
   const reset = useRatingStore((s) => s.reset);
 
 useEffect(() => {
@@ -229,21 +239,20 @@ useEffect(() => {
         </div>
       </div>
 
-      {/* ── Booking Form Modal ── */}
-      {showBookingForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg relative">
-            <button onClick={() => setShowBookingForm(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors">
-              <X size={20} />
-            </button>
-            <div className="p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-1">Book this Car</h3>
-              <p className="text-sm text-gray-400 mb-4">{car.brand} {car.model} · ₱{car.pricePerDay?.toLocaleString()}/day</p>
-              <BookingForm car={car} onSuccess={handleRentalSuccess} />
-            </div>
-          </div>
-        </div>
-      )}
+    
+{showBookingForm && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl relative overflow-y-auto max-h-[90vh]">
+      <button
+        onClick={() => setShowBookingForm(false)}
+        className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 transition"
+      >
+        <X size={16} />
+      </button>
+      <BookingForm car={car} onSuccess={handleRentalSuccess} />
+    </div>
+  </div>
+)}
 
       {/* ── Reviews ── */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">

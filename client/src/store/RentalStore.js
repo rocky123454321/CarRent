@@ -50,5 +50,47 @@ export const useRentalStore = create((set, get) => ({
     } finally {
       set({ updating: { ...prev, [rentalId]: false } });
     }
+  },// Add these inside your create((set, get) => ({ ... }))
+// RentalStore.js
+
+cancelRental: async (rentalId) => {
+  try {
+    // Siguraduhing tugma ang URL: /api/users/:id/status
+    const res = await axios.patch(`${RENTAL}/${rentalId}/status`, 
+      { status: 'cancelled' }, 
+      { withCredentials: true }
+    );
+    
+    // Optimistic Update sa UI
+    set((state) => ({
+      userRentals: state.userRentals.map(r => 
+        r._id === rentalId ? { ...r, status: 'cancelled' } : r
+      )
+    }));
+    
+    return { success: true };
+  } catch (err) {
+    console.error("Cancel Error:", err.response?.data);
+    return { 
+      success: false, 
+      message: err.response?.data?.message || "Failed to cancel rental" 
+    };
+  }
+},
+  deleteRental: async (rentalId) => {
+    try {
+      // Gamitin ang RENTAL variable na na-define mo na sa taas
+      await axios.delete(`${RENTAL}/${rentalId}`, { withCredentials: true });
+      
+      set((state) => ({
+        userRentals: state.userRentals.filter(r => r._id !== rentalId)
+      }));
+      return { success: true };
+    } catch (err) {
+      console.error("Delete Error:", err); // Para makita mo ang buong error
+      return { success: false, message: err.response?.data?.message || "Route not found" };
+    }
   },
 }));
+
+
