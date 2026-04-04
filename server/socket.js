@@ -9,6 +9,7 @@ export const initSocket = (io) => {
     const userId = socket.handshake.auth?.userId;
     if (!userId) return;
     if (!mongoose.Types.ObjectId.isValid(userId)) return;
+
     const currentUserObjectId = new mongoose.Types.ObjectId(userId);
 
     const emitConversationUsers = async () => {
@@ -63,11 +64,18 @@ export const initSocket = (io) => {
 
     // Broadcast updated online list
     io.emit('online-users', Array.from(onlineUsers.keys()));
-    await emitConversationUsers();
+
+    // Small delay to ensure socket is fully ready before emitting
+    setTimeout(async () => {
+      await emitConversationUsers();
+    }, 100);
 
     // ── Deliver any unread messages that arrived while offline ──
     try {
-      const pending = await Message.find({ toUserId: userId, read: false })
+      const pending = await Message.find({
+        toUserId: currentUserObjectId,
+        read: false,
+      })
         .sort({ createdAt: 1 })
         .lean();
 
@@ -77,25 +85,32 @@ export const initSocket = (io) => {
           idSet.add(m.fromUserId.toString());
           idSet.add(m.toUserId.toString());
         });
-        const users = await User.find({ _id: { $in: Array.from(idSet) } }).select('_id name').lean();
+
+        const users = await User.find({ _id: { $in: Array.from(idSet) } })
+          .select('_id name')
+          .lean();
+
         const nameMap = users.reduce((acc, item) => {
           acc[item._id.toString()] = item.name || 'User';
           return acc;
         }, {});
 
-        socket.emit('pending-messages', pending.map((m) => ({
-          fromUserId: m.fromUserId.toString(),
-          toUserId:   m.toUserId.toString(),
-          message:    m.message,
-          timestamp:  m.createdAt.toISOString(),
-          _id:        m._id.toString(),
-          fromUserName: nameMap[m.fromUserId.toString()] || 'User',
-          toUserName: nameMap[m.toUserId.toString()] || 'User',
-        })));
+        socket.emit(
+          'pending-messages',
+          pending.map((m) => ({
+            fromUserId:   m.fromUserId.toString(),
+            toUserId:     m.toUserId.toString(),
+            message:      m.message,
+            timestamp:    m.createdAt.toISOString(),
+            _id:          m._id.toString(),
+            fromUserName: nameMap[m.fromUserId.toString()] || 'User',
+            toUserName:   nameMap[m.toUserId.toString()] || 'User',
+          }))
+        );
 
         // Mark them read now that user is online
         await Message.updateMany(
-          { toUserId: userId, read: false },
+          { toUserId: currentUserObjectId, read: false },
           { read: true }
         );
       }
@@ -106,29 +121,31 @@ export const initSocket = (io) => {
     // ── Private message ──
     socket.on('private-message', async ({ toUserId, message }) => {
       if (!toUserId || !message?.trim()) return;
+      if (!mongoose.Types.ObjectId.isValid(toUserId)) return;
+
+      const toUserObjectId = new mongoose.Types.ObjectId(toUserId);
 
       try {
-        // Always save to DB first
         const saved = await Message.create({
-          fromUserId: userId,
-          toUserId,
-          message: message.trim(),
-          read: false,
+          fromUserId: currentUserObjectId,
+          toUserId:   toUserObjectId,
+          message:    message.trim(),
+          read:       false,
         });
 
         const [fromUser, toUser] = await Promise.all([
-          User.findById(userId).select('name').lean(),
-          User.findById(toUserId).select('name').lean(),
+          User.findById(currentUserObjectId).select('name').lean(),
+          User.findById(toUserObjectId).select('name').lean(),
         ]);
 
         const msgData = {
-          fromUserId: userId,
-          toUserId,
-          message:    saved.message,
-          timestamp:  saved.createdAt.toISOString(),
-          _id:        saved._id.toString(),
+          fromUserId:   userId,
+          toUserId:     toUserId,
+          message:      saved.message,
+          timestamp:    saved.createdAt.toISOString(),
+          _id:          saved._id.toString(),
           fromUserName: fromUser?.name || 'User',
-          toUserName: toUser?.name || 'User',
+          toUserName:   toUser?.name || 'User',
         };
 
         // Send to recipient if online
@@ -144,7 +161,6 @@ export const initSocket = (io) => {
         // Echo back to sender
         socket.emit('private-message', msgData);
         socket.emit('conversation-users-refresh');
-
       } catch (err) {
         console.error('Error saving message:', err);
         socket.emit('message-error', { error: 'Failed to send message' });
@@ -154,15 +170,19 @@ export const initSocket = (io) => {
     // ── Load conversation history ──
     socket.on('load-history', async ({ withUserId, page = 1 }) => {
       if (!withUserId) return;
+      if (!mongoose.Types.ObjectId.isValid(withUserId)) return;
+
+      const withUserObjectId = new mongoose.Types.ObjectId(withUserId);
+
       try {
         const limit = 50;
         const skip  = (page - 1) * limit;
 
         const messages = await Message.find({
           $or: [
-            { fromUserId: userId, toUserId: withUserId },
-            { fromUserId: withUserId, toUserId: userId },
-          ]
+            { fromUserId: currentUserObjectId, toUserId: withUserObjectId },
+            { fromUserId: withUserObjectId,    toUserId: currentUserObjectId },
+          ],
         })
           .sort({ createdAt: -1 })
           .skip(skip)
@@ -174,7 +194,11 @@ export const initSocket = (io) => {
           idSet.add(m.fromUserId.toString());
           idSet.add(m.toUserId.toString());
         });
-        const users = await User.find({ _id: { $in: Array.from(idSet) } }).select('_id name').lean();
+
+        const users = await User.find({ _id: { $in: Array.from(idSet) } })
+          .select('_id name')
+          .lean();
+
         const nameMap = users.reduce((acc, item) => {
           acc[item._id.toString()] = item.name || 'User';
           return acc;
@@ -182,20 +206,20 @@ export const initSocket = (io) => {
 
         // Mark incoming messages as read
         await Message.updateMany(
-          { fromUserId: withUserId, toUserId: userId, read: false },
+          { fromUserId: withUserObjectId, toUserId: currentUserObjectId, read: false },
           { read: true }
         );
 
         socket.emit('history', {
           withUserId,
           messages: messages.reverse().map((m) => ({
-            fromUserId: m.fromUserId.toString(),
-            toUserId:   m.toUserId.toString(),
-            message:    m.message,
-            timestamp:  m.createdAt.toISOString(),
-            _id:        m._id.toString(),
+            fromUserId:   m.fromUserId.toString(),
+            toUserId:     m.toUserId.toString(),
+            message:      m.message,
+            timestamp:    m.createdAt.toISOString(),
+            _id:          m._id.toString(),
             fromUserName: nameMap[m.fromUserId.toString()] || 'User',
-            toUserName: nameMap[m.toUserId.toString()] || 'User',
+            toUserName:   nameMap[m.toUserId.toString()] || 'User',
           })),
         });
       } catch (err) {
