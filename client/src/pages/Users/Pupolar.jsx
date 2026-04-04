@@ -53,43 +53,7 @@ const Popular = () => {
       </div>
 
       {/* Search + Filter toggle */}
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search brand, model, color..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-sm text-slate-700 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-blue-500 transition"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-            >
-              <X size={13} />
-            </button>
-          )}
-        </div>
-
-        <button
-          onClick={() => setShowFilters(p => !p)}
-          className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl border text-sm font-medium transition
-            ${showFilters || hasActiveFilters
-              ? 'bg-blue-600 text-white border-blue-600'
-              : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300'}`}
-        >
-          <SlidersHorizontal size={14} />
-          Filters
-          {hasActiveFilters && (
-            <span className="w-4 h-4 bg-white/30 rounded-full text-[10px] flex items-center justify-center font-bold">
-              {[filterFuel !== 'all', filterTrans !== 'All', filterPrice !== 'all', !!searchQuery].filter(Boolean).length}
-            </span>
-          )}
-        </button>
-      </div>
-
+      
       {/* Filter Panel */}
       {showFilters && (
         <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-4">
