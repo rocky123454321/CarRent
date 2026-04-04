@@ -91,10 +91,11 @@ export const deleteCar = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 export const getAllCars = async (req, res) => {
   try {
-    const cars = await Car.find().sort({ createdAt: -1 });
+    const cars = await Car.find()
+      .populate('uploadedBy', 'name email profileImage') // ✅ idagdag ito
+      .sort({ createdAt: -1 });
     res.json(cars);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -103,14 +104,14 @@ export const getAllCars = async (req, res) => {
 
 export const getCarById = async (req, res) => {
   try {
-    const car = await Car.findById(req.params.id);
+    const car = await Car.findById(req.params.id)
+      .populate('uploadedBy', 'name email profileImage'); // ✅ idagdag ito
     if (!car) return res.status(404).json({ message: "Car not found" });
     res.json(car);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
-
 export const rentCar = async (req, res) => {
   try {
     const { userId, rentalStartDate, rentalEndDate } = req.body;

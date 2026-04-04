@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import BookingForm from '../../components/user/BookingForm';
 import carImage from "../../assets/carpichero.png";
+
+
+import { User } from "lucide-react";
 import {
   Fuel, Cog, ArrowLeft, Star, MapPin,
   Shield, Calendar, MessageSquare, X
@@ -62,15 +65,17 @@ useEffect(() => {
     navigate('/my-rentals');
   };
 
-  const handleChatWithAdmin = () => {
-    if (!isAuthenticated) { toast.error('Please login to chat'); return; }
-    const adminId = car?.uploadedBy;
-    if (!adminId) { toast.error('Could not find the car owner'); return; }
-    navigate('/chat', {
-      state: { adminId, context: 'car', carId: car._id, carName: `${car.brand} ${car.model}` }
-    });
-  };
-
+ const handleChatWithAdmin = () => {
+  if (!isAuthenticated) { toast.error('Please login to chat'); return; }
+  
+ 
+  const adminId = car?.uploadedBy?._id || car?.uploadedBy;
+  
+  if (!adminId) { toast.error('Could not find the car owner'); return; }
+  navigate('/chat', {
+    state: { adminId, context: 'car', carId: car._id, carName: `${car.brand} ${car.model}` }
+  });
+};
   if (!car) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -163,6 +168,40 @@ useEffect(() => {
                 })}
               </div>
             </div>
+            {/* ── Uploaded By ── */}
+{car.uploadedBy && (
+  <div className="flex items-center gap-3 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2.5 mb-4">
+    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center shrink-0">
+      {car.uploadedBy?.profileImage ? (
+        <img
+          src={car.uploadedBy.profileImage}
+          alt={car.uploadedBy.name}
+          className="w-full h-full rounded-full object-cover"
+        />
+      ) : (
+        <span className="text-white font-bold text-sm">
+          {car.uploadedBy?.name?.charAt(0)?.toUpperCase() || 'A'}
+        </span>
+      )}
+    </div>
+    <div className="flex-1 min-w-0">
+      <p className="text-[10px] text-blue-400 font-semibold uppercase tracking-wide">Listed by</p>
+      <p className="text-sm font-semibold text-gray-800 truncate">
+        {car.uploadedBy?.name || 'Admin'}
+      </p>
+      {car.uploadedBy?.email && (
+        <p className="text-xs text-gray-400 truncate">{car.uploadedBy.email}</p>
+      )}
+    </div>
+    <button
+      onClick={handleChatWithAdmin}
+      className="flex items-center gap-1 text-xs font-semibold text-blue-600 bg-white border border-blue-200 rounded-lg px-2.5 py-1.5 hover:bg-blue-50 transition shrink-0"
+    >
+      <MessageSquare size={12} />
+      Chat
+    </button>
+  </div>
+)}
 
             <div className="border-t border-gray-100 pt-4">
               <div className="flex items-center justify-between">
@@ -171,12 +210,7 @@ useEffect(() => {
                   <p className="text-xs text-gray-400">per day</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleChatWithAdmin}
-                    className="flex items-center gap-1.5 border border-blue-200 text-blue-600 hover:bg-blue-50 text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
-                  >
-                    <MessageSquare size={15} /> Chat
-                  </button>
+                
                   <button
                     onClick={() => {
                       if (!isAuthenticated) { toast.error('Please login to book'); return; }

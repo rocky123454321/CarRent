@@ -16,7 +16,7 @@ import ForgotPasswordPage from "./pages/authentication/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/authentication/ResetPasswordPage";
 
 // User Pages
-import Category from "./pages/Users/Category";
+import Category from "./pages/Users/HomePage";
 import DashboardPage from "./pages/Users/Home";
 import CarDetailView from "./pages/Users/CarDetailView";
 import ChatPage from "./pages/Chat/ChatPage";
@@ -32,6 +32,8 @@ import AddCar from "./components/forms/admin/AddCar";
 import ReportsPage from "./components/admin/ReportsPage";
 import AdminChatPage from './pages/admin/AdminChatPage';
 import SettingsAdmin from "./pages/admin/SettingsAdmin";
+import Popular from "./pages/Users/Recomended";
+import Recomended from "./pages/Users/Recomended";
 
 // --- LAYOUTS ---
 
@@ -133,6 +135,8 @@ function App() {
           <Route index element={<Category />} />
           <Route path="cars" element={<DashboardPage />} />
           <Route path="cars/:id" element={<CarDetailView />} />
+          <Route path="popular" element={<Popular />} />
+          <Route path="recomended" element={<Recomended />} />
           <Route path="car/:id" element={<CarDetailView />} />
           <Route path="my-rentals" element={<MyRentals />} />
           <Route path="chat" element={<ChatPage />} />

@@ -10,8 +10,6 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
 
   useEffect(() => { getCars(); }, [getCars]);
 
-  // When a card is clicked — use onSelect if provided (inline mode),
-  // otherwise navigate via router (standalone route mode)
   const handleSelect = (car) => {
     if (onSelect) {
       onSelect(car);
@@ -47,60 +45,64 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
   if (displayCars.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <p className="text-gray-400 text-sm">No cars match your filters.</p>
+        <p className="text-gray-400 text-sm font-medium">No cars match your filters.</p>
         <p className="text-gray-300 text-xs mt-1">Try adjusting or resetting the filters.</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {displayCars.map((car) => (
         <div
           key={car._id}
-          className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:border-blue-200 hover:shadow-md transition-all group cursor-pointer"
+          className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm transition-colors hover:border-blue-200 cursor-pointer flex flex-col"
           onClick={() => handleSelect(car)}
         >
-          {/* Heart */}
-          <div className="flex justify-end p-2.5 pb-0">
-            <button
-              className="text-gray-300 hover:text-red-400 transition-colors"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Heart size={15} />
-            </button>
+          {/* Header Section */}
+          <div className="p-4 pb-0 flex justify-between items-start">
+            <div>
+              <h3 className="font-bold text-gray-900 text-base">{car.brand} {car.model}</h3>
+              <p className="text-xs text-gray-400 mt-0.5 font-medium uppercase tracking-tighter">
+                {car.color} • {car.year}
+              </p>
+            </div>
+            <Heart size={18} className="text-gray-300 hover:text-red-500 transition-colors" />
           </div>
 
-          {/* Name */}
-          <div className="px-3 pb-2">
-            <p className="font-medium text-sm text-gray-900">{car.brand} {car.model}</p>
-            <p className="text-xs text-gray-400 mt-0.5">{car.color} · {car.year}</p>
-          </div>
-
-          {/* Image */}
-          <div className="mx-3 bg-gray-50 rounded-xl flex justify-center p-3">
+          {/* Full-width Image Section */}
+          <div className="w-full h-40 bg-gray-50/50 flex items-center justify-center mt-2 overflow-hidden">
             <img
               src={car.image || carImage}
               alt={car.model}
-              className="h-24 object-contain transition-transform duration-300 group-hover:scale-105"
+              className="w-full h-full object-contain p-4"
             />
           </div>
 
-          {/* Specs */}
-          <div className="flex justify-between px-3 py-2.5 text-xs text-gray-400 border-t border-gray-50 mt-3">
-            <span className="flex items-center gap-1"><Fuel size={11} />{car.fuelType}</span>
-            <span className="flex items-center gap-1"><Cog size={11} />{car.transmission}</span>
-            <span className="flex items-center gap-1"><Users size={11} />{car.mileage} km</span>
+          {/* Specs Section */}
+          <div className="px-4 py-3 flex justify-between border-b border-gray-50">
+            <div className="flex items-center gap-1 text-gray-400">
+              <Fuel size={14} className="text-blue-500" />
+              <span className="text-[11px] font-semibold">{car.fuelType}</span>
+            </div>
+            <div className="flex items-center gap-1 text-gray-400">
+              <Cog size={14} className="text-blue-500" />
+              <span className="text-[11px] font-semibold">{car.transmission}</span>
+            </div>
+            <div className="flex items-center gap-1 text-gray-400">
+              <Users size={14} className="text-blue-500" />
+              <span className="text-[11px] font-semibold">{car.mileage}km</span>
+            </div>
           </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between border-t border-gray-100 px-3 py-2.5">
-            <p className="text-sm font-medium text-gray-900">
-              ₱{car.pricePerDay.toLocaleString()}
-              <span className="text-xs text-gray-400 font-normal"> /day</span>
-            </p>
+          {/* Footer Section */}
+          <div className="p-4 flex items-center justify-between mt-auto">
+            <div>
+              <span className="text-lg font-bold text-gray-900">₱{car.pricePerDay.toLocaleString()}</span>
+              <span className="text-[10px] text-gray-400 font-normal">/day</span>
+            </div>
             <button
-              className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg transition-colors"
+              className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all"
               onClick={(e) => { e.stopPropagation(); handleSelect(car); }}
             >
               Rent now
