@@ -1,75 +1,97 @@
-import React, { useState } from "react";
-import { Menu, X } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Menu, Moon, Sun, X } from "lucide-react";
 import brand from "../../assets/brand.png";
 import { Link } from "react-router-dom";
+import { useThemeStore } from "../../store/themeStore";
 
 const NonNav = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { darkMode, toggleTheme, initTheme } = useThemeStore();
+
+  // Siguraduhin na tama ang theme pagka-load ng app
+  useEffect(() => {
+    initTheme();
+  }, [initTheme]);
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md w-full fixed top-0 left-0 px-6 py-4 shadow-sm z-50 border-b border-slate-100">
-      <div className="flex items-center justify-between max-w-7xl mx-auto">
+    <nav className="fixed top-0 left-0 z-50 w-full border-b border-slate-200/60 bg-white/70 backdrop-blur-xl transition-all duration-300 dark:border-slate-800/60 dark:bg-slate-950/70">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        
         {/* Logo */}
-        <Link to="/">
-          <img src={brand} alt="brand" className="h-10" />
+        <Link to="/" className="transition-opacity hover:opacity-80">
+          <img src={brand} alt="brand" className="h-9 w-auto object-contain dark:brightness-110" />
         </Link>
 
-        {/* Desktop Login/Signup */}
-        <div className="hidden md:flex items-center gap-3">
+        {/* Desktop Menu */}
+        <div className="hidden items-center gap-4 md:flex">
+          
+          {/* Theme Toggle Button */}
+          <button 
+            onClick={toggleTheme}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition-all hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            {darkMode ? (
+              <Sun size={18} className="text-yellow-400 animate-pulse" />
+            ) : (
+              <Moon size={18} className="text-indigo-600" />
+            )}
+          </button>
+
           <Link
             to="/login"
-            className="px-5 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:border-slate-300 hover:text-slate-900 transition-all duration-150 bg-white"
+            className="text-sm font-medium text-slate-600 transition-colors hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white"
           >
             Login
           </Link>
+
           <Link
             to="/signup"
-            className="px-5 py-2 rounded-xl text-white font-semibold text-sm transition-all duration-150"
-            style={{ background: "#4f46e5", boxShadow: "0 4px 14px rgba(79,70,229,0.3)" }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#4338ca";
-              e.currentTarget.style.boxShadow = "0 6px 20px rgba(79,70,229,0.4)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "#4f46e5";
-              e.currentTarget.style.boxShadow = "0 4px 14px rgba(79,70,229,0.3)";
-            }}
+            className="rounded-full bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:bg-indigo-700 hover:shadow-indigo-500/50 active:scale-95"
           >
             Sign Up
           </Link>
         </div>
 
-        {/* Mobile Button */}
-        <div className="md:hidden">
+        {/* Mobile Controls */}
+        <div className="flex items-center gap-3 md:hidden">
+          <button 
+            onClick={toggleTheme}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 dark:border-slate-800"
+          >
+            {darkMode ? <Sun size={16} className="text-yellow-400" /> : <Moon size={16} className="text-slate-600" />}
+          </button>
+
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-500 hover:text-slate-800 hover:border-slate-300 transition-all"
+            className="text-slate-600 dark:text-slate-300"
           >
-            {!mobileOpen ? <Menu size={18} /> : <X size={18} />}
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {mobileOpen && (
-        <div className="md:hidden fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md p-6 pt-24 -z-10 flex flex-col gap-3 border-b border-slate-100 shadow-lg">
+      {/* Mobile Menu (Animated Slide Down) */}
+      <div className={`
+        absolute left-0 top-full w-full border-b border-slate-200 bg-white/95 p-6 backdrop-blur-lg transition-all duration-300 dark:border-slate-800 dark:bg-slate-950/95 md:hidden
+        ${mobileOpen ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0 pointer-events-none"}
+      `}>
+        <div className="flex flex-col gap-4">
           <Link
             to="/login"
             onClick={() => setMobileOpen(false)}
-            className="w-full py-3 rounded-xl border border-slate-200 text-slate-700 font-semibold text-sm text-center hover:border-slate-300 hover:text-slate-900 bg-white transition-all duration-150"
+            className="flex h-12 items-center justify-center rounded-xl border border-slate-200 font-semibold text-slate-700 dark:border-slate-800 dark:text-slate-300"
           >
             Login
           </Link>
           <Link
             to="/signup"
             onClick={() => setMobileOpen(false)}
-            className="w-full py-3 rounded-xl text-white font-semibold text-sm text-center transition-all duration-150"
-            style={{ background: "#4f46e5" }}
+            className="flex h-12 items-center justify-center rounded-xl bg-indigo-600 font-semibold text-white"
           >
             Sign Up
           </Link>
         </div>
-      )}
+      </div>
     </nav>
   );
 };

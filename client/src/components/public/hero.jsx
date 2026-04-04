@@ -1,153 +1,108 @@
 import React, { useEffect, useRef } from "react";
-import car from "../../assets/carpichero.png";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronRight, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../store/authStore"; // 1. Import ang auth store
+import { useAuthStore } from "../../store/authStore";
 
 const Hero = () => {
   const navigate = useNavigate();
   const ref = useRef(null);
-  const { isAuthenticated } = useAuthStore(); // 2. Kunin ang auth status
+  const { isAuthenticated } = useAuthStore();
 
-  // 3. Logic para sa Protected Navigation
   const handleBrowseCars = () => {
-    if (isAuthenticated) {
-      navigate("/cars"); // Kung login na, punta sa listahan ng cars
-    } else {
-      navigate("/login"); // Else, login muna
-    }
+    navigate(isAuthenticated ? "/cars" : "/login");
   };
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    el.querySelectorAll(".fu").forEach((item, i) => {
+    
+    // Modern staggered animation logic
+    const items = el.querySelectorAll(".fu");
+    items.forEach((item, i) => {
       item.style.opacity = "0";
-      item.style.transform = "translateY(20px)";
+      item.style.transform = "translateY(30px) scale(0.98)";
+      
       setTimeout(() => {
-        item.style.transition = "opacity 0.65s ease, transform 0.65s ease";
+        item.style.transition = "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)";
         item.style.opacity = "1";
-        item.style.transform = "translateY(0)";
-      }, 80 + i * 110);
+        item.style.transform = "translateY(0) scale(1)";
+      }, 150 + i * 100);
     });
   }, []);
 
   return (
     <section
       ref={ref}
-      className="relative w-full min-h-screen flex items-center bg-white overflow-hidden"
-      style={{ paddingTop: "72px" }}
+      className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-white transition-colors duration-500 dark:bg-slate-950"
     >
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 75% 55% at 65% 38%, #EEF2FF 0%, transparent 70%)",
-        }}
-      />
-
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-16 grid lg:grid-cols-2 gap-12 items-center py-24">
-        <div className="space-y-8">
-          <div className="fu inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-xs font-semibold text-slate-500 tracking-widest uppercase shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-            AI-Powered Platform
-          </div>
-
-          <h1
-            className="fu text-[3.4rem] lg:text-[4.2rem] xl:text-[4.8rem] font-black text-slate-900 leading-[1.06] tracking-tight"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-          >
-            Drive your
-            <br />
-            <span className="text-indigo-600">dream car</span>
-            <br />
-            today.
-          </h1>
-
-          <p className="fu text-lg lg:text-xl text-slate-500 leading-relaxed max-w-md">
-            Book premium vehicles in minutes with smart AI-powered suggestions
-            tailored to your journey.
-          </p>
-
-          <div className="fu flex flex-wrap items-center gap-3">
-            {/* 4. Ginabmit ang handleBrowseCars dito */}
-            <button
-              onClick={handleBrowseCars}
-              className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-white font-semibold text-base transition-all duration-200 bg-indigo-600 hover:bg-indigo-700 active:scale-95"
-              style={{ boxShadow: "0 4px 20px rgba(79,70,229,0.3)" }}
-            >
-              Browse Cars
-              <ArrowRight size={17} className="transition-transform group-hover:translate-x-0.5" />
-            </button>
-            
-            <button
-              onClick={() => navigate("/how-it-works")}
-              className="inline-flex items-center gap-1 px-5 py-3.5 text-slate-500 font-semibold text-base hover:text-slate-800 transition-colors"
-            >
-              How it works <ChevronRight size={15} />
-            </button>
-          </div>
-
-          <div className="fu flex items-center gap-4 pt-1">
-            <div className="flex -space-x-2.5">
-              {["#6366f1", "#818cf8", "#a5b4fc", "#c7d2fe"].map((c, i) => (
-                <div
-                  key={i}
-                  className="w-8 h-8 rounded-full border-2 border-white"
-                  style={{ background: c }}
-                />
-              ))}
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-slate-700">Trusted by 20,000+ renters</p>
-              <p className="text-xs text-amber-500 font-medium">
-                ★★★★★ <span className="text-slate-400 font-normal">4.9 average rating</span>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="fu relative hidden lg:flex items-center justify-center">
-          <div
-            className="absolute w-[480px] h-[480px] rounded-full"
-            style={{
-              background: "radial-gradient(circle, #e0e7ff 0%, #f0f4ff 50%, transparent 75%)",
-            }}
-          />
-          <img
-            src={car}
-            alt="Premium Car"
-            className="relative z-10 w-full max-w-xl"
-            style={{
-              animation: "heroFloat 7s ease-in-out infinite",
-              filter: "drop-shadow(0 28px 44px rgba(79,70,229,0.13))",
-            }}
-          />
-          {[
-            { text: "500+ Cars", icon: "🚗", style: { top: "6%", right: "0" }, delay: "0s" },
-            { text: "Instant Booking", icon: "⚡", style: { bottom: "12%", left: "0" }, delay: "1.2s" },
-          ].map(({ text, icon, style, delay }) => (
-            <div
-              key={text}
-              className="absolute flex items-center gap-2.5 px-4 py-2.5 z-[20] rounded-2xl bg-white border border-slate-100 shadow-md text-sm font-semibold text-slate-700"
-              style={{ ...style, animation: `chipFloat 5s ease-in-out ${delay} infinite` }}
-            >
-              <span>{icon}</span> {text}
-            </div>
-          ))}
-        </div>
+      {/* SaaS Mesh Background - Optimized for Dark Mode */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-[10%] left-[20%] h-[500px] w-[500px] rounded-full bg-indigo-50/50 blur-[120px] dark:bg-indigo-900/20" />
+        <div className="absolute -bottom-[10%] right-[10%] h-[400px] w-[400px] rounded-full bg-blue-50/50 blur-[100px] dark:bg-blue-900/10" />
       </div>
 
-      <style>{`
-        @keyframes heroFloat {
-          0%,100% { transform: translateY(0); }
-          50% { transform: translateY(-14px); }
-        }
-        @keyframes chipFloat {
-          0%,100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
-        }
-      `}</style>
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center px-6 py-24 text-center">
+        
+        {/* Animated Badge */}
+        <div className="fu mb-8 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50/50 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 shadow-sm backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/50 dark:text-indigo-400">
+          <Sparkles size={12} className="animate-pulse" />
+          The Future of Car Rentals
+        </div>
+
+        {/* Main Heading */}
+        <h1 className="fu mb-8 text-[3.2rem] font-black leading-[1.05] tracking-tight text-slate-900 dark:text-white md:text-[5rem] lg:text-[6.2rem]">
+          Your next journey <br />
+          starts <span className="relative inline-block text-indigo-600 italic">
+            here.
+            <span className="absolute bottom-2 left-0 h-2 w-full bg-indigo-100/50 -z-10 dark:bg-indigo-900/30" />
+          </span>
+        </h1>
+
+        {/* Subtext */}
+        <p className="fu mb-12 max-w-2xl text-lg font-medium leading-relaxed text-slate-500 dark:text-slate-400 md:text-xl">
+          Premium car rentals simplified. No paperwork, no hidden fees—just 
+          seamless technology connecting you to your dream ride in seconds.
+        </p>
+
+        {/* CTA Group */}
+        <div className="fu flex flex-col items-center justify-center gap-4 sm:flex-row mb-20 w-full">
+          <button
+            onClick={handleBrowseCars}
+            className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-10 py-5 text-sm font-black text-white shadow-xl shadow-indigo-200 transition-all hover:bg-indigo-700 hover:shadow-indigo-500/40 active:scale-95 dark:shadow-none sm:w-auto"
+          >
+            Explore the Fleet
+            <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+          </button>
+          
+          <button
+            onClick={() => navigate("/how-it-works")}
+            className="flex w-full items-center justify-center gap-1 rounded-2xl border border-transparent px-8 py-5 text-sm font-black uppercase tracking-[0.15em] text-slate-600 transition-all hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white sm:w-auto"
+          >
+            How it works <ChevronRight size={16} />
+          </button>
+        </div>
+
+        {/* Trust Footer */}
+        <div className="fu flex w-full max-w-lg flex-col items-center gap-8 border-t border-slate-100 pt-12 dark:border-slate-800">
+          <div className="flex w-full items-center justify-around opacity-40 transition-all duration-500 hover:opacity-100 dark:text-white">
+            <span className="text-xs font-black tracking-widest">TRUSTED</span>
+            <span className="text-xs font-black tracking-widest">SECURE</span>
+            <span className="text-xs font-black tracking-widest">FAST</span>
+          </div>
+          
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex gap-1 text-amber-400">
+              {[...Array(5)].map((_, i) => (
+                <span key={i} className="text-sm">★</span>
+              ))}
+            </div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+              Verified by 20k+ Active Users
+            </p>
+          </div>
+        </div>
+
+      </div>
     </section>
   );
 };

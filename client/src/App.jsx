@@ -35,10 +35,12 @@ import SettingsAdmin from "./pages/admin/SettingsAdmin";
 import Popular from "./pages/Users/Recomended";
 import Recomended from "./pages/Users/Recomended";
 
+import { useThemeStore } from "./store/themeStore";
+
 // --- LAYOUTS ---
 
 const PublicLayout = () => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex items-center justify-center transition-colors duration-300">
     <div className="w-full px-6 py-8">
       <Outlet />
     </div>
@@ -46,7 +48,7 @@ const PublicLayout = () => (
 );
 
 const DashboardLayout = () => (
-  <div className="min-h-screen bg-gray-50">
+  <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
     <Navigation />
     <div className="pt-20 max-w-7xl mx-auto px-6 py-12">
       <Outlet />
@@ -56,23 +58,19 @@ const DashboardLayout = () => (
 
 // --- ROUTE GUARDS (SECURITY) ---
 
-// 1. Root Entry Logic: Nagdedesisyon kung saan itatapon ang user base sa role pag-landing sa "/"
 const RootRedirect = () => {
   const { isAuthenticated, user, isCheckingAuth } = useAuthStore();
 
   if (isCheckingAuth) return <LoadingSpinner />;
   if (!isAuthenticated) return <Navigate to="/landing" replace />;
 
-  // Kung Admin/Renter, diretso sa Admin Dashboard
   if (user?.role === "admin" || user?.role === "renter") {
     return <Navigate to="/admin" replace />;
   }
 
-  // Kung Regular User, ipakita ang User Dashboard Layout
   return <DashboardLayout />;
 };
 
-// 2. Admin Only Guard: Hinaharangan ang regular users sa /admin
 const AdminRoute = ({ children }) => {
   const { isAuthenticated, user, isCheckingAuth } = useAuthStore();
   
@@ -85,7 +83,6 @@ const AdminRoute = ({ children }) => {
   return children;
 };
 
-// 3. Public Route Guard: Hinaharangan ang mga logged-in users sa login/signup pages
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
   
@@ -102,19 +99,26 @@ const PublicRoute = ({ children }) => {
 
 function App() {
   const { isCheckingAuth, checkAuth } = useAuthStore();
+  const initTheme = useThemeStore((state) => state.initTheme);
 
+  // Initialize theme and check auth once on mount
   useEffect(() => {
+    initTheme();
     checkAuth();
-  }, [checkAuth]);
+  }, [initTheme, checkAuth]);
 
   if (isCheckingAuth) return <LoadingSpinner />;
 
   return (
     <>
-      <Toaster position="top-center" richColors />
+      <Toaster 
+        position="top-center" 
+        richColors 
+        theme={useThemeStore.getState().darkMode ? 'dark' : 'light'} 
+      />
 
       <Routes>
-        {/* 🌍 Landing Page (Accessible to everyone, but redirects if logged in via PublicRoute inside) */}
+        {/* 🌍 Landing Page */}
         <Route path="/landing" element={
           <PublicRoute>
             <LandingPage />
@@ -130,7 +134,7 @@ function App() {
           <Route path="/reset-password/:token" element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
         </Route>
 
-        {/* 👤 USER ROUTES (Root path uses RootRedirect for auto-routing) */}
+        {/* 👤 USER ROUTES */}
         <Route path="/" element={<RootRedirect />}>
           <Route index element={<Category />} />
           <Route path="cars" element={<DashboardPage />} />
@@ -143,7 +147,7 @@ function App() {
           <Route path="settings" element={<Settings />} />
         </Route>
 
-        {/* 🛠 ADMIN ROUTES (Strictly for admin/renter roles) */}    
+        {/* 🛠 ADMIN ROUTES */}    
         <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>}>
           <Route index element={<AdminDashboard />} />
           <Route path="chat" element={<AdminChatPage />} />

@@ -5,41 +5,43 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Send, ShieldCheck, ArrowLeft, MessageCircle, Search, Car } from 'lucide-react';
 
 const Skeleton = ({ className }) => (
-  <div className={`bg-slate-100 animate-pulse rounded-xl ${className}`} />
+  <div className={`bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl ${className}`} />
 );
 
-// ── Sidebar ── OUTSIDE ChatPage
+// ── Sidebar ──
 const Sidebar = ({
   font, searchQuery, setSearchQuery, isConnected,
   filteredConversations, loading, onlineUsers,
   activeConversation, selectConversation, userProfiles, getLastMessage,
 }) => (
-  <div className="flex flex-col h-full bg-white w-full" style={font}>
-    <div className="p-5 border-b border-slate-100 space-y-4 shrink-0">
+  <div className="flex flex-col h-full bg-white dark:bg-slate-900 w-full transition-colors duration-300" style={font}>
+    <div className="p-5 border-b border-slate-100 dark:border-slate-800 space-y-4 shrink-0">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-indigo-600 font-semibold text-[10px] tracking-widest uppercase mb-0.5">Support</p>
-          <h2 className="text-xl font-black text-slate-900">Messages</h2>
+          <p className="text-indigo-600 dark:text-indigo-400 font-bold text-[10px] tracking-widest uppercase mb-0.5">Support</p>
+          <h2 className="text-xl font-black text-slate-900 dark:text-white">Messages</h2>
         </div>
-        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold border
-          ${isConnected ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
+        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border transition-colors
+          ${isConnected 
+            ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800/50' 
+            : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border-red-100 dark:border-red-800/50'}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
           {isConnected ? 'Live' : 'Offline'}
         </div>
       </div>
       <div className="relative">
-        <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+        <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
         <input
           type="text"
           placeholder="Search..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-9 pr-4 text-sm font-medium text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition"
+          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-2.5 pl-9 pr-4 text-sm font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
         />
       </div>
     </div>
 
-    <div className="flex-1 overflow-y-auto p-3 space-y-1">
+    <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
       {loading ? (
         Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="flex items-center gap-3 px-3 py-4">
@@ -52,10 +54,10 @@ const Sidebar = ({
         ))
       ) : filteredConversations.length === 0 ? (
         <div className="text-center py-16 px-4">
-          <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <MessageCircle size={20} className="text-slate-300" />
+          <div className="w-12 h-12 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <MessageCircle size={20} className="text-slate-300 dark:text-slate-700" />
           </div>
-          <p className="text-xs font-semibold text-slate-400">No conversations yet</p>
+          <p className="text-xs font-bold text-slate-400 dark:text-slate-600">No conversations yet</p>
         </div>
       ) : (
         filteredConversations.map(uid => {
@@ -65,24 +67,26 @@ const Sidebar = ({
             <button
               key={uid}
               onClick={() => selectConversation(uid)}
-              className={`w-full flex items-center gap-3 px-3 py-3 rounded-2xl transition-all text-left
-                ${isActive ? 'bg-indigo-600 shadow-lg shadow-indigo-100' : 'hover:bg-slate-50'}`}
+              className={`w-full flex items-center gap-3 px-3 py-3 rounded-2xl transition-all text-left group
+                ${isActive 
+                  ? 'bg-indigo-600 shadow-lg shadow-indigo-100 dark:shadow-indigo-900/20' 
+                  : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
             >
               <div className="relative shrink-0">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center
-                  ${isActive ? 'bg-white/20' : 'bg-slate-100 border border-slate-200'}`}>
-                  <ShieldCheck size={17} className={isActive ? 'text-white' : 'text-indigo-500'} />
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors
+                  ${isActive ? 'bg-white/20' : 'bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700'}`}>
+                  <ShieldCheck size={17} className={isActive ? 'text-white' : 'text-indigo-500 dark:text-indigo-400'} />
                 </div>
                 {isOnline && (
                   <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 bg-emerald-500
-                    ${isActive ? 'border-indigo-600' : 'border-white'}`} />
+                    ${isActive ? 'border-indigo-600' : 'border-white dark:border-slate-900'}`} />
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-sm font-semibold truncate ${isActive ? 'text-white' : 'text-slate-900'}`}>
+                <p className={`text-sm font-bold truncate transition-colors ${isActive ? 'text-white' : 'text-slate-900 dark:text-slate-100'}`}>
                   {userProfiles[uid] || 'Admin'}
                 </p>
-                <p className={`text-xs truncate mt-0.5 ${isActive ? 'text-indigo-200' : 'text-slate-400'}`}>
+                <p className={`text-[11px] truncate mt-0.5 transition-colors ${isActive ? 'text-indigo-100' : 'text-slate-400 dark:text-slate-500'}`}>
                   {getLastMessage(uid)}
                 </p>
               </div>
@@ -94,7 +98,7 @@ const Sidebar = ({
   </div>
 );
 
-// ── Chat ── OUTSIDE ChatPage
+// ── Chat ──
 const Chat = ({
   font, activeConversation, setMobileView, isConnected,
   onlineUsers, activeName, isActiveOnline, carName,
@@ -102,45 +106,45 @@ const Chat = ({
   messagesEndRef, inputRef, user, message,
   handleTyping, handleSend,
 }) => (
-  <div className="flex flex-col h-full w-full" style={font}>
-    <div className="px-4 py-3.5 border-b border-slate-100 flex items-center gap-3 shrink-0 bg-white">
+  <div className="flex flex-col h-full w-full bg-white dark:bg-slate-900 transition-colors duration-300" style={font}>
+    <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3 shrink-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
       <button
         onClick={() => setMobileView('sidebar')}
-        className="md:hidden p-2 hover:bg-slate-50 rounded-xl text-slate-500 border border-slate-200 transition shrink-0"
+        className="md:hidden p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 transition shrink-0"
       >
         <ArrowLeft size={16} />
       </button>
       {activeConversation ? (
         <>
-          <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm shadow-indigo-200 dark:shadow-none">
             <ShieldCheck size={16} className="text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-slate-900 text-sm truncate">{activeName}</p>
+            <p className="font-black text-slate-900 dark:text-white text-sm truncate">{activeName}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className={`w-1.5 h-1.5 rounded-full ${isActiveOnline ? 'bg-emerald-500' : 'bg-slate-300'}`} />
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+              <span className={`w-1.5 h-1.5 rounded-full ${isActiveOnline ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'}`} />
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
                 {isActiveOnline ? 'Online' : 'Away'}
               </p>
             </div>
           </div>
           {carName && (
-            <div className="flex items-center gap-1 bg-indigo-50 text-indigo-600 text-[10px] font-semibold px-2.5 py-1 rounded-full border border-indigo-100 shrink-0 max-w-[120px]">
+            <div className="flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[10px] font-black px-3 py-1.5 rounded-full border border-indigo-100 dark:border-indigo-800/50 shrink-0 max-w-[140px]">
               <Car size={10} className="shrink-0" />
-              <span className="truncate">{carName}</span>
+              <span className="truncate uppercase tracking-tighter">{carName}</span>
             </div>
           )}
         </>
       ) : (
-        <p className="text-sm text-slate-400">Select a conversation</p>
+        <p className="text-sm font-bold text-slate-400 dark:text-slate-600">Select a conversation</p>
       )}
     </div>
 
-    <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-slate-50/30">
+    <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 bg-slate-50/30 dark:bg-slate-950/20">
       {!activeConversation ? (
-        <div className="flex flex-col items-center justify-center h-full text-slate-300 text-center px-6">
-          <ShieldCheck size={36} className="mb-3" />
-          <p className="text-xs font-semibold uppercase tracking-widest">Select a conversation</p>
+        <div className="flex flex-col items-center justify-center h-full text-slate-300 dark:text-slate-800 text-center px-6">
+          <ShieldCheck size={48} className="mb-4 opacity-50" />
+          <p className="text-[10px] font-black uppercase tracking-widest">Select a secure conversation</p>
         </div>
       ) : loading ? (
         Array.from({ length: 4 }).map((_, i) => (
@@ -150,29 +154,27 @@ const Chat = ({
         ))
       ) : activeMessages.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-center px-6">
-          <div className="bg-white border border-slate-100 rounded-2xl p-7 shadow-sm max-w-[260px]">
-            <MessageCircle size={28} className="mx-auto mb-3 text-indigo-200" />
-            <p className="text-sm font-semibold text-slate-500 mb-1">Start the conversation</p>
-            {carName && (
-              <p className="text-xs text-slate-400">
-                Asking about <span className="font-semibold text-indigo-600">{carName}</span>
-              </p>
-            )}
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-8 shadow-sm max-w-[280px]">
+            <MessageCircle size={32} className="mx-auto mb-4 text-indigo-200 dark:text-indigo-900" />
+            <p className="text-sm font-black text-slate-600 dark:text-slate-300 mb-1">Secure Channel</p>
+            <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
+              Start chatting about {carName ? <span className="text-indigo-500 font-bold">{carName}</span> : 'your concerns'}.
+            </p>
           </div>
         </div>
       ) : (
         activeMessages.map((msg, i) => {
           const isMine = msg.fromUserId === user._id;
           return (
-            <div key={msg._id || i} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+            <div key={msg._id || i} className={`flex ${isMine ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
               <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[80%]`}>
-                <div className={`px-4 py-2.5 rounded-2xl text-sm font-medium leading-relaxed shadow-sm
+                <div className={`px-4 py-2.5 rounded-2xl text-sm font-medium leading-relaxed shadow-sm transition-colors
                   ${isMine
-                    ? 'bg-indigo-600 text-white rounded-br-none shadow-indigo-100'
-                    : 'bg-white text-slate-700 rounded-bl-none border border-slate-100'}`}>
+                    ? 'bg-indigo-600 text-white rounded-br-none shadow-indigo-100 dark:shadow-none'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-none border border-slate-100 dark:border-slate-700/50'}`}>
                   {msg.message}
                 </div>
-                <span className="text-[10px] font-semibold text-slate-400 mt-1 px-1 uppercase tracking-wider">
+                <span className="text-[9px] font-black text-slate-400 dark:text-slate-600 mt-1.5 px-1 uppercase tracking-tighter">
                   {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
@@ -183,9 +185,9 @@ const Chat = ({
 
       {userIsTyping && (
         <div className="flex justify-start">
-          <div className="bg-white border border-slate-100 rounded-2xl rounded-bl-none px-4 py-3 shadow-sm flex gap-1.5 items-center">
+          <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 rounded-2xl rounded-bl-none px-4 py-3 shadow-sm flex gap-1.5 items-center">
             {[0, 150, 300].map(delay => (
-              <span key={delay} className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce"
+              <span key={delay} className="w-1.5 h-1.5 bg-indigo-400 dark:bg-indigo-600 rounded-full animate-bounce"
                 style={{ animationDelay: `${delay}ms` }} />
             ))}
           </div>
@@ -194,9 +196,9 @@ const Chat = ({
       <div ref={messagesEndRef} className="h-2" />
     </div>
 
-    <div className="px-4 py-3 bg-white border-t border-slate-100 shrink-0">
+    <div className="px-4 py-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shrink-0">
       <div className="flex gap-2 items-end">
-        <div className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl flex items-end px-4 py-2 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-400 transition">
+        <div className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl flex items-end px-4 py-2 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-400 dark:focus-within:border-indigo-500/50 transition-all">
           <textarea
             ref={inputRef}
             rows={1}
@@ -207,25 +209,26 @@ const Chat = ({
             }}
             disabled={!isConnected || !activeConversation}
             placeholder={
-              !isConnected        ? 'Reconnecting...'       :
-              !activeConversation ? 'Select a conversation' :
-              'Type a message...'
+              !isConnected        ? 'Connecting...'        :
+              !activeConversation ? 'Select a chat...'     :
+              'Write a message...'
             }
-            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 resize-none max-h-32 font-medium text-slate-700 placeholder:text-slate-400 outline-none"
+            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 resize-none max-h-32 font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 outline-none"
           />
         </div>
         <button
           onClick={handleSend}
           disabled={!message.trim() || !isConnected || !activeConversation}
-          className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 text-white p-3.5 rounded-2xl transition-all shadow-md shadow-indigo-100 active:scale-95 shrink-0"
+          className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 text-white p-3.5 rounded-2xl transition-all shadow-lg shadow-indigo-100 dark:shadow-none active:scale-95 shrink-0"
         >
-          <Send size={17} />
+          <Send size={18} />
         </button>
       </div>
     </div>
   </div>
 );
 
+// ── Main Page Component ──
 const ChatPage = () => {
   const { user } = useAuthStore();
   const location = useLocation();
@@ -238,10 +241,10 @@ const ChatPage = () => {
     activeConversation, userProfiles,
   } = useChatStore();
 
-  const [message,    setMessage]    = useState('');
-  const [searchQuery,setSearchQuery]= useState('');
-  const [loading,    setLoading]    = useState(true);
-  const [mobileView, setMobileView] = useState('sidebar');
+  const [message,     setMessage]    = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading,     setLoading]    = useState(true);
+  const [mobileView,  setMobileView]  = useState('sidebar');
 
   const typingTimeout  = useRef(null);
   const messagesEndRef = useRef(null);
@@ -254,16 +257,15 @@ const ChatPage = () => {
   useEffect(() => {
     if (user?._id) initializeSocket(user._id);
     return () => disconnectSocket();
-  }, [user?._id]);
+  }, [user?._id, initializeSocket, disconnectSocket]);
 
   useEffect(() => {
     if (routeAdminId && isConnected) {
       setActiveConversation(routeAdminId);
       setMobileView('chat');
     }
-  }, [routeAdminId, isConnected]);
+  }, [routeAdminId, isConnected, setActiveConversation]);
 
-  // ✅ scroll fix
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -276,7 +278,6 @@ const ChatPage = () => {
     return () => clearTimeout(t);
   }, []);
 
-  // ✅ sorted by latest
   const conversationUserIds = useMemo(() => {
     return Object.keys(conversations).sort((a, b) => {
       const aLast = conversations[a]?.slice(-1)[0]?.timestamp || 0;
@@ -287,10 +288,11 @@ const ChatPage = () => {
 
   const filteredConversations = useMemo(() => {
     if (!searchQuery) return conversationUserIds;
+    const query = searchQuery.toLowerCase();
     return conversationUserIds.filter(uid => {
       const name    = (userProfiles[uid] || '').toLowerCase();
       const lastMsg = (conversations[uid]?.slice(-1)[0]?.message || '').toLowerCase();
-      return name.includes(searchQuery.toLowerCase()) || lastMsg.includes(searchQuery.toLowerCase());
+      return name.includes(query) || lastMsg.includes(query);
     });
   }, [searchQuery, conversationUserIds, conversations, userProfiles]);
 
@@ -327,9 +329,9 @@ const ChatPage = () => {
   };
 
   if (!user) return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-400" style={font}>
+    <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-400 dark:text-slate-600" style={font}>
       <MessageCircle size={40} className="mb-3 opacity-20" />
-      <p className="text-sm font-semibold">Please login to access chat</p>
+      <p className="text-xs font-black uppercase tracking-widest">Authentication Required</p>
     </div>
   );
 
@@ -343,22 +345,24 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4" style={font}>
+    <div className="flex flex-col gap-4 animate-in fade-in duration-500" style={font}>
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-800 transition w-fit"
+        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition w-fit"
       >
-        <ArrowLeft size={15} /> Back
+        <ArrowLeft size={14} /> Back
       </button>
 
       <div
-        className="flex overflow-hidden rounded-2xl border border-slate-100 shadow-sm bg-white"
-        style={{ height: 'calc(100vh - 130px)' }}
+        className="flex overflow-hidden rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 transition-all duration-300"
+        style={{ height: 'calc(100vh - 140px)' }}
       >
-        <div className="hidden md:flex w-72 border-r border-slate-100 shrink-0 flex-col">
+        {/* Sidebar Desktop */}
+        <div className="hidden md:flex w-80 border-r border-slate-100 dark:border-slate-800 shrink-0 flex-col">
           <Sidebar {...sharedProps} searchQuery={searchQuery} setSearchQuery={setSearchQuery} filteredConversations={filteredConversations} />
         </div>
 
+        {/* Mobile Views */}
         <div className="flex md:hidden flex-1 min-w-0 overflow-hidden">
           {mobileView === 'sidebar'
             ? <Sidebar {...sharedProps} searchQuery={searchQuery} setSearchQuery={setSearchQuery} filteredConversations={filteredConversations} />
@@ -366,6 +370,7 @@ const ChatPage = () => {
           }
         </div>
 
+        {/* Chat Desktop */}
         <div className="hidden md:flex flex-1 min-w-0 flex-col overflow-hidden">
           <Chat {...sharedProps} />
         </div>

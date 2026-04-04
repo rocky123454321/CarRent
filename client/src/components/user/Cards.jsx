@@ -45,8 +45,8 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
   if (displayCars.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <p className="text-slate-400 text-sm">No cars match your filters.</p>
-        <p className="text-slate-300 text-xs mt-1">Try adjusting or resetting the filters.</p>
+        <p className="text-slate-400 dark:text-slate-500 text-sm font-medium">No cars match your filters.</p>
+        <p className="text-slate-300 dark:text-slate-600 text-xs mt-1">Try adjusting or resetting the filters.</p>
       </div>
     );
   }
@@ -57,48 +57,54 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
         <div
           key={car._id}
           onClick={() => handleSelect(car)}
-          className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-blue-200 hover:shadow-md transition-all group cursor-pointer"
+          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden hover:border-blue-200 dark:hover:border-blue-500/50 hover:shadow-md dark:hover:shadow-blue-500/10 transition-all group cursor-pointer"
         >
-          {/* Heart */}
-          <div className="flex justify-end p-2.5 pb-0">
+          {/* Heart / Favorite */}
+          <div className="flex justify-end p-3 pb-0">
             <button
-              className="text-slate-300 hover:text-red-400 transition-colors"
+              className="text-slate-300 dark:text-slate-700 hover:text-red-400 dark:hover:text-red-500 transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
-              <Heart size={15} />
+              <Heart size={16} />
             </button>
           </div>
 
-          {/* Name */}
-          <div className="px-3 pb-2">
-            <p className="font-semibold text-sm text-slate-900">{car.brand} {car.model}</p>
-            <p className="text-xs text-slate-400 mt-0.5">{car.color} · {car.year}</p>
+          {/* Name & Details */}
+          <div className="px-4 pb-3">
+            <p className="font-bold text-sm text-slate-900 dark:text-white truncate">
+              {car.brand} {car.model}
+            </p>
+            <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500 mt-0.5 uppercase tracking-wider">
+              {car.color} • {car.year}
+            </p>
           </div>
 
-          {/* Image */}
-          <div className="mx-3 bg-slate-50 rounded-xl flex justify-center p-3">
+          {/* Image Container */}
+          <div className="mx-3 bg-slate-50 dark:bg-slate-950 rounded-xl flex justify-center items-center p-4 h-32 transition-colors">
             <img
               src={car.image || carImage}
               alt={car.model}
-              className="h-24 object-contain transition-transform duration-300 group-hover:scale-105"
+              className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-110"
             />
           </div>
 
-          {/* Specs */}
-          <div className="flex justify-between px-3 py-2.5 text-xs text-slate-400 border-t border-slate-50 mt-3">
-            <span className="flex items-center gap-1"><Fuel size={11} />{car.fuelType}</span>
-            <span className="flex items-center gap-1"><Cog size={11} />{car.transmission}</span>
-            <span className="flex items-center gap-1"><Users size={11} />{car.mileage} km</span>
+          {/* Specs / Icons */}
+          <div className="flex justify-between px-4 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 border-t border-slate-50 dark:border-slate-800/50 mt-3">
+            <span className="flex items-center gap-1.5"><Fuel size={12} className="text-blue-500/70" />{car.fuelType}</span>
+            <span className="flex items-center gap-1.5"><Cog size={12} className="text-blue-500/70" />{car.transmission}</span>
+            <span className="flex items-center gap-1.5"><Users size={12} className="text-blue-500/70" />{car.mileage} km</span>
           </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between border-t border-slate-100 px-3 py-2.5">
-            <p className="text-sm font-semibold text-slate-900">
-              ₱{car.pricePerDay.toLocaleString()}
-              <span className="text-xs text-slate-400 font-normal"> /day</span>
-            </p>
+          {/* Pricing & CTA */}
+          <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 px-4 py-3 bg-gray-50/50 dark:bg-slate-800/30">
+            <div>
+              <p className="text-sm font-black text-slate-900 dark:text-white">
+                ₱{car.pricePerDay.toLocaleString()}
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal uppercase ml-0.5">/ day</span>
+              </p>
+            </div>
             <button
-              className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+              className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-[11px] font-bold px-4 py-2 rounded-lg transition-all shadow-lg shadow-blue-500/20 active:scale-95"
               onClick={(e) => { e.stopPropagation(); handleSelect(car); }}
             >
               Rent now

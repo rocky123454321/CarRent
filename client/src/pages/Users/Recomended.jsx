@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCarStore } from '../../store/CarStore';
 import Cards from '../../components/user/Cards';
 import CarDetailView from './CarDetailView';
-import { Search, X, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { Search, X, SlidersHorizontal, ChevronDown, Sparkles, RotateCcw } from 'lucide-react';
 
 const FUEL_OPTIONS   = ['all', 'Gasoline', 'Diesel', 'Electric', 'Hybrid'];
 const TRANS_OPTIONS  = ['All', 'Automatic', 'Manual'];
@@ -19,11 +19,11 @@ const Recomended = () => {
   const navigate = useNavigate();
   const { searchQuery, setSearchQuery, cars, getCars, isLoading } = useCarStore();
 
-  const [selectedCar,    setSelectedCar]    = useState(null);
-  const [filterFuel,     setFilterFuel]     = useState('all');
-  const [filterTrans,    setFilterTrans]    = useState('All');
-  const [filterPrice,    setFilterPrice]    = useState('all');
-  const [showFilters,    setShowFilters]    = useState(false);
+  const [selectedCar,     setSelectedCar]     = useState(null);
+  const [filterFuel,      setFilterFuel]      = useState('all');
+  const [filterTrans,     setFilterTrans]     = useState('All');
+  const [filterPrice,     setFilterPrice]     = useState('all');
+  const [showFilters,     setShowFilters]     = useState(false);
 
   useEffect(() => { getCars(); }, [getCars]);
 
@@ -42,97 +42,139 @@ const Recomended = () => {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6 transition-colors duration-300">
 
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">All Cars</h1>
-        <p className="text-sm text-slate-400 mt-0.5">
-          {isLoading ? 'Loading...' : `${cars.filter(c => c.isAvailable).length} available cars`}
-        </p>
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Sparkles size={20} className="text-blue-500 fill-blue-500/20" />
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+              Recommended
+            </h1>
+          </div>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            {isLoading ? 'Scanning fleet...' : `Found ${cars.filter(c => c.isAvailable).length} cars matching your profile`}
+          </p>
+        </div>
+
+        {/* Action Bar */}
+        <div className="flex items-center gap-2">
+          <div className="relative group flex-1 md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={16} />
+            <input 
+              type="text"
+              placeholder="Quick search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white"
+            />
+          </div>
+          <button 
+            onClick={() => setShowFilters(!showFilters)}
+            className={`p-2.5 rounded-2xl border transition-all duration-300 ${
+              showFilters 
+              ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/30' 
+              : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-blue-500'
+            }`}
+          >
+            <SlidersHorizontal size={20} />
+          </button>
+        </div>
       </div>
 
- 
       {/* Filter Panel */}
       {showFilters && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl dark:shadow-black/40 animate-in zoom-in-95 duration-300">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            {/* Fuel Type */}
+            <div>
+              <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-3">Fuel Engine</label>
+              <div className="flex flex-wrap gap-2">
+                {FUEL_OPTIONS.map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setFilterFuel(f)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                      filterFuel === f
+                        ? 'bg-blue-600 border-blue-600 text-white shadow-md'
+                        : 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-transparent hover:bg-white dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    {f === 'all' ? 'All Types' : f}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-          {/* Fuel */}
-          <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Fuel Type</p>
-            <div className="flex flex-wrap gap-2">
-              {FUEL_OPTIONS.map(f => (
-                <button
-                  key={f}
-                  onClick={() => setFilterFuel(f)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition
-                    ${filterFuel === f
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-blue-300'}`}
-                >
-                  {f === 'all' ? 'All' : f}
-                </button>
-              ))}
+            {/* Transmission */}
+            <div>
+              <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-3">Transmission</label>
+              <div className="flex flex-wrap gap-2">
+                {TRANS_OPTIONS.map(t => (
+                  <button
+                    key={t}
+                    onClick={() => setFilterTrans(t)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                      filterTrans === t
+                        ? 'bg-blue-600 border-blue-600 text-white shadow-md'
+                        : 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-transparent hover:bg-white dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Price Range */}
+            <div>
+              <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-3">Budget / Day</label>
+              <div className="flex flex-wrap gap-2">
+                {PRICE_OPTIONS.map(p => (
+                  <button
+                    key={p.value}
+                    onClick={() => setFilterPrice(p.value)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                      filterPrice === p.value
+                        ? 'bg-blue-600 border-blue-600 text-white shadow-md'
+                        : 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-transparent hover:bg-white dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Transmission */}
-          <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Transmission</p>
-            <div className="flex flex-wrap gap-2">
-              {TRANS_OPTIONS.map(t => (
-                <button
-                  key={t}
-                  onClick={() => setFilterTrans(t)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition
-                    ${filterTrans === t
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-blue-300'}`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Price */}
-          <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Price Range</p>
-            <div className="flex flex-wrap gap-2">
-              {PRICE_OPTIONS.map(p => (
-                <button
-                  key={p.value}
-                  onClick={() => setFilterPrice(p.value)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition
-                    ${filterPrice === p.value
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-blue-300'}`}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Reset */}
           {hasActiveFilters && (
-            <button
-              onClick={resetFilters}
-              className="text-xs text-red-500 hover:text-red-700 font-medium"
-            >
-              Reset all filters
-            </button>
+            <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+               <span className="text-[10px] font-medium text-slate-400 italic">Filters are actively modifying the list</span>
+               <button
+                onClick={resetFilters}
+                className="flex items-center gap-2 text-[10px] font-black text-red-500 dark:text-red-400 uppercase tracking-widest hover:bg-red-50 dark:hover:bg-red-900/10 px-3 py-1.5 rounded-lg transition-all"
+              >
+                <RotateCcw size={12} /> Clear all
+              </button>
+            </div>
           )}
         </div>
       )}
 
-      {/* Cars Grid — reuses your existing Cards component */}
-      <Cards
-        filterFuel={filterFuel}
-        filterTransmission={filterTrans}
-        filterPrice={filterPrice}
-        onSelect={(car) => setSelectedCar(car)}
-      />
+      {/* Grid Display */}
+      <div className="relative">
+        {isLoading && (
+          <div className="absolute inset-0 bg-white/50 dark:bg-slate-950/50 z-10 backdrop-blur-[1px] rounded-3xl transition-all" />
+        )}
+        <Cards
+          filterFuel={filterFuel}
+          filterTransmission={filterTrans}
+          filterPrice={filterPrice}
+          onSelect={(car) => setSelectedCar(car)}
+        />
+      </div>
 
     </div>
   );

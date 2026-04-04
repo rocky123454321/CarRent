@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useAuthStore } from "@/store/authStore"; // ✅ import your auth store
+import { useAuthStore } from "@/store/authStore";
+import { useThemeStore } from "@/store/themeStore"; // ✅ Import theme store
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useNavigate } from "react-router-dom"; // ✅ for redirect after deletion
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -18,16 +19,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+
 export const SettingsAdmin = () => {
   const navigate = useNavigate();
-  const { user, logout, updateProfile, deleteAccount, isLoading } = useAuthStore();
+  const { user, logout, updateProfile, deleteAccount, isLoading: authLoading } = useAuthStore();
+  const { darkMode, toggleTheme } = useThemeStore(); // ✅ Global theme state
 
   const [confirmationText, setConfirmationText] = useState("");
   const [form, setForm] = useState({
     name: user?.name || "",
     email: user?.email || "",
     password: "",
-    darkMode: false,
     notifications: true,
   });
 
@@ -40,7 +42,6 @@ export const SettingsAdmin = () => {
       email: user?.email || "",
     }));
   }, [user?.name, user?.email]);
-  
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -49,22 +50,20 @@ export const SettingsAdmin = () => {
   const handleToggle = (field) => {
     setForm({ ...form, [field]: !form[field] });
   };
-const handleDeleteAccount = async () => {
-  try {
-    setLoading(true);
-    await deleteAccount();
-    await logout();
 
-    setLoading(false);
-
-    toast.success("Account deleted successfully");
-    navigate("/landing", { replace: true });
-  } catch (error) {
-    setLoading(false);
-    toast.error(error?.response?.data?.message || "Delete failed");
-  }
-};
-
+  const handleDeleteAccount = async () => {
+    try {
+      setLoading(true);
+      await deleteAccount();
+      await logout();
+      toast.success("Account deleted successfully");
+      navigate("/landing", { replace: true });
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Delete failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -84,68 +83,73 @@ const handleDeleteAccount = async () => {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-gray-50">
+    // ✅ In-update ang background at text colors para sa dark mode
+    <div className="min-h-screen p-6 bg-gray-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <div className="max-w-4xl mx-auto space-y-6">
-        <h1 className="text-2xl font-bold">Settings</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
 
         {/* Profile Settings */}
-        <Card className="rounded-2xl shadow">
+        <Card className="rounded-2xl shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
           <CardContent className="p-6 space-y-4">
             <h2 className="text-lg font-semibold">Profile</h2>
 
             <div className="space-y-2">
-              <Label>Name</Label>
+              <Label className="dark:text-slate-400">Name</Label>
               <Input
                 name="name"
                 value={form.name}
                 onChange={handleChange}
                 placeholder="Enter your name"
+                className="dark:bg-slate-800 dark:border-slate-700"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Email</Label>
+              <Label className="dark:text-slate-400">Email</Label>
               <Input
                 name="email"
                 value={form.email}
                 onChange={handleChange}
                 placeholder="Enter your email"
+                className="dark:bg-slate-800 dark:border-slate-700"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Password</Label>
+              <Label className="dark:text-slate-400">Password</Label>
               <Input
                 type="password"
                 name="password"
                 value={form.password}
                 onChange={handleChange}
-                placeholder="Enter new password"
+                placeholder="Enter new password (optional)"
+                className="dark:bg-slate-800 dark:border-slate-700"
               />
             </div>
           </CardContent>
         </Card>
 
         {/* Preferences */}
-        <Card className="rounded-2xl shadow">
+        <Card className="rounded-2xl shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
           <CardContent className="p-6 space-y-4">
             <h2 className="text-lg font-semibold">Preferences</h2>
 
+            {/* Dark Mode Switch - Linked to useThemeStore */}
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Dark Mode</p>
-                <p className="text-sm text-gray-500">Enable dark theme</p>
+                <p className="text-sm text-gray-500 dark:text-slate-500">Enable dark theme</p>
               </div>
               <Switch
-                checked={form.darkMode}
-                onCheckedChange={() => handleToggle("darkMode")}
+                checked={darkMode}
+                onCheckedChange={toggleTheme} // ✅ Directly triggers the global theme change
               />
             </div>
 
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Notifications</p>
-                <p className="text-sm text-gray-500">Receive updates</p>
+                <p className="text-sm text-gray-500 dark:text-slate-500">Receive updates</p>
               </div>
               <Switch
                 checked={form.notifications}
@@ -156,49 +160,51 @@ const handleDeleteAccount = async () => {
         </Card>
 
         {/* Actions */}
-        <div className="flex justify-between items-center">
-        <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button variant="destructive" disabled={loading || isLoading}>
-            {loading || isLoading ? "Deleting..." : "Delete Account"}
-          </Button>
-        </AlertDialogTrigger>
+        <div className="flex justify-between items-center gap-4">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" disabled={loading || authLoading} className="rounded-xl">
+                {loading || authLoading ? "Deleting..." : "Delete Account"}
+              </Button>
+            </AlertDialogTrigger>
 
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. To confirm, type{" "}
-              <strong>DELETE</strong> below:
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+            <AlertDialogContent className="dark:bg-slate-900 dark:border-slate-800">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="dark:text-slate-100">Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription className="dark:text-slate-400">
+                  This action cannot be undone. To confirm, type{" "}
+                  <strong className="text-red-500">DELETE</strong> below:
+                </AlertDialogDescription>
+              </AlertDialogHeader>
 
-          <div className="my-4">
-            <Input
-              placeholder="Type DELETE to confirm"
-              value={confirmationText}
-              onChange={(e) => setConfirmationText(e.target.value)}
-            />
-          </div>
+              <div className="my-4">
+                <Input
+                  placeholder="Type DELETE to confirm"
+                  value={confirmationText}
+                  onChange={(e) => setConfirmationText(e.target.value)}
+                  className="dark:bg-slate-800 dark:border-slate-700"
+                />
+              </div>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteAccount}
-              disabled={confirmationText !== "DELETE" || loading || isLoading}
-            >
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="dark:bg-slate-800 dark:text-slate-100">Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteAccount}
+                  disabled={confirmationText !== "DELETE" || loading || authLoading}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Continue
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
 
           <Button
             onClick={handleSubmit}
-            disabled={loading || isLoading}
-            className="rounded-xl"
+            disabled={loading || authLoading}
+            className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-indigo-500 dark:hover:bg-indigo-600 px-8"
           >
-            {loading || isLoading ? "Saving..." : "Save Changes"}
+            {loading || authLoading ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </div>

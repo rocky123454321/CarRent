@@ -7,28 +7,28 @@ import brand from "../../assets/brand.png";
 
 const EmailVerificationPage = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
- const [count, setCount] = useState(() => {
-  const saved = localStorage.getItem("resendTimer");
-  return saved ? parseInt(saved) : 30;
-});
+  const [count, setCount] = useState(() => {
+    const saved = localStorage.getItem("resendTimer");
+    return saved ? parseInt(saved) : 30;
+  });
   const inputRefs = useRef([]);
   const navigate = useNavigate();
   const { error, isLoading, verifyEmail, resendVerificationEmail } = useAuthStore();
 
   // ✅ Countdown
-useEffect(() => {
-  if (count <= 0) return;
-  localStorage.setItem("resendTimer", count);
-  const timer = setTimeout(() => setCount((prev) => prev - 1), 1000);
-  return () => clearTimeout(timer); // cleanup
-}, [count]);
+  useEffect(() => {
+    if (count <= 0) return;
+    localStorage.setItem("resendTimer", count);
+    const timer = setTimeout(() => setCount((prev) => prev - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [count]);
 
   // ✅ Resend
   const handleResend = async () => {
     try {
       await resendVerificationEmail();
       setCount(30);
-     localStorage.setItem("resendTimer", 30)
+      localStorage.setItem("resendTimer", 30);
       toast.success("Verification code resent!");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to resend code.");
@@ -65,7 +65,7 @@ useEffect(() => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     const verificationCode = code.join("");
 
     try {
@@ -82,7 +82,7 @@ useEffect(() => {
 
   useEffect(() => {
     if (code.every((digit) => digit !== "")) {
-      handleSubmit(new Event("submit"));
+      handleSubmit();
     }
   }, [code]);
 
@@ -91,42 +91,45 @@ useEffect(() => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="w-full max-w-md mx-auto"
+      className="w-full max-w-md mx-auto px-4"
     >
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden transition-all">
+        
         {/* Header */}
-        <div className="px-8 pt-8 pb-6 text-center border-b border-gray-50">
-          <img src={brand} alt="brand" className="h-10 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900">Verify Your Email</h2>
-          <p className="text-sm text-gray-400 mt-1">
+        <div className="px-8 pt-10 pb-6 text-center border-b border-gray-50 dark:border-slate-800/50">
+          <img src={brand} alt="brand" className="h-10 mx-auto mb-4 dark:brightness-110" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Verify Your Email</h2>
+          <p className="text-sm text-gray-400 dark:text-slate-500 mt-1">
             Enter the 6-digit code sent to your email
           </p>
         </div>
 
         {/* Form */}
-        <div className="px-8 py-6 space-y-5">
-          <form onSubmit={handleSubmit} className="space-y-5">
-
-            <div className="flex justify-between gap-2">
+        <div className="px-8 py-8 space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="flex justify-between gap-2 sm:gap-3">
               {code.map((digit, index) => (
                 <input
                   key={index}
                   ref={(el) => (inputRefs.current[index] = el)}
                   type="text"
-                  maxLength="6"
+                  maxLength="1"
                   value={digit}
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-12 h-12 text-center text-xl font-bold bg-gray-50 text-gray-900 border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:ring-2 focus:ring-blue-100 focus:outline-none transition"
+                  className="w-full h-14 text-center text-xl font-black bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-slate-800 rounded-2xl focus:border-blue-500 dark:focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all"
                 />
               ))}
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-2.5">
-                <p className="text-red-500 text-xs font-medium">{error}</p>
-              </div>
+              <motion.div 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-xl px-4 py-3"
+              >
+                <p className="text-red-500 dark:text-red-400 text-xs font-semibold">{error}</p>
+              </motion.div>
             )}
 
             <motion.button
@@ -134,28 +137,27 @@ useEffect(() => {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isLoading || code.some((digit) => !digit)}
-              className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-sm transition-colors shadow-sm"
+              className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 dark:disabled:bg-blue-800/50 disabled:cursor-not-allowed text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-blue-500/20"
             >
               {isLoading ? "Verifying..." : "Verify Email"}
             </motion.button>
-
           </form>
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-4 bg-gray-50 border-t border-gray-100 text-center">
-          <p className="text-sm text-gray-400">
+        <div className="px-8 py-6 bg-gray-50 dark:bg-slate-800/30 border-t border-gray-100 dark:border-slate-800 text-center">
+          <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">
             Didn't receive a code?{" "}
             {count === 0 ? (
               <button
                 onClick={handleResend}
-                className="text-blue-500 font-medium hover:underline"
+                className="text-blue-600 dark:text-blue-400 font-bold hover:underline transition-colors"
               >
                 Resend
               </button>
             ) : (
-              <span className="text-gray-500">
-                Resend in {count}s
+              <span className="text-slate-400 dark:text-slate-600 tabular-nums">
+                Resend in <span className="font-bold">{count}s</span>
               </span>
             )}
           </p>

@@ -9,20 +9,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 
 const chartConfig = {
-  revenue:  { label: "Revenue",  color: "var(--chart-1)" },
-  bookings: { label: "Bookings", color: "var(--chart-2)" },
+  revenue:  { label: "Revenue",  color: "hsl(var(--chart-1))" },
+  bookings: { label: "Bookings", color: "hsl(var(--chart-2))" },
 };
 
 const AdminDashboard = () => {
   const { user } = useAuthStore();
   const rentals  = useRentalStore((s) => s.adminRentals);
   const loading  = useRentalStore((s) => s.isLoading);
-  const fetchAdminRentals = useRentalStore((s) => s.fetchAdminRentals); // ✅ stable reference
+  const fetchAdminRentals = useRentalStore((s) => s.fetchAdminRentals);
   const [timeRange, setTimeRange] = useState("90d");
 
   useEffect(() => {
-    fetchAdminRentals(); // ✅ called once lang
-  }, []); // ✅ empty dependency — no more infinite loop
+    fetchAdminRentals();
+  }, [fetchAdminRentals]);
 
   const stats = useMemo(() => {
     const customers      = new Set(rentals.map((r) => r.user?._id).filter(Boolean)).size;
@@ -30,10 +30,10 @@ const AdminDashboard = () => {
     const revenue        = rentals.reduce((sum, r) => sum + (Number(r.totalPrice) || 0), 0);
     const activeBookings = rentals.filter((r) => ["pending","confirmed"].includes(r.status)).length;
     return [
-      { title: 'Customers',       value: customers.toLocaleString(),      icon: UsersRound,  color: 'text-blue-600',    bg: 'bg-blue-50',    border: 'border-blue-100'    },
-      { title: 'Orders',          value: orders.toLocaleString(),         icon: ShoppingBag, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
-      { title: 'Revenue',         value: `₱${revenue.toLocaleString()}`,  icon: DollarSign,  color: 'text-indigo-600',  bg: 'bg-indigo-50',  border: 'border-indigo-100'  },
-      { title: 'Active Bookings', value: activeBookings.toLocaleString(), icon: Calendar,    color: 'text-amber-600',   bg: 'bg-amber-50',   border: 'border-amber-100'   },
+      { title: 'Customers', value: customers.toLocaleString(), icon: UsersRound, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-100 dark:border-blue-800' },
+      { title: 'Orders', value: orders.toLocaleString(), icon: ShoppingBag, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/20', border: 'border-emerald-100 dark:border-emerald-800' },
+      { title: 'Revenue', value: `₱${revenue.toLocaleString()}`, icon: DollarSign, color: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-50 dark:bg-indigo-900/20', border: 'border-indigo-100 dark:border-indigo-800' },
+      { title: 'Active Bookings', value: activeBookings.toLocaleString(), icon: Calendar, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-100 dark:border-amber-800' },
     ];
   }, [rentals]);
 
@@ -59,32 +59,32 @@ const AdminDashboard = () => {
   }, [chartData, timeRange]);
 
   return (
-    <div className="space-y-8 max-w-7xl" style={{ fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif" }}>
+    <div className="space-y-8 max-w-7xl transition-colors duration-300" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
 
       {/* Header */}
       <div>
-        <p className="text-indigo-600 font-semibold text-sm tracking-widest uppercase mb-1">Overview</p>
-        <h1 className="text-3xl font-black text-slate-900 mb-1">Dashboard</h1>
-        <p className="text-slate-500">Welcome back, {user?.name}. Here's what's happening today.</p>
+        <p className="text-indigo-600 dark:text-indigo-400 font-semibold text-sm tracking-widest uppercase mb-1">Overview</p>
+        <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-1">Dashboard</h1>
+        <p className="text-slate-500 dark:text-slate-400">Welcome back, {user?.name}. Here's what's happening today.</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
-                <Skeleton className="w-11 h-11 rounded-xl" />
-                <Skeleton className="h-3 w-20 rounded-full" />
-                <Skeleton className="h-7 w-28 rounded-full" />
+              <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 space-y-4">
+                <Skeleton className="w-11 h-11 rounded-xl dark:bg-slate-800" />
+                <Skeleton className="h-3 w-20 rounded-full dark:bg-slate-800" />
+                <Skeleton className="h-7 w-28 rounded-full dark:bg-slate-800" />
               </div>
             ))
           : stats.map(({ title, value, icon: Icon, color, bg, border }, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 hover:shadow-md hover:border-slate-200 transition-all duration-200">
+              <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 hover:shadow-md hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-200">
                 <div className={`w-11 h-11 flex items-center justify-center rounded-xl mb-4 ${bg} border ${border}`}>
-                  <Icon size={20} className={color} /> {/* ✅ dynamic icon na */}
+                  <Icon size={20} className={color} />
                 </div>
-                <h3 className="text-sm font-semibold text-slate-400 mb-1">{title}</h3>
-                <div className="text-2xl font-black text-slate-900">{value}</div>
+                <h3 className="text-sm font-semibold text-slate-400 dark:text-slate-500 mb-1">{title}</h3>
+                <div className="text-2xl font-black text-slate-900 dark:text-white">{value}</div>
               </div>
             ))
         }
@@ -92,37 +92,37 @@ const AdminDashboard = () => {
 
       {/* Area Chart */}
       {loading ? (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
-              <Skeleton className="h-4 w-36 rounded-full" />
-              <Skeleton className="h-3 w-52 rounded-full" />
+              <Skeleton className="h-4 w-36 rounded-full dark:bg-slate-800" />
+              <Skeleton className="h-3 w-52 rounded-full dark:bg-slate-800" />
             </div>
-            <Skeleton className="h-9 w-36 rounded-xl" />
+            <Skeleton className="h-9 w-36 rounded-xl dark:bg-slate-800" />
           </div>
-          <Skeleton className="h-[250px] w-full rounded-xl" />
+          <Skeleton className="h-[250px] w-full rounded-xl dark:bg-slate-800" />
         </div>
       ) : (
-        <Card className="rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-200 pt-0">
-          <CardHeader className="flex items-center gap-2 space-y-0 border-b border-slate-100 py-5 sm:flex-row">
+        <Card className="rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+          <CardHeader className="flex items-center gap-2 space-y-0 border-b border-slate-100 dark:border-slate-800 py-5 sm:flex-row bg-white dark:bg-slate-900">
             <div className="grid flex-1 gap-1">
-              <CardTitle className="text-base font-bold text-slate-800">Rentals Overview</CardTitle>
-              <CardDescription className="text-xs text-slate-400">Revenue and bookings over time</CardDescription>
+              <CardTitle className="text-base font-bold text-slate-800 dark:text-slate-100">Rentals Overview</CardTitle>
+              <CardDescription className="text-xs text-slate-400 dark:text-slate-500">Revenue and bookings over time</CardDescription>
             </div>
             <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="hidden w-[160px] rounded-xl sm:ml-auto sm:flex border-slate-200 text-sm" aria-label="Select range">
+              <SelectTrigger className="w-[160px] rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 text-sm" aria-label="Select range">
                 <SelectValue placeholder="Last 3 months" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl">
-                <SelectItem value="90d" className="rounded-lg text-sm">Last 3 months</SelectItem>
-                <SelectItem value="30d" className="rounded-lg text-sm">Last 30 days</SelectItem>
-                <SelectItem value="7d"  className="rounded-lg text-sm">Last 7 days</SelectItem>
+              <SelectContent className="rounded-xl dark:bg-slate-900 dark:border-slate-800">
+                <SelectItem value="90d" className="text-sm">Last 3 months</SelectItem>
+                <SelectItem value="30d" className="text-sm">Last 30 days</SelectItem>
+                <SelectItem value="7d"  className="text-sm">Last 7 days</SelectItem>
               </SelectContent>
             </Select>
           </CardHeader>
           <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
             {filteredChartData.length === 0 ? (
-              <div className="h-[250px] flex items-center justify-center text-sm text-slate-400">
+              <div className="h-[250px] flex items-center justify-center text-sm text-slate-400 dark:text-slate-600">
                 No data available for this period.
               </div>
             ) : (
@@ -138,21 +138,26 @@ const AdminDashboard = () => {
                       <stop offset="95%" stopColor="var(--color-bookings)" stopOpacity={0.1} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid vertical={false} stroke="#f1f5f9" />
+                  <CartesianGrid vertical={false} stroke="currentColor" className="text-slate-100 dark:text-slate-800" />
                   <XAxis
-                    dataKey="date" tickLine={false} axisLine={false} tickMargin={8} minTickGap={32}
+                    dataKey="date" 
+                    tickLine={false} 
+                    axisLine={false} 
+                    tickMargin={8} 
+                    minTickGap={32}
                     tickFormatter={(v) => new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                    className="text-xs text-slate-400"
+                    className="text-xs text-slate-400 dark:text-slate-500"
                   />
                   <ChartTooltip cursor={false} content={
                     <ChartTooltipContent
+                      className="dark:bg-slate-950 dark:border-slate-800"
                       labelFormatter={(v) => new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                       indicator="dot"
                     />
                   } />
                   <Area dataKey="bookings" type="natural" fill="url(#fillBookings)" stroke="var(--color-bookings)" stackId="a" />
                   <Area dataKey="revenue"  type="natural" fill="url(#fillRevenue)"  stroke="var(--color-revenue)"  stackId="a" />
-                  <ChartLegend content={<ChartLegendContent />} />
+                  <ChartLegend content={<ChartLegendContent className="dark:text-slate-400" />} />
                 </AreaChart>
               </ChartContainer>
             )}

@@ -2,40 +2,38 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   MessageSquare, Calendar, CarFront, BadgeCheck,
-  ArrowLeft, X, Trash2, ChevronDown, ChevronUp, Clock
+  ArrowLeft, X, Trash2, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { useRentalStore } from '../../store/RentalStore.js';
 import { toast } from 'sonner';
-import axios from 'axios';
 
-
-
+// --- UPDATED STATUS STYLES FOR DARK MODE ---
 const STATUS_STYLE = {
-  pending:   { bg: 'bg-yellow-50',  text: 'text-yellow-700', dot: 'bg-yellow-400', label: 'Pending'   },
-  approved:  { bg: 'bg-blue-50',    text: 'text-blue-700',   dot: 'bg-blue-500',   label: 'Approved'  },
-  active:    { bg: 'bg-green-50',   text: 'text-green-700',  dot: 'bg-green-500',  label: 'Active'    },
-  completed: { bg: 'bg-slate-100',  text: 'text-slate-600',  dot: 'bg-slate-400',  label: 'Completed' },
-  cancelled: { bg: 'bg-red-50',     text: 'text-red-600',    dot: 'bg-red-400',    label: 'Cancelled' },
+  pending:   { bg: 'bg-yellow-50 dark:bg-yellow-900/20',   text: 'text-yellow-700 dark:text-yellow-400', dot: 'bg-yellow-400', label: 'Pending'   },
+  approved:  { bg: 'bg-blue-50 dark:bg-blue-900/20',     text: 'text-blue-700 dark:text-blue-400',   dot: 'bg-blue-500',   label: 'Approved'  },
+  active:    { bg: 'bg-green-50 dark:bg-green-900/20',    text: 'text-green-700 dark:text-green-400',  dot: 'bg-green-500',  label: 'Active'    },
+  completed: { bg: 'bg-slate-100 dark:bg-slate-800/50',  text: 'text-slate-600 dark:text-slate-400',  dot: 'bg-slate-400',  label: 'Completed' },
+  cancelled: { bg: 'bg-red-50 dark:bg-red-900/20',      text: 'text-red-600 dark:text-red-400',     dot: 'bg-red-400',    label: 'Cancelled' },
 };
 
-// ── Confirm Dialog ──
+// ── Confirm Dialog with Dark Mode ──
 const ConfirmDialog = ({ open, title, desc, confirmLabel, confirmColor, onConfirm, onCancel }) => {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-        <h3 className="text-base font-bold text-slate-900 mb-1">{title}</h3>
-        <p className="text-sm text-slate-400 mb-6">{desc}</p>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-in zoom-in-95 duration-200">
+        <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">{title}</h3>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">{desc}</p>
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 border border-slate-200 text-slate-600 text-sm font-semibold py-2.5 rounded-xl hover:bg-slate-50 transition"
+            className="flex-1 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-semibold py-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition"
           >
             Go Back
           </button>
           <button
             onClick={onConfirm}
-            className={`flex-1 text-white text-sm font-semibold py-2.5 rounded-xl transition ${confirmColor}`}
+            className={`flex-1 text-white text-sm font-semibold py-2.5 rounded-xl transition shadow-lg shadow-black/10 ${confirmColor}`}
           >
             {confirmLabel}
           </button>
@@ -47,17 +45,11 @@ const ConfirmDialog = ({ open, title, desc, confirmLabel, confirmColor, onConfir
 
 const MyRentals = () => {
   const navigate = useNavigate();
-  const { 
-    userRentals, 
-    fetchUserRentals, 
-    isLoading, 
-    cancelRental, // Idagdag ito
-    deleteRental  // Idagdag ito
-  } = useRentalStore();
-  const [expandedId,  setExpandedId]  = useState(null);
-  const [dialog,      setDialog]      = useState(null); // { type, rental }
-  const [processing,  setProcessing]  = useState({});
-  const [filter,      setFilter]      = useState('all');
+  const { userRentals, fetchUserRentals, isLoading, cancelRental, deleteRental } = useRentalStore();
+  const [expandedId, setExpandedId] = useState(null);
+  const [dialog, setDialog] = useState(null);
+  const [processing, setProcessing] = useState({});
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => { fetchUserRentals(); }, [fetchUserRentals]);
 
@@ -75,49 +67,36 @@ const MyRentals = () => {
       },
     });
   };
-// --- FIXED HANDLERS ---
-// --- UPDATED HANDLERS ---
-const handleCancel = async (rental) => {
-  setProcessing(p => ({ ...p, [rental._id]: true }));
-  
-  const result = await cancelRental(rental._id); // 1. Update sa Database
-  
-  if (result.success) {
-    toast.success('Rental cancelled successfully');
-    await fetchUserRentals(); // 2. Kunin ulit ang updated data para mag-reflect sa UI
-  } else {
-    toast.error(result.message || 'Failed to cancel rental');
-  }
-  
-  setProcessing(p => ({ ...p, [rental._id]: false }));
-  setDialog(null);
-};
 
-const handleDelete = async (rental) => {
-  setProcessing(p => ({ ...p, [rental._id]: true }));
-  
-  const result = await deleteRental(rental._id); // 1. Delete sa Database
-  
-  if (result.success) {
-    toast.success('Rental record deleted');
-    await fetchUserRentals(); // 2. Kunin ulit ang listahan (mawawala na yung dinelete)
-  } else {
-    toast.error(result.message || 'Failed to delete rental');
-  }
-  
-  setProcessing(p => ({ ...p, [rental._id]: false }));
-  setDialog(null);
-};
+  const handleCancel = async (rental) => {
+    setProcessing(p => ({ ...p, [rental._id]: true }));
+    const result = await cancelRental(rental._id);
+    if (result.success) {
+      toast.success('Rental cancelled successfully');
+      await fetchUserRentals();
+    } else {
+      toast.error(result.message || 'Failed to cancel rental');
+    }
+    setProcessing(p => ({ ...p, [rental._id]: false }));
+    setDialog(null);
+  };
+
+  const handleDelete = async (rental) => {
+    setProcessing(p => ({ ...p, [rental._id]: true }));
+    const result = await deleteRental(rental._id);
+    if (result.success) {
+      toast.success('Rental record deleted');
+      await fetchUserRentals();
+    } else {
+      toast.error(result.message || 'Failed to delete rental');
+    }
+    setProcessing(p => ({ ...p, [rental._id]: false }));
+    setDialog(null);
+  };
 
   const FILTERS = ['all', 'pending', 'approved', 'active', 'completed', 'cancelled'];
-
-  const filtered = filter === 'all'
-    ? userRentals
-    : userRentals.filter(r => r.status === filter);
-
-  const activeCount = userRentals.filter(r =>
-    ['pending', 'approved', 'active'].includes(r.status)
-  ).length;
+  const filtered = filter === 'all' ? userRentals : userRentals.filter(r => r.status === filter);
+  const activeCount = userRentals.filter(r => ['pending', 'approved', 'active'].includes(r.status)).length;
 
   const canCancel = (status) => ['pending', 'approved'].includes(status);
   const canDelete = (status) => ['completed', 'cancelled'].includes(status);
@@ -126,13 +105,12 @@ const handleDelete = async (rental) => {
     return (
       <div className="space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="bg-white border border-slate-200 rounded-2xl p-5 animate-pulse">
+          <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 animate-pulse">
             <div className="flex gap-4">
-              <div className="w-14 h-14 bg-slate-100 rounded-xl shrink-0" />
+              <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-xl shrink-0" />
               <div className="flex-1 space-y-2">
-                <div className="h-4 bg-slate-100 rounded w-1/3" />
-                <div className="h-3 bg-slate-100 rounded w-1/4" />
-                <div className="h-3 bg-slate-100 rounded w-1/2" />
+                <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/3" />
+                <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded w-1/4" />
               </div>
             </div>
           </div>
@@ -142,43 +120,43 @@ const handleDelete = async (rental) => {
   }
 
   return (
-    <>
+    <div className="transition-colors duration-300">
       <div className="space-y-6">
-
-        {/* Back */}
+        {/* Back Button */}
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-colors"
+          className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors group"
         >
-          <ArrowLeft size={16} /> Back to dashboard
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 
+          Back to dashboard
         </button>
 
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900">My Rentals</h2>
-            <p className="text-sm text-slate-400 mt-0.5">
-              {activeCount} active · {userRentals.length} total
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">My Rentals</h2>
+            <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">
+              {activeCount} active · {userRentals.length} total records
             </p>
           </div>
           <button
             onClick={() => navigate('/')}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
+            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-6 py-3 rounded-xl transition shadow-lg shadow-blue-600/20"
           >
             Rent a Car
           </button>
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           {FILTERS.map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`shrink-0 px-4 py-1.5 rounded-xl text-xs font-semibold border transition capitalize
+              className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold border transition-all capitalize
                 ${filter === f
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-slate-500 border-slate-200 hover:border-blue-300'}`}
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20'
+                  : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-900'}`}
             >
               {f === 'all' ? `All (${userRentals.length})` : `${STATUS_STYLE[f]?.label || f} (${userRentals.filter(r => r.status === f).length})`}
             </button>
@@ -187,107 +165,92 @@ const handleDelete = async (rental) => {
 
         {/* List */}
         {filtered.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-2xl text-center py-16">
-            <BadgeCheck className="w-12 h-12 mx-auto mb-3 text-slate-200" />
-            <p className="text-sm font-semibold text-slate-500">No rentals found</p>
-            <p className="text-xs text-slate-400 mt-1">
-              {filter === 'all' ? 'Book your first car and track it here' : `No ${filter} rentals`}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl text-center py-20">
+            <BadgeCheck className="w-16 h-16 mx-auto mb-4 text-slate-100 dark:text-slate-800" />
+            <p className="text-base font-bold text-slate-900 dark:text-white">No rentals found</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500 mt-1 max-w-[200px] mx-auto">
+              {filter === 'all' ? 'Book your first car and track it here.' : `You don't have any ${filter} rentals.`}
             </p>
-            {filter === 'all' && (
-              <button
-                onClick={() => navigate('/')}
-                className="mt-5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
-              >
-                Browse Cars
-              </button>
-            )}
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {filtered.map((rental) => {
-              const s          = STATUS_STYLE[rental.status] || STATUS_STYLE.pending;
+              const s = STATUS_STYLE[rental.status] || STATUS_STYLE.pending;
               const isExpanded = expandedId === rental._id;
-              const isBusy     = processing[rental._id];
+              const isBusy = processing[rental._id];
 
               return (
                 <div
                   key={rental._id}
-                  className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-blue-100 transition"
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden hover:shadow-xl dark:hover:shadow-black/20 hover:border-blue-200 dark:hover:border-blue-900 transition-all duration-300"
                 >
-                  {/* Main Row */}
-                  <div className="p-4 md:p-5">
-                    <div className="flex items-start gap-4">
-
-                      {/* Icon */}
-                      <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
-                        <CarFront size={22} className="text-blue-500" />
+                  <div className="p-4 md:p-6">
+                    <div className="flex flex-col md:flex-row md:items-center gap-5">
+                      {/* Car Icon */}
+                      <div className="w-14 h-14 bg-blue-50 dark:bg-blue-950/30 rounded-2xl flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/50">
+                        <CarFront size={28} className="text-blue-500" />
                       </div>
 
-                      {/* Info */}
+                      {/* Main Info */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 flex-wrap">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <p className="font-bold text-slate-900 text-sm">
+                            <h3 className="font-black text-slate-900 dark:text-white text-base uppercase tracking-tight">
                               {rental.car?.brand} {rental.car?.model}
-                            </p>
-                            <p className="text-xs text-slate-400">{rental.car?.licensePlate}</p>
+                            </h3>
+                            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-widest">{rental.car?.licensePlate}</p>
                           </div>
-                          <span className={`flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full shrink-0 ${s.bg} ${s.text}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+                          <span className={`flex items-center gap-2 text-[10px] font-black px-3 py-1.5 rounded-full shrink-0 uppercase tracking-wider shadow-sm ${s.bg} ${s.text}`}>
+                            <span className={`w-2 h-2 rounded-full animate-pulse ${s.dot}`} />
                             {s.label}
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-1 mt-2 text-xs text-slate-400">
-                          <Calendar size={11} />
-                          {formatDate(rental.rentalStartDate)} → {formatDate(rental.rentalEndDate)}
+                        <div className="flex items-center gap-2 mt-3 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                          <Calendar size={14} className="text-blue-500" />
+                          {formatDate(rental.rentalStartDate)} <span className="text-slate-300 dark:text-slate-700">→</span> {formatDate(rental.rentalEndDate)}
                         </div>
 
-                        <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
-                          <p className="text-base font-bold text-slate-900">
-                            ₱{rental.totalPrice?.toLocaleString()}
-                            <span className="text-xs font-normal text-slate-400 ml-1">total</span>
-                          </p>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-5 pt-5 border-t border-slate-50 dark:border-slate-800 gap-4">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-2xl font-black text-slate-900 dark:text-white">₱{rental.totalPrice?.toLocaleString()}</span>
+                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total</span>
+                          </div>
 
-                          {/* Action Buttons */}
                           <div className="flex items-center gap-2 flex-wrap">
-                            {/* Chat */}
                             <button
                               onClick={() => handleChatSupport(rental)}
-                              className="flex items-center gap-1 text-xs font-semibold text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition"
+                              className="flex items-center gap-2 text-[11px] font-bold text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-900/10 hover:bg-blue-100 dark:hover:bg-blue-900/20 px-4 py-2 rounded-xl transition-all"
                             >
-                              <MessageSquare size={12} /> Chat
+                              <MessageSquare size={14} /> CHAT
                             </button>
 
-                            {/* Cancel — only pending/approved */}
                             {canCancel(rental.status) && (
                               <button
                                 disabled={isBusy}
                                 onClick={() => setDialog({ type: 'cancel', rental })}
-                                className="flex items-center gap-1 text-xs font-semibold text-orange-600 border border-orange-200 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
+                                className="flex items-center gap-2 text-[11px] font-bold text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-900/50 bg-orange-50 dark:bg-orange-900/10 hover:bg-orange-100 dark:hover:bg-orange-900/20 px-4 py-2 rounded-xl transition-all disabled:opacity-50"
                               >
-                                <X size={12} /> Cancel
+                                <X size={14} /> CANCEL
                               </button>
                             )}
 
-                            {/* Delete — only completed/cancelled */}
                             {canDelete(rental.status) && (
                               <button
                                 disabled={isBusy}
                                 onClick={() => setDialog({ type: 'delete', rental })}
-                                className="flex items-center gap-1 text-xs font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
+                                className="flex items-center gap-2 text-[11px] font-bold text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/10 hover:bg-red-100 dark:hover:bg-red-900/20 px-4 py-2 rounded-xl transition-all"
                               >
-                                <Trash2 size={12} /> Delete
+                                <Trash2 size={14} /> DELETE
                               </button>
                             )}
 
-                            {/* Expand toggle */}
                             <button
                               onClick={() => setExpandedId(isExpanded ? null : rental._id)}
-                              className="flex items-center gap-1 text-xs font-semibold text-slate-500 border border-slate-200 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-lg transition"
+                              className="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 hover:bg-slate-100 dark:hover:bg-slate-800 px-4 py-2 rounded-xl transition-all"
                             >
-                              {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                              Details
+                              {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                              DETAILS
                             </button>
                           </div>
                         </div>
@@ -295,41 +258,40 @@ const handleDelete = async (rental) => {
                     </div>
                   </div>
 
-                  {/* Expanded Details */}
+                  {/* Expanded Section */}
                   {isExpanded && (
-                    <div className="border-t border-slate-100 bg-slate-50 px-5 py-4 space-y-3">
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Rental Details</p>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        {[
-                          { label: 'Pick-up',     value: formatDate(rental.rentalStartDate) },
-                          { label: 'Return',      value: formatDate(rental.rentalEndDate)   },
-                          { label: 'Plate No.',   value: rental.car?.licensePlate           },
-                        ].map(({ label, value }) => (
-                          <div key={label} className="bg-white border border-slate-200 rounded-xl px-3 py-2">
-                            <p className="text-[10px] text-slate-400 font-medium mb-0.5">{label}</p>
-                            <p className="text-xs font-semibold text-slate-700">{value || '—'}</p>
+                    <div className="border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 p-6 animate-in slide-in-from-top-2 duration-300">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                          <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-4">Rental Period</h4>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl shadow-sm">
+                              <p className="text-[9px] font-bold text-blue-500 uppercase mb-1">Pick-up</p>
+                              <p className="text-xs font-black dark:text-white">{formatDate(rental.rentalStartDate)}</p>
+                            </div>
+                            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl shadow-sm">
+                              <p className="text-[9px] font-bold text-blue-500 uppercase mb-1">Return</p>
+                              <p className="text-xs font-black dark:text-white">{formatDate(rental.rentalEndDate)}</p>
+                            </div>
                           </div>
-                        ))}
-                      </div>
+                        </div>
 
-                      {/* Personal details if available */}
-                      {rental.personalDetails && (
-                        <>
-                          <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-3 mb-2">Personal Details</p>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                            {[
-                              { label: 'Full Name', value: rental.personalDetails?.fullName },
-                              { label: 'Phone',     value: rental.personalDetails?.phone    },
-                              { label: 'Address',   value: rental.personalDetails?.address  },
-                            ].map(({ label, value }) => (
-                              <div key={label} className="bg-white border border-slate-200 rounded-xl px-3 py-2">
-                                <p className="text-[10px] text-slate-400 font-medium mb-0.5">{label}</p>
-                                <p className="text-xs font-semibold text-slate-700 truncate">{value || '—'}</p>
+                        {rental.personalDetails && (
+                          <div>
+                            <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-4">Customer Details</h4>
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-center py-2 border-b border-slate-200/50 dark:border-slate-800">
+                                <span className="text-[11px] font-bold text-slate-400">Full Name</span>
+                                <span className="text-xs font-black dark:text-white">{rental.personalDetails.fullName}</span>
                               </div>
-                            ))}
+                              <div className="flex justify-between items-center py-2 border-b border-slate-200/50 dark:border-slate-800">
+                                <span className="text-[11px] font-bold text-slate-400">Phone</span>
+                                <span className="text-xs font-black dark:text-white">{rental.personalDetails.phone}</span>
+                              </div>
+                            </div>
                           </div>
-                        </>
-                      )}
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -339,21 +301,20 @@ const handleDelete = async (rental) => {
         )}
       </div>
 
-      {/* ── Confirm Dialog ── */}
       <ConfirmDialog
         open={!!dialog}
-        title={dialog?.type === 'cancel' ? 'Cancel this rental?' : 'Delete this record?'}
+        title={dialog?.type === 'cancel' ? 'Cancel Rental?' : 'Delete Record?'}
         desc={
           dialog?.type === 'cancel'
-            ? `Are you sure you want to cancel your booking for ${dialog?.rental?.car?.brand} ${dialog?.rental?.car?.model}? This cannot be undone.`
-            : `This will permanently remove the rental record for ${dialog?.rental?.car?.brand} ${dialog?.rental?.car?.model}.`
+            ? `You are about to cancel your booking for ${dialog?.rental?.car?.brand} ${dialog?.rental?.car?.model}. Proceed?`
+            : `Are you sure you want to remove this record? This action cannot be reversed.`
         }
-        confirmLabel={dialog?.type === 'cancel' ? 'Yes, Cancel' : 'Yes, Delete'}
+        confirmLabel={dialog?.type === 'cancel' ? 'YES, CANCEL' : 'YES, DELETE'}
         confirmColor={dialog?.type === 'cancel' ? 'bg-orange-500 hover:bg-orange-600' : 'bg-red-500 hover:bg-red-600'}
         onConfirm={() => dialog?.type === 'cancel' ? handleCancel(dialog.rental) : handleDelete(dialog.rental)}
         onCancel={() => setDialog(null)}
       />
-    </>
+    </div>
   );
 };
 

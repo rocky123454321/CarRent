@@ -96,14 +96,15 @@ const AddCar = () => {
     }
   };
 
-  const labelClass = "text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5 block";
+  // DARK MODE CLASS HELPER
+  const labelClass = "text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-1.5 block";
 
   return (
-    <div className="max-w-xl mx-auto mt-10 mb-10 p-8 bg-white rounded-[2rem] border border-gray-100 shadow-sm">
+    <div className="max-w-xl mx-auto mt-10 mb-10 p-8 bg-white dark:bg-slate-900 rounded-[2rem] border border-gray-100 dark:border-slate-800 shadow-sm transition-colors">
       <div className="mb-6">
-        <p className="text-indigo-600 font-semibold text-sm tracking-widest uppercase mb-1">Management</p>
-        <h2 className="text-2xl font-black text-gray-900">Add New Vehicle</h2>
-        <p className="text-xs text-gray-400">Fill in the technical specifications below.</p>
+        <p className="text-indigo-600 dark:text-indigo-400 font-semibold text-sm tracking-widest uppercase mb-1">Management</p>
+        <h2 className="text-2xl font-black text-gray-900 dark:text-white">Add New Vehicle</h2>
+        <p className="text-xs text-gray-400 dark:text-slate-500">Fill in the technical specifications below.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -114,7 +115,9 @@ const AddCar = () => {
           <div
             onClick={() => !preview && fileInputRef.current?.click()}
             className={`relative h-48 w-full rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden
-              ${preview ? 'border-indigo-200 bg-gray-50' : 'border-gray-200 hover:border-indigo-400 hover:bg-indigo-50/30'}`}
+              ${preview 
+                ? 'border-indigo-200 dark:border-indigo-500/50 bg-gray-50 dark:bg-slate-800/50' 
+                : 'border-gray-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5'}`}
           >
             {preview ? (
               <>
@@ -126,15 +129,15 @@ const AddCar = () => {
                 >
                   <X size={14} />
                 </button>
-                <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-white/90 text-emerald-600 text-[10px] font-semibold px-2 py-1 rounded-full">
+                <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold px-2 py-1 rounded-full border border-emerald-100 dark:border-emerald-500/20">
                   <CheckCircle size={10} /> Photo ready
                 </div>
               </>
             ) : (
               <div className="text-center">
-                <ImagePlus className="mx-auto text-gray-300 mb-2" size={32} />
-                <p className="text-xs font-medium text-gray-500">Click to upload car image</p>
-                <p className="text-[10px] text-gray-400 mt-1">PNG, JPG, WEBP up to 5MB</p>
+                <ImagePlus className="mx-auto text-gray-300 dark:text-slate-600 mb-2" size={32} />
+                <p className="text-xs font-medium text-gray-500 dark:text-slate-500">Click to upload car image</p>
+                <p className="text-[10px] text-gray-400 dark:text-slate-600 mt-1">PNG, JPG, WEBP up to 5MB</p>
               </div>
             )}
           </div>
@@ -151,11 +154,11 @@ const AddCar = () => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Brand</label>
-            <Input className="rounded-xl" placeholder="e.g. Toyota" value={form.brand} onChange={handle("brand")} required />
+            <Input className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="e.g. Toyota" value={form.brand} onChange={handle("brand")} required />
           </div>
           <div>
             <label className={labelClass}>Model</label>
-            <Input className="rounded-xl" placeholder="e.g. Corolla" value={form.model} onChange={handle("model")} required />
+            <Input className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="e.g. Corolla" value={form.model} onChange={handle("model")} required />
           </div>
         </div>
 
@@ -163,11 +166,11 @@ const AddCar = () => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Year</label>
-            <Input className="rounded-xl" type="number" min={1990} max={new Date().getFullYear()+1} placeholder="2024" value={form.year} onChange={handle("year")} required />
+            <Input className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white" type="number" min={1990} max={new Date().getFullYear()+1} placeholder="2024" value={form.year} onChange={handle("year")} required />
           </div>
           <div>
             <label className={labelClass}>Color</label>
-            <Input className="rounded-xl" placeholder="Metallic Gray" value={form.color} onChange={handle("color")} />
+            <Input className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="Metallic Gray" value={form.color} onChange={handle("color")} />
           </div>
         </div>
 
@@ -175,7 +178,7 @@ const AddCar = () => {
         <div>
           <label className={labelClass}>Mileage (km)</label>
           <Input
-            className="rounded-xl"
+            className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white"
             type="number"
             min={0}
             placeholder="e.g. 50000"
@@ -188,11 +191,11 @@ const AddCar = () => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Rate per Day (₱)</label>
-            <Input className="rounded-xl font-bold text-indigo-600" type="number" min={0} placeholder="1500" value={form.pricePerDay} onChange={handle("pricePerDay")} required />
+            <Input className="rounded-xl font-bold text-indigo-600 dark:text-indigo-400 dark:bg-slate-800 dark:border-slate-700" type="number" min={0} placeholder="1500" value={form.pricePerDay} onChange={handle("pricePerDay")} required />
           </div>
           <div>
             <label className={labelClass}>License Plate</label>
-            <Input className="rounded-xl uppercase" placeholder="ABC 1234" value={form.licensePlate} onChange={handle("licensePlate")} required />
+            <Input className="rounded-xl uppercase dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="ABC 1234" value={form.licensePlate} onChange={handle("licensePlate")} required />
           </div>
         </div>
 
@@ -201,44 +204,45 @@ const AddCar = () => {
           <div>
             <label className={labelClass}>Fuel Type</label>
             <Select value={form.fuelType} onValueChange={(val) => setForm(p => ({ ...p, fuelType: val }))}>
-              <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Petrol">Petrol</SelectItem>
-                <SelectItem value="Diesel">Diesel</SelectItem>
-                <SelectItem value="Electric">Electric</SelectItem>
-                <SelectItem value="Hybrid">Hybrid</SelectItem>
+              <SelectTrigger className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white"><SelectValue /></SelectTrigger>
+              <SelectContent className="dark:bg-slate-900 dark:border-slate-800">
+                <SelectItem value="Petrol" className="dark:text-white dark:focus:bg-slate-800">Petrol</SelectItem>
+                <SelectItem value="Diesel" className="dark:text-white dark:focus:bg-slate-800">Diesel</SelectItem>
+                <SelectItem value="Electric" className="dark:text-white dark:focus:bg-slate-800">Electric</SelectItem>
+                <SelectItem value="Hybrid" className="dark:text-white dark:focus:bg-slate-800">Hybrid</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div>
             <label className={labelClass}>Transmission</label>
             <Select value={form.transmission} onValueChange={(val) => setForm(p => ({ ...p, transmission: val }))}>
-              <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Automatic">Automatic</SelectItem>
-                <SelectItem value="Manual">Manual</SelectItem>
+              <SelectTrigger className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white"><SelectValue /></SelectTrigger>
+              <SelectContent className="dark:bg-slate-900 dark:border-slate-800">
+                <SelectItem value="Automatic" className="dark:text-white dark:focus:bg-slate-800">Automatic</SelectItem>
+                <SelectItem value="Manual" className="dark:text-white dark:focus:bg-slate-800">Manual</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
         {/* Availability */}
-        <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+        <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
           <Checkbox
             id="available"
+            className="dark:border-slate-600 dark:data-[state=checked]:bg-indigo-500"
             checked={form.isAvailable}
             onCheckedChange={(checked) => setForm(p => ({ ...p, isAvailable: checked }))}
           />
           <div>
-            <label htmlFor="available" className="text-sm font-bold text-gray-700 cursor-pointer">Available for rent</label>
-            <p className="text-[10px] text-gray-400">If unchecked, car won't appear in search results.</p>
+            <label htmlFor="available" className="text-sm font-bold text-gray-700 dark:text-slate-300 cursor-pointer">Available for rent</label>
+            <p className="text-[10px] text-gray-400 dark:text-slate-500">If unchecked, car won't appear in search results.</p>
           </div>
         </div>
 
         <Button
           type="submit"
           disabled={loading}
-          className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition-all shadow-lg shadow-indigo-100"
+          className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold transition-all shadow-lg shadow-indigo-100 dark:shadow-none"
         >
           {loading ? "Uploading..." : "List Vehicle Now"}
         </Button>
