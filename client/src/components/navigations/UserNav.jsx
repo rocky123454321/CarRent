@@ -201,14 +201,18 @@ const UserNav = () => {
       </div>
 
       {/* --- Mobile Menu Overlay --- */}
+  
+      {/* --- Mobile Menu Overlay --- */}
       {mobileOpen && (
         <>
           <div 
             className="fixed inset-0 z-40 md:hidden bg-slate-900/20 dark:bg-black/40 backdrop-blur-sm animate-in fade-in duration-300" 
             onClick={() => setMobileOpen(false)} 
           />
-          <div className="md:hidden absolute inset-x-0 top-full bg-white dark:bg-[#0a0a0a] border-b border-slate-200 dark:border-white/5 shadow-2xl z-50 animate-in slide-in-from-top duration-300 ease-out">
+          <div className="md:hidden absolute inset-x-0 top-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-2xl z-50 animate-in slide-in-from-top duration-300 ease-out">
             <div className="p-5 flex flex-col gap-4">
+              
+              {/* User Profile Info */}
               <div className="flex items-center gap-4 p-4 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30">
                 <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white text-lg font-bold shadow-lg shadow-blue-500/20">
                   {user?.name?.charAt(0).toUpperCase()}
@@ -219,35 +223,57 @@ const UserNav = () => {
                 </div>
               </div>
 
+              {/* Quick Actions Grid */}
               <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => handleMobileNav('/cars')} className="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-black gap-2 shadow-sm">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0a0a0a] flex items-center justify-center text-slate-600 dark:text-slate-400"><Search size={20} /></div>
+                <button onClick={() => handleMobileNav('/cars')} className="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-black gap-2 shadow-sm active:scale-95 transition-transform">
+                  <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-600 dark:text-slate-400">
+                    <Search size={20} />
+                  </div>
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Category</span>
                 </button>
-                <button onClick={() => handleMobileNav('/my-rentals')} className="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-black gap-2 shadow-sm">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#0a0a0a] flex items-center justify-center text-slate-600 dark:text-slate-400"><CarFront size={20} /></div>
+                <button onClick={() => handleMobileNav('/my-rentals')} className="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-black gap-2 shadow-sm active:scale-95 transition-transform">
+                  <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-600 dark:text-slate-400">
+                    <CarFront size={20} />
+                  </div>
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Rentals</span>
                 </button>
               </div>
 
+              {/* Detailed Menu List */}
               <div className="flex flex-col gap-2">
-                <button onClick={() => { setNotifOpen(true); setMobileOpen(false); }} className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-black border border-slate-100 dark:border-white/5 shadow-sm">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2 mt-2">Settings & Account</p>
+                
+                <button onClick={() => handleMobileNav('/settings')} className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-black border border-slate-100 dark:border-slate-800 shadow-sm active:bg-slate-50 dark:active:bg-slate-800 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 flex items-center justify-center"><Bell size={18} /></div>
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center">
+                      <Settings size={18} />
+                    </div>
+                    <span className="font-bold text-sm text-slate-700 dark:text-slate-300">Account Settings</span>
+                  </div>
+                  <ChevronRight size={16} className="text-slate-300" />
+                </button>
+
+                <button onClick={() => { setNotifOpen(true); setMobileOpen(false); }} className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-black border border-slate-100 dark:border-slate-800 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+                      <Bell size={18} />
+                    </div>
                     <span className="font-bold text-slate-700 dark:text-slate-300 text-sm">Notifications</span>
                   </div>
                   {totalUnread > 0 && <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{totalUnread}</span>}
                 </button>
                 
-                <button onClick={() => handleMobileNav('/chat')} className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-black border border-slate-100 dark:border-white/5 shadow-sm">
+                <button onClick={() => handleMobileNav('/chat')} className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-black border border-slate-100 dark:border-slate-800 shadow-sm">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center"><MessageSquare size={18} /></div>
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                      <MessageSquare size={18} />
+                    </div>
                     <span className="font-bold text-sm text-slate-700 dark:text-slate-300">Messages</span>
                   </div>
                   <ChevronRight size={16} className="text-slate-300 dark:text-slate-600" />
                 </button>
 
-                <button onClick={logout} className="flex items-center gap-3 p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-bold mt-2 border border-red-100 dark:border-red-900/30">
+                <button onClick={logout} className="flex items-center gap-3 p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-bold mt-2 border border-red-100 dark:border-red-900/30 active:scale-[0.98] transition-transform">
                   <LogOut size={18} /> Log out
                 </button>
               </div>

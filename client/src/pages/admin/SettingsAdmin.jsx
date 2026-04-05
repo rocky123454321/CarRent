@@ -84,8 +84,7 @@ export const SettingsAdmin = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-white dark:bg-black text-slate-900 dark:text-slate-100 transition-colors duration-500">
-      <div className="max-w-4xl mx-auto space-y-8">
+         <div className="max-w-4xl mx-auto space-y-8">
         
         {/* Page Title */}
         <div className="flex flex-col gap-1">
@@ -245,7 +244,6 @@ export const SettingsAdmin = () => {
 </Button>
         </div>
       </div>
-    </div>
   );
 };
 

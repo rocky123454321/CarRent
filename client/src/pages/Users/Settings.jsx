@@ -99,8 +99,7 @@ export const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black p-4 md:p-8 transition-colors duration-500">
-      <div className="max-w-3xl mx-auto space-y-8">
+          <div className="max-w-3xl mx-auto space-y-8">
         
         {/* Page Title */}
         <div className="flex flex-col gap-1">
@@ -266,7 +265,7 @@ export const Settings = () => {
           </div>
         </div>
       </div>
-    </div>
+
   );
 };
 
