@@ -72,14 +72,14 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 space-y-4">
+              <div key={i} className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm p-6 space-y-4">
                 <Skeleton className="w-11 h-11 rounded-xl dark:bg-slate-800" />
                 <Skeleton className="h-3 w-20 rounded-full dark:bg-slate-800" />
                 <Skeleton className="h-7 w-28 rounded-full dark:bg-slate-800" />
               </div>
             ))
           : stats.map(({ title, value, icon: Icon, color, bg, border }, i) => (
-              <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 hover:shadow-md hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-200">
+              <div key={i} className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm p-6 hover:shadow-md hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-200">
                 <div className={`w-11 h-11 flex items-center justify-center rounded-xl mb-4 ${bg} border ${border}`}>
                   <Icon size={20} className={color} />
                 </div>
@@ -92,7 +92,7 @@ const AdminDashboard = () => {
 
       {/* Area Chart */}
       {loading ? (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 space-y-4">
+        <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
               <Skeleton className="h-4 w-36 rounded-full dark:bg-slate-800" />
@@ -103,17 +103,17 @@ const AdminDashboard = () => {
           <Skeleton className="h-[250px] w-full rounded-xl dark:bg-slate-800" />
         </div>
       ) : (
-        <Card className="rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-          <CardHeader className="flex items-center gap-2 space-y-0 border-b border-slate-100 dark:border-slate-800 py-5 sm:flex-row bg-white dark:bg-slate-900">
+        <Card className="rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-[#0a0a0a] shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+          <CardHeader className="flex items-center gap-2 space-y-0 border-b border-slate-100 dark:border-white/5 py-5 sm:flex-row bg-white dark:bg-[#0a0a0a]">
             <div className="grid flex-1 gap-1">
               <CardTitle className="text-base font-bold text-slate-800 dark:text-slate-100">Rentals Overview</CardTitle>
               <CardDescription className="text-xs text-slate-400 dark:text-slate-500">Revenue and bookings over time</CardDescription>
             </div>
             <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[160px] rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 text-sm" aria-label="Select range">
+              <SelectTrigger className="w-[160px] rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white text-sm" aria-label="Select range">
                 <SelectValue placeholder="Last 3 months" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl dark:bg-slate-900 dark:border-slate-800">
+              <SelectContent className="rounded-xl dark:bg-[#0a0a0a] dark:border-white/5">
                 <SelectItem value="90d" className="text-sm">Last 3 months</SelectItem>
                 <SelectItem value="30d" className="text-sm">Last 30 days</SelectItem>
                 <SelectItem value="7d"  className="text-sm">Last 7 days</SelectItem>
@@ -150,7 +150,7 @@ const AdminDashboard = () => {
                   />
                   <ChartTooltip cursor={false} content={
                     <ChartTooltipContent
-                      className="dark:bg-slate-950 dark:border-slate-800"
+                      className="dark:bg-black dark:border-white/5"
                       labelFormatter={(v) => new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                       indicator="dot"
                     />

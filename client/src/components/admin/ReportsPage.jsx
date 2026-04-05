@@ -90,14 +90,14 @@ const ReportsPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {isLoading
           ? Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 space-y-4">
+              <div key={i} className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm p-6 space-y-4">
                 <Skeleton className="w-11 h-11 rounded-xl dark:bg-slate-800" />
                 <Skeleton className="h-4 w-28 rounded-full dark:bg-slate-800" />
                 <Skeleton className="h-5 w-20 rounded-full dark:bg-slate-800" />
               </div>
             ))
           : reportStats.map(({ title, value, sub, icon: Icon, color, bg, border }, i) => (
-              <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 hover:shadow-md transition-all duration-200">
+              <div key={i} className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm p-6 hover:shadow-md transition-all duration-200">
                 <div className={`w-11 h-11 flex items-center justify-center rounded-xl mb-4 ${bg} border ${border}`}>
                   <Icon size={20} className={color} />
                 </div>
@@ -112,7 +112,7 @@ const ReportsPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* Table Container */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 transition-all duration-200">
+        <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm p-6 transition-all duration-200">
           <div className="flex items-center gap-2 mb-6">
             <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center">
               <Table size={16} className="text-indigo-600 dark:text-indigo-400" />
@@ -125,7 +125,7 @@ const ReportsPage = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800">
+                <tr className="border-b border-slate-100 dark:border-white/5">
                   {["ID", "Customer", "Car", "Date", "Amount", "Status"].map((h) => (
                     <th key={h} className="text-left pb-3 text-xs font-semibold text-slate-400 uppercase tracking-wide">{h}</th>
                   ))}
@@ -135,7 +135,7 @@ const ReportsPage = () => {
                 {recentBookings.map((b, i) => (
                   <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="py-3 font-mono text-xs text-slate-500 dark:text-slate-400">{b.id}</td>
-                    <td className="py-3 font-medium text-slate-800 dark:text-slate-200">{b.customer}</td>
+                    <td className="py-3 font-medium text-slate-800 dark:text-white">{b.customer}</td>
                     <td className="py-3 text-slate-500 dark:text-slate-400">{b.car}</td>
                     <td className="py-3 text-slate-400 dark:text-slate-500 text-xs">{b.date}</td>
                     <td className="py-3 font-semibold text-emerald-600 dark:text-emerald-400">{b.amount}</td>
@@ -153,7 +153,7 @@ const ReportsPage = () => {
 
         {/* Charts Column */}
         <div className="space-y-6">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 transition-all duration-200">
+          <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm p-6 transition-all duration-200">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center">
                 <BarChart3 size={16} className="text-indigo-600 dark:text-indigo-400" />
@@ -176,7 +176,7 @@ const ReportsPage = () => {
             </div>
           </div>
 
-          <Card className="rounded-2xl bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 shadow-sm transition-all duration-200">
+          <Card className="rounded-2xl bg-white dark:bg-[#0a0a0a] border-slate-100 dark:border-white/5 shadow-sm transition-all duration-200">
             <CardHeader className="items-center pb-0 pt-5">
               <CardTitle className="text-base font-bold text-slate-800 dark:text-white">Status Distribution</CardTitle>
             </CardHeader>

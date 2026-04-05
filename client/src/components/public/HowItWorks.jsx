@@ -54,7 +54,7 @@ const HowItWorks = () => {
   }, []);
 
   return (
-    <section className="bg-slate-50 py-28 px-6 transition-colors duration-500 dark:bg-slate-950 lg:px-16">
+    <section className="bg-slate-50 py-28 px-6 transition-colors duration-500 dark:bg-black lg:px-16">
       <div className="mx-auto max-w-7xl">
         
         {/* Header */}
@@ -81,7 +81,7 @@ const HowItWorks = () => {
               return (
                 <div
                   key={step.number}
-                  className="step-item group flex gap-6 rounded-3xl border border-slate-200/60 bg-white p-7 opacity-0 translate-y-8 transition-all duration-700 ease-out hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-500/5 dark:border-slate-800 dark:bg-slate-900/50 dark:hover:border-indigo-900/50"
+                  className="step-item group flex gap-6 rounded-3xl border border-slate-200/60 bg-white p-7 opacity-0 translate-y-8 transition-all duration-700 ease-out hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-500/5 dark:border-white/5 dark:bg-[#0a0a0a] dark:hover:border-indigo-900/50"
                 >
                   <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${step.bg} ${step.accent} transition-transform duration-300 group-hover:scale-110`}>
                     <Icon size={24} strokeWidth={2.5} />
@@ -110,7 +110,7 @@ const HowItWorks = () => {
             {/* Ambient Glow */}
             <div className="absolute h-[400px] w-[400px] rounded-full bg-indigo-200/20 blur-[100px] dark:bg-indigo-600/10" />
             
-            <div className="relative z-10 overflow-hidden rounded-[2.5rem] border-[8px] border-white shadow-2xl dark:border-slate-800">
+            <div className="relative z-10 overflow-hidden rounded-[2.5rem] border-[8px] border-white shadow-2xl dark:border-white/5">
               <img
                 src={howitwork}
                 alt="Process Illustration"

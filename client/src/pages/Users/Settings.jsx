@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom"; 
 import { toast } from "sonner";
-import { User, Bell, Trash2, Save, Moon, Sun } from "lucide-react"; // In-update ang icons
+import { User, Bell, Trash2, Save, Moon, Sun } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,13 +29,12 @@ export const Settings = () => {
     name: user?.name || "",
     email: user?.email || "",
     password: "",
-    darkMode: document.documentElement.classList.contains("dark"), // Initial check
+    darkMode: document.documentElement.classList.contains("dark"),
     notifications: true,
   });
 
   const [loading, setLoading] = useState(false);
 
-  // --- DARK MODE LOGIC ---
   useEffect(() => {
     const isDark = document.documentElement.classList.contains("dark");
     setForm(prev => ({ ...prev, darkMode: isDark }));
@@ -51,7 +50,6 @@ export const Settings = () => {
     }
     setForm(prev => ({ ...prev, darkMode: checked }));
   };
-  // -----------------------
 
   useEffect(() => {
     setForm((prev) => ({
@@ -101,7 +99,7 @@ export const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-slate-50 dark:bg-[#0B0F1A] transition-colors duration-500">
+    <div className="min-h-screen bg-white dark:bg-black p-4 md:p-8 transition-colors duration-500">
       <div className="max-w-3xl mx-auto space-y-8">
         
         {/* Page Title */}
@@ -116,10 +114,10 @@ export const Settings = () => {
 
         <div className="grid gap-6">
           {/* Profile Settings */}
-          <Card className="border-none shadow-sm bg-white dark:bg-slate-900/50 dark:border dark:border-slate-800 rounded-3xl overflow-hidden transition-all">
-            <CardHeader className="border-b border-slate-50 dark:border-slate-800/50 pb-4">
+          <Card className="border-none shadow-sm bg-white dark:bg-black dark:border dark:border-white/10 rounded-3xl overflow-hidden transition-all">
+            <CardHeader className="border-b border-gray-100 dark:border-white/5 pb-4">
               <div className="flex items-center gap-2">
-                <User size={18} className="text-blue-500" />
+                
                 <CardTitle className="text-lg dark:text-white">Public Profile</CardTitle>
               </div>
               <CardDescription className="dark:text-slate-400">Update your basic account details.</CardDescription>
@@ -132,7 +130,7 @@ export const Settings = () => {
                     name="name"
                     value={form.name}
                     onChange={handleChange}
-                    className="bg-slate-50/50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl focus:ring-blue-500/20 dark:text-white"
+                    className="bg-white dark:bg-black border-gray-200 dark:border-white/10 rounded-xl focus:ring-blue-500/10 dark:text-white"
                   />
                 </div>
                 <div className="space-y-2">
@@ -141,7 +139,7 @@ export const Settings = () => {
                     name="email"
                     value={form.email}
                     onChange={handleChange}
-                    className="bg-slate-50/50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl focus:ring-blue-500/20 dark:text-white"
+                    className="bg-white dark:bg-black border-gray-200 dark:border-white/10 rounded-xl focus:ring-blue-500/10 dark:text-white"
                   />
                 </div>
               </div>
@@ -153,33 +151,32 @@ export const Settings = () => {
                   placeholder="••••••••"
                   value={form.password}
                   onChange={handleChange}
-                  className="bg-slate-50/50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl focus:ring-blue-500/20 dark:text-white"
+                  className="bg-white dark:bg-black border-gray-200 dark:border-white/10 rounded-xl focus:ring-blue-500/10 dark:text-white"
                 />
               </div>
             </CardContent>
           </Card>
 
           {/* Preferences */}
-          <Card className="border-none shadow-sm bg-white dark:bg-slate-900/50 dark:border dark:border-slate-800 rounded-3xl overflow-hidden transition-all">
-            <CardHeader className="border-b border-slate-50 dark:border-slate-800/50 pb-4">
+          <Card className="border-none shadow-sm bg-white dark:bg-black dark:border dark:border-white/10 rounded-3xl overflow-hidden transition-all">
+            <CardHeader className="border-b border-gray-100 dark:border-white/5 pb-4">
               <div className="flex items-center gap-2">
-                <Bell size={18} className="text-purple-500" />
+            
                 <CardTitle className="text-lg dark:text-white">Preferences</CardTitle>
               </div>
-              <CardDescription className="dark:text-slate-400">Control kung paano lalabas ang app sa device mo.</CardDescription>
+              <CardDescription className="dark:text-slate-400">Control application appearance and alerts.</CardDescription>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
-              {/* DARK MODE TOGGLE */}
-              <div className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${form.darkMode ? 'bg-blue-600/5 border-blue-500/20' : 'bg-slate-50/50 border-transparent'}`}>
+              
+              {/* Appearance Toggle */}
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10">
                 <div className="flex items-center gap-4">
-                  <div className={`p-2.5 rounded-xl transition-colors ${form.darkMode ? 'bg-blue-500 text-white' : 'bg-white text-slate-400 shadow-sm'}`}>
-                    {form.darkMode ? <Moon size={20} /> : <Sun size={20} />}
+                  <div className="p-2 rounded-lg bg-white dark:bg-white/5 text-slate-600 dark:text-white shadow-sm border dark:border-white/10">
+                    {form.darkMode ? <Moon size={18} /> : <Sun size={18} />}
                   </div>
                   <div className="space-y-0.5">
                     <Label className="text-base font-bold dark:text-white">Appearance</Label>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                      {form.darkMode ? "Dark mode is currently active" : "Light mode is currently active"}
-                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Switch between light and dark mode</p>
                   </div>
                 </div>
                 <Switch
@@ -189,10 +186,16 @@ export const Settings = () => {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 dark:bg-transparent border border-transparent dark:border-slate-800/50">
-                <div className="space-y-0.5">
-                  <Label className="text-base font-bold dark:text-white">Push Notifications</Label>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Receive real-time alerts and unit updates</p>
+              {/* Notifications Toggle */}
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10">
+                <div className="flex items-center gap-4">
+                  <div className="p-2 rounded-lg bg-white dark:bg-white/5 text-slate-600 dark:text-white shadow-sm border dark:border-white/10">
+                    <Bell size={18} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <Label className="text-base font-bold dark:text-white">Push Notifications</Label>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Receive real-time alerts and unit updates</p>
+                  </div>
                 </div>
                 <Switch
                   checked={form.notifications}
@@ -213,11 +216,11 @@ export const Settings = () => {
                 </button>
               </AlertDialogTrigger>
 
-              <AlertDialogContent className="bg-white dark:bg-slate-900 border-none rounded-3xl shadow-2xl">
+              <AlertDialogContent className="bg-white dark:bg-black border-none dark:border dark:border-white/10 rounded-3xl shadow-2xl">
                 <AlertDialogHeader>
                   <AlertDialogTitle className="text-xl font-bold dark:text-white">Verify Account Deletion</AlertDialogTitle>
                   <AlertDialogDescription className="dark:text-slate-400">
-                    This action is <span className="text-red-500 font-bold uppercase underline">permanent</span>. All your data including rental history will be wiped. To proceed, please type <strong>DELETE</strong> below:
+                    This action is <span className="text-red-500 font-bold uppercase underline">permanent</span>. To proceed, please type <strong>DELETE</strong> below:
                   </AlertDialogDescription>
                 </AlertDialogHeader>
 
@@ -226,16 +229,16 @@ export const Settings = () => {
                     placeholder="Type DELETE"
                     value={confirmationText}
                     onChange={(e) => setConfirmationText(e.target.value)}
-                    className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-12 rounded-xl text-center font-black tracking-widest dark:text-white"
+                    className="bg-gray-50 dark:bg-black border-gray-200 dark:border-white/10 h-12 rounded-xl text-center font-black tracking-widest dark:text-white"
                   />
                 </div>
 
                 <AlertDialogFooter className="gap-2">
-                  <AlertDialogCancel className="rounded-xl border-slate-200 dark:border-slate-800 dark:bg-slate-900 dark:text-white">Nevermind</AlertDialogCancel>
+                  <AlertDialogCancel className="rounded-xl border-gray-200 dark:border-white/10 dark:bg-black dark:text-white">Nevermind</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDeleteAccount}
                     disabled={confirmationText !== "DELETE" || loading || isLoading}
-                    className="bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-lg shadow-red-600/20"
+                    className="bg-red-600 hover:bg-red-700 text-white rounded-xl"
                   >
                     Yes, Delete Everything
                   </AlertDialogAction>
@@ -244,19 +247,22 @@ export const Settings = () => {
             </AlertDialog>
 
             <Button
-              onClick={handleSubmit}
-              disabled={loading || isLoading}
-              className="w-full md:w-auto px-10 py-7 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-600/20 transition-all active:scale-95 flex items-center gap-2"
-            >
-              {loading || isLoading ? (
-                <span className="animate-pulse">Syncing...</span>
-              ) : (
-                <>
-                  <Save size={18} />
-                  Save Changes
-                </>
-              )}
-            </Button>
+  onClick={handleSubmit}
+  disabled={loading }
+  className="w-full md:w-auto px-8 py-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold uppercase tracking-widest text-[9px] shadow-lg shadow-indigo-600/10 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-70 group"
+>
+  {loading  ? (
+    <div className="flex items-center gap-2">
+      <div className="h-3 w-3 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+      <span className="opacity-80">Saving...</span>
+    </div>
+  ) : (
+    <>
+      <Save size={14} className="group-hover:translate-y-[-1px] transition-transform" />
+      <span>Save Changes</span>
+    </>
+  )}
+</Button>
           </div>
         </div>
       </div>

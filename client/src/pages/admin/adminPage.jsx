@@ -7,8 +7,8 @@ const AdminPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    // In-update ang background para maging dark:bg-slate-950
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    // In-update ang background para maging dark:bg-black
+    <div className="flex min-h-screen bg-slate-50 dark:bg-black transition-colors duration-300">
       
       {/* Mobile overlay - Ginawang mas madilim (bg-black/60) para sa dark mode contrast */}
       {sidebarOpen && (

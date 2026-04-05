@@ -100,7 +100,7 @@ const AddCar = () => {
   const labelClass = "text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-1.5 block";
 
   return (
-    <div className="max-w-xl mx-auto mt-10 mb-10 p-8 bg-white dark:bg-slate-900 rounded-[2rem] border border-gray-100 dark:border-slate-800 shadow-sm transition-colors">
+    <div className="max-w-xl mx-auto mt-10 mb-10 p-8 bg-white dark:bg-[#0a0a0a] rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm transition-colors">
       <div className="mb-6">
         <p className="text-indigo-600 dark:text-indigo-400 font-semibold text-sm tracking-widest uppercase mb-1">Management</p>
         <h2 className="text-2xl font-black text-gray-900 dark:text-white">Add New Vehicle</h2>
@@ -116,7 +116,7 @@ const AddCar = () => {
             onClick={() => !preview && fileInputRef.current?.click()}
             className={`relative h-48 w-full rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden
               ${preview 
-                ? 'border-indigo-200 dark:border-indigo-500/50 bg-gray-50 dark:bg-slate-800/50' 
+                ? 'border-indigo-200 dark:border-indigo-500/50 bg-white dark:bg-slate-800/50' 
                 : 'border-gray-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5'}`}
           >
             {preview ? (
@@ -129,7 +129,7 @@ const AddCar = () => {
                 >
                   <X size={14} />
                 </button>
-                <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold px-2 py-1 rounded-full border border-emerald-100 dark:border-emerald-500/20">
+                <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-white/90 dark:bg-[#0a0a0a]/90 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold px-2 py-1 rounded-full border border-emerald-100 dark:border-emerald-500/20">
                   <CheckCircle size={10} /> Photo ready
                 </div>
               </>
@@ -205,7 +205,7 @@ const AddCar = () => {
             <label className={labelClass}>Fuel Type</label>
             <Select value={form.fuelType} onValueChange={(val) => setForm(p => ({ ...p, fuelType: val }))}>
               <SelectTrigger className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white"><SelectValue /></SelectTrigger>
-              <SelectContent className="dark:bg-slate-900 dark:border-slate-800">
+              <SelectContent className="dark:bg-[#0a0a0a] dark:border-white/5">
                 <SelectItem value="Petrol" className="dark:text-white dark:focus:bg-slate-800">Petrol</SelectItem>
                 <SelectItem value="Diesel" className="dark:text-white dark:focus:bg-slate-800">Diesel</SelectItem>
                 <SelectItem value="Electric" className="dark:text-white dark:focus:bg-slate-800">Electric</SelectItem>
@@ -217,7 +217,7 @@ const AddCar = () => {
             <label className={labelClass}>Transmission</label>
             <Select value={form.transmission} onValueChange={(val) => setForm(p => ({ ...p, transmission: val }))}>
               <SelectTrigger className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white"><SelectValue /></SelectTrigger>
-              <SelectContent className="dark:bg-slate-900 dark:border-slate-800">
+              <SelectContent className="dark:bg-[#0a0a0a] dark:border-white/5">
                 <SelectItem value="Automatic" className="dark:text-white dark:focus:bg-slate-800">Automatic</SelectItem>
                 <SelectItem value="Manual" className="dark:text-white dark:focus:bg-slate-800">Manual</SelectItem>
               </SelectContent>
@@ -226,7 +226,7 @@ const AddCar = () => {
         </div>
 
         {/* Availability */}
-        <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+        <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-white/5">
           <Checkbox
             id="available"
             className="dark:border-slate-600 dark:data-[state=checked]:bg-indigo-500"

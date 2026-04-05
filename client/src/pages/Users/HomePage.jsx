@@ -97,7 +97,7 @@ const HomePage = () => {
       {activeRental && (
         <section className="animate-in fade-in slide-in-from-bottom-2 duration-500">
           <div className="flex justify-between items-center mb-3">
-            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">Active Rental</h2>
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white">Active Rental</h2>
             <button
               onClick={() => navigate('/my-rentals')}
               className="text-blue-600 dark:text-blue-400 text-sm font-bold flex items-center gap-0.5 hover:underline"
@@ -106,7 +106,7 @@ const HomePage = () => {
             </button>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex flex-col gap-4 shadow-sm">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-2xl p-5 flex flex-col gap-4 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-black text-slate-800 dark:text-white text-base">
@@ -128,25 +128,25 @@ const HomePage = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-slate-50 dark:bg-slate-950 rounded-xl px-4 py-3 border border-transparent dark:border-slate-800">
+              <div className="bg-slate-50 dark:bg-black rounded-xl px-4 py-3 border border-transparent dark:border-white/5">
                 <p className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1.5 mb-1 font-bold uppercase tracking-tighter">
                   <Calendar size={10} /> Pick-up
                 </p>
-                <p className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                <p className="text-xs font-bold text-slate-700 dark:text-white">
                   {new Date(activeRental.rentalStartDate).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
-              <div className="bg-slate-50 dark:bg-slate-950 rounded-xl px-4 py-3 border border-transparent dark:border-slate-800">
+              <div className="bg-slate-50 dark:bg-black rounded-xl px-4 py-3 border border-transparent dark:border-white/5">
                 <p className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1.5 mb-1 font-bold uppercase tracking-tighter">
                   <Clock size={10} /> Return
                 </p>
-                <p className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                <p className="text-xs font-bold text-slate-700 dark:text-white">
                   {new Date(activeRental.rentalEndDate).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4 mt-1">
+            <div className="flex items-center justify-between border-t border-slate-100 dark:border-white/5 pt-4 mt-1">
               <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
                 Total: <span className="font-black text-slate-900 dark:text-white">₱{activeRental.totalPrice?.toLocaleString()}</span>
               </p>
@@ -165,7 +165,7 @@ const HomePage = () => {
       {recentRentals.length > 0 && (
         <section>
           <div className="flex justify-between items-center mb-3">
-            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">Recent Rentals</h2>
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white">Recent Rentals</h2>
             <button
               onClick={() => navigate('/my-rentals')}
               className="text-blue-600 dark:text-blue-400 text-sm font-bold flex items-center gap-0.5"
@@ -180,7 +180,7 @@ const HomePage = () => {
                 <div
                   key={rental._id}
                   onClick={() => navigate('/my-rentals')}
-                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3.5 flex items-center gap-3 cursor-pointer hover:border-blue-200 dark:hover:border-blue-900 transition shadow-sm active:scale-[0.99]"
+                  className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-2xl px-4 py-3.5 flex items-center gap-3 cursor-pointer hover:border-blue-200 dark:hover:border-blue-900 transition shadow-sm active:scale-[0.99]"
                 >
                   <div className="w-10 h-10 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center shrink-0">
                     <MapPin size={16} className="text-blue-500 dark:text-blue-400" />

@@ -21,7 +21,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex items-center justify-center px-4 transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center px-4 transition-colors duration-300">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -29,10 +29,10 @@ const LoginPage = () => {
         className="w-full max-w-md"
       >
         {/* Card */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden transition-all">
+        <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden transition-all">
 
           {/* Header */}
-          <div className="px-8 pt-10 pb-6 text-center border-b border-gray-50 dark:border-slate-800/50">
+          <div className="px-8 pt-10 pb-6 text-center border-b border-gray-50 dark:border-white/5">
             <img src={brand} alt="brand" className="h-10 mx-auto mb-4 dark:brightness-110" />
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome back</h2>
             <p className="text-sm text-gray-400 dark:text-slate-500 mt-1">Sign in to your account to continue</p>
@@ -52,7 +52,7 @@ const LoginPage = () => {
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 dark:focus:border-blue-500 transition bg-gray-50 dark:bg-slate-950 dark:text-slate-200"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-white/5 text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 dark:focus:border-blue-500 transition bg-white dark:bg-black dark:text-white"
                   required
                 />
               </div>
@@ -74,7 +74,7 @@ const LoginPage = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 dark:focus:border-blue-500 transition bg-gray-50 dark:bg-slate-950 dark:text-slate-200"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-white/5 text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 dark:focus:border-blue-500 transition bg-white dark:bg-black dark:text-white"
                   required
                 />
               </div>
@@ -105,7 +105,7 @@ const LoginPage = () => {
           </form>
 
           {/* Footer */}
-          <div className="px-8 py-6 bg-gray-50 dark:bg-slate-800/30 border-t border-gray-100 dark:border-slate-800 text-center">
+          <div className="px-8 py-6 bg-white dark:bg-black border-t border-gray-100 dark:border-white/5 text-center">
             <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">
               Don't have an account?{" "}
               <Link to="/signup" className="text-blue-600 dark:text-blue-400 font-bold hover:underline transition-colors">

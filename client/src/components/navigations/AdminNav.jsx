@@ -48,10 +48,10 @@ const AdminNav = ({ onMenuClick }) => {
   };
 
   const NotificationList = () => (
-    <div className="max-h-[60vh] overflow-y-auto scrollbar-thin dark:scrollbar-thumb-slate-800 bg-white dark:bg-slate-900 transition-colors">
+    <div className="max-h-[60vh] overflow-y-auto scrollbar-thin dark:scrollbar-thumb-slate-800 bg-white dark:bg-[#0a0a0a] transition-colors">
       {notifications.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-slate-400 dark:text-slate-600">
-          <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-3 border border-slate-100 dark:border-slate-800">
+          <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-3 border border-slate-100 dark:border-white/5">
              <Bell size={28} className="opacity-20" />
           </div>
           <p className="text-sm font-bold uppercase tracking-widest text-[10px]">All caught up!</p>
@@ -90,14 +90,14 @@ const AdminNav = ({ onMenuClick }) => {
   );
 
   return (
-    <header className="sticky top-0 z-40 bg-white dark:bg-slate-950 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/60 transition-colors duration-300">
+    <header className="sticky top-0 z-40 bg-white dark:bg-black backdrop-blur-xl border-b border-slate-200/60 dark:border-white/5/60 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
 
         {/* Left: Sidebar Toggle */}
         <div className="flex items-center">
           <button
             onClick={onMenuClick}
-            className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 active:scale-95 transition-all border border-slate-200 dark:border-slate-800"
+            className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-[#0a0a0a] text-slate-600 dark:text-slate-400 active:scale-95 transition-all border border-slate-200 dark:border-white/5"
           >
             <Menu size={20} />
           </button>
@@ -109,7 +109,7 @@ const AdminNav = ({ onMenuClick }) => {
           {/* Theme Toggle */}
           <button 
             onClick={toggleTheme}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all"
           >
             {darkMode ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-slate-600" />}
           </button>
@@ -118,16 +118,16 @@ const AdminNav = ({ onMenuClick }) => {
           <div className="hidden sm:block">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="relative w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all">
+                <button className="relative w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all">
                   <Bell size={18} />
                   {totalUnread > 0 && (
                     <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-950 animate-pulse" />
                   )}
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-80 rounded-[1.5rem] shadow-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-0 mt-2" align="end">
-                <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30 rounded-t-[1.5rem]">
-                  <h3 className="font-black text-[11px] uppercase tracking-widest text-slate-800 dark:text-slate-200">Notifications</h3>
+              <DropdownMenuContent className="w-80 rounded-[1.5rem] shadow-2xl border-slate-200 dark:border-white/5 bg-white dark:bg-[#0a0a0a] p-0 mt-2" align="end">
+                <div className="px-5 py-4 border-b border-slate-100 dark:border-white/5 flex items-center justify-between bg-slate-50/50 dark:bg-black rounded-t-[1.5rem]">
+                  <h3 className="font-black text-[11px] uppercase tracking-widest text-slate-800 dark:text-white">Notifications</h3>
                   {notifications.length > 0 && (
                     <button onClick={clearNotifications} className="text-[10px] text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-tighter hover:underline">
                       Clear all
@@ -143,7 +143,7 @@ const AdminNav = ({ onMenuClick }) => {
           <div className="hidden sm:block">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 p-1 pr-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-900 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-all group">
+                <button className="flex items-center gap-2 p-1 pr-3 rounded-xl border border-slate-200 dark:border-white/5 hover:border-indigo-200 dark:hover:border-indigo-900 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-all group">
                   <div className="w-8 h-8 rounded-lg bg-indigo-600 dark:bg-indigo-500 text-white flex items-center justify-center font-black text-xs shadow-lg shadow-indigo-500/20">
                     {user?.name?.charAt(0).toUpperCase()}
                   </div>
@@ -152,8 +152,8 @@ const AdminNav = ({ onMenuClick }) => {
                   </span>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-64 rounded-[1.5rem] shadow-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-0 mt-2 overflow-hidden" align="end">
-                <DropdownMenuLabel className="px-5 py-5 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 font-normal">
+              <DropdownMenuContent className="w-64 rounded-[1.5rem] shadow-2xl border-slate-200 dark:border-white/5 bg-white dark:bg-black p-0 mt-2 overflow-hidden" align="end">
+                <DropdownMenuLabel className="px-5 py-5 bg-slate-50 dark:bg-[#0a0a0a] border-b border-slate-100 dark:border-white/5 font-normal">
                   <p className="text-sm font-black text-slate-900 dark:text-white truncate tracking-tight">{user?.name}</p>
                   <p className="text-[11px] font-medium text-slate-500 dark:text-slate-500 truncate mt-0.5">{user?.email}</p>
                 </DropdownMenuLabel>
@@ -189,8 +189,8 @@ const AdminNav = ({ onMenuClick }) => {
       {/* Mobile Menu Overlay */}
       {mobileOpen && (
         <>
-          <div className="fixed inset-0 z-40 sm:hidden bg-slate-950/20 dark:bg-slate-950/60 backdrop-blur-sm transition-all" onClick={() => setMobileOpen(false)} />
-          <div className="sm:hidden absolute inset-x-0 top-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-2xl z-50 animate-in slide-in-from-top duration-200">
+          <div className="fixed inset-0 z-40 sm:hidden bg-slate-950/20 dark:bg-black/60 backdrop-blur-sm transition-all" onClick={() => setMobileOpen(false)} />
+          <div className="sm:hidden absolute inset-x-0 top-full bg-white dark:bg-[#0a0a0a] border-b border-slate-200 dark:border-white/5 shadow-2xl z-50 animate-in slide-in-from-top duration-200">
             <div className="p-5 flex flex-col gap-4">
               <div className="flex items-center gap-4 p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50">
                 <div className="w-12 h-12 rounded-xl bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center text-white text-lg font-black shadow-lg shadow-indigo-500/20">
@@ -207,7 +207,7 @@ const AdminNav = ({ onMenuClick }) => {
                   { icon: <MessageSquare size={20} />, label: "Messages", color: "text-blue-500", onClick: () => handleMobileNav('/admin/chat') },
                   { icon: <Settings size={20} />, label: "Settings", color: "text-slate-500", onClick: () => handleMobileNav('settings') },
                 ].map((item, idx) => (
-                  <button key={idx} onClick={item.onClick} className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 active:bg-slate-50 dark:active:bg-slate-700 transition-colors">
+                  <button key={idx} onClick={item.onClick} className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-white/5 active:bg-slate-50 dark:active:bg-slate-700 transition-colors">
                     <div className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
                       <span className={item.color}>{item.icon}</span>
                       <span className="font-bold text-sm">{item.label}</span>
@@ -231,8 +231,8 @@ const AdminNav = ({ onMenuClick }) => {
 
       {/* Notifications Dialog (Mobile) */}
       <AlertDialog open={notifOpen} onOpenChange={setNotifOpen}>
-        <AlertDialogContent className="max-w-[calc(100%-2rem)] w-full rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white dark:bg-slate-900 transition-all">
-          <AlertDialogHeader className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <AlertDialogContent className="max-w-[calc(100%-2rem)] w-full rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white dark:bg-[#0a0a0a] transition-all">
+          <AlertDialogHeader className="px-6 py-5 border-b border-slate-100 dark:border-white/5 bg-white dark:bg-[#0a0a0a]">
             <div className="flex items-center justify-between w-full">
               <AlertDialogTitle className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Notifications</AlertDialogTitle>
               <AlertDialogCancel className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 border-none flex items-center justify-center text-slate-500 dark:text-slate-400 m-0 hover:rotate-90 transition-transform">
@@ -240,7 +240,7 @@ const AdminNav = ({ onMenuClick }) => {
               </AlertDialogCancel>
             </div>
           </AlertDialogHeader>
-          <div className="bg-white dark:bg-slate-900">
+          <div className="bg-white dark:bg-[#0a0a0a]">
             <NotificationList />
           </div>
           <div className="p-5 bg-slate-50 dark:bg-slate-800/50">

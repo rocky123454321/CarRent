@@ -32,7 +32,7 @@ const FAQSection = () => {
   };
 
   return (
-    <section className="bg-white py-24 px-6 transition-colors duration-500 dark:bg-slate-950 lg:px-16">
+    <section className="bg-white py-24 px-6 transition-colors duration-500 dark:bg-black lg:px-16">
       <div className="mx-auto max-w-4xl">
         
         {/* Header */}
@@ -55,14 +55,14 @@ const FAQSection = () => {
                 className={`overflow-hidden rounded-[2rem] border transition-all duration-300 ${
                   isOpen 
                     ? 'border-indigo-200 bg-indigo-50/30 shadow-xl shadow-indigo-500/5 dark:border-indigo-900/40 dark:bg-indigo-950/20' 
-                    : 'border-slate-100 bg-white hover:border-slate-200 dark:border-slate-800 dark:bg-slate-900/40 dark:hover:border-slate-700'
+                    : 'border-slate-100 bg-white hover:border-slate-200 dark:border-white/5 dark:bg-[#0a0a0a]/40 dark:hover:border-slate-700'
                 }`}
               >
                 <button
                   onClick={() => toggleFAQ(index)}
                   className="flex w-full items-center justify-between px-8 py-7 text-left outline-none"
                 >
-                  <span className={`text-lg font-bold tracking-tight transition-colors ${isOpen ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-800 dark:text-slate-200'}`}>
+                  <span className={`text-lg font-bold tracking-tight transition-colors ${isOpen ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-800 dark:text-white'}`}>
                     {faq.question}
                   </span>
                   <div className={`shrink-0 rounded-full p-2 transition-all duration-300 ${isOpen ? 'rotate-180 bg-indigo-600 text-white shadow-lg shadow-indigo-500/40' : 'bg-slate-100 text-slate-400 dark:bg-slate-800'}`}>

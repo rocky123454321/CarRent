@@ -36,7 +36,7 @@ const Field = ({ label, error, children, icon: Icon }) => (
   </div>
 );
 
-const inputCls = "w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-slate-200 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all";
+const inputCls = "w-full bg-slate-50 dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all";
 
 const BookingForm = ({ car, onSuccess }) => {
   const { user, isAuthenticated } = useAuthStore();
@@ -86,7 +86,7 @@ const BookingForm = ({ car, onSuccess }) => {
     <>
       <div className="p-1 transition-colors duration-300">
         {/* Header */}
-        <div className="mb-8 border-b border-slate-100 dark:border-slate-800 pb-6 flex items-center justify-between">
+        <div className="mb-8 border-b border-slate-100 dark:border-white/5 pb-6 flex items-center justify-between">
           <div>
             <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Reservation</h3>
             <p className="text-xs font-bold text-blue-600 dark:text-blue-400 mt-1">
@@ -101,7 +101,7 @@ const BookingForm = ({ car, onSuccess }) => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 
           {/* Section: Pick-up */}
-          <div className="bg-white dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-[2rem] p-5 space-y-4 shadow-sm">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-slate-100 dark:border-white/5 rounded-[2rem] p-5 space-y-4 shadow-sm">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
               <p className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em]">Pick-up Details</p>
@@ -110,7 +110,7 @@ const BookingForm = ({ car, onSuccess }) => {
             <Field label="Location" icon={MapPin} error={errors.pickupLocation?.message}>
               <select {...register('pickupLocation')} className={inputCls}>
                 <option value="">Select location</option>
-                {locations.map(l => <option key={l} value={l} className="dark:bg-slate-900">{l}</option>)}
+                {locations.map(l => <option key={l} value={l} className="dark:bg-[#0a0a0a]">{l}</option>)}
               </select>
             </Field>
 
@@ -121,14 +121,14 @@ const BookingForm = ({ car, onSuccess }) => {
               <Field label="Time" icon={Clock} error={errors.pickupTime?.message}>
                 <select {...register('pickupTime')} className={inputCls}>
                   <option value="">Select time</option>
-                  {times.map(t => <option key={t} value={t} className="dark:bg-slate-900">{t}</option>)}
+                  {times.map(t => <option key={t} value={t} className="dark:bg-[#0a0a0a]">{t}</option>)}
                 </select>
               </Field>
             </div>
           </div>
 
           {/* Section: Drop-off */}
-          <div className="bg-white dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-[2rem] p-5 space-y-4 shadow-sm">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-slate-100 dark:border-white/5 rounded-[2rem] p-5 space-y-4 shadow-sm">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-600" />
               <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Drop-off Details</p>
@@ -137,7 +137,7 @@ const BookingForm = ({ car, onSuccess }) => {
             <Field label="Location" icon={MapPin} error={errors.dropoffLocation?.message}>
               <select {...register('dropoffLocation')} className={inputCls}>
                 <option value="">Select location</option>
-                {locations.map(l => <option key={l} value={l} className="dark:bg-slate-900">{l}</option>)}
+                {locations.map(l => <option key={l} value={l} className="dark:bg-[#0a0a0a]">{l}</option>)}
               </select>
             </Field>
 
@@ -148,7 +148,7 @@ const BookingForm = ({ car, onSuccess }) => {
               <Field label="Time" icon={Clock} error={errors.dropoffTime?.message}>
                 <select {...register('dropoffTime')} className={inputCls}>
                   <option value="">Select time</option>
-                  {times.map(t => <option key={t} value={t} className="dark:bg-slate-900">{t}</option>)}
+                  {times.map(t => <option key={t} value={t} className="dark:bg-[#0a0a0a]">{t}</option>)}
                 </select>
               </Field>
             </div>
@@ -206,10 +206,10 @@ const BookingForm = ({ car, onSuccess }) => {
       {/* Payment Modal Wrapper */}
       {showPayment && (
         <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] shadow-2xl w-full max-w-lg relative overflow-hidden transition-all duration-300">
+          <div className="bg-white dark:bg-black border border-slate-200 dark:border-white/5 rounded-[2.5rem] shadow-2xl w-full max-w-lg relative overflow-hidden transition-all duration-300">
             <button
               onClick={() => setShowPayment(false)}
-              className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center bg-slate-100 dark:bg-slate-900 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 rounded-full text-slate-500 transition-all z-20 shadow-sm"
+              className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center bg-slate-100 dark:bg-[#0a0a0a] hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 rounded-full text-slate-500 transition-all z-20 shadow-sm"
             >
               <X size={20} />
             </button>

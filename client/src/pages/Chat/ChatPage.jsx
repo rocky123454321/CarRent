@@ -14,8 +14,8 @@ const Sidebar = ({
   filteredConversations, loading, onlineUsers,
   activeConversation, selectConversation, userProfiles, getLastMessage,
 }) => (
-  <div className="flex flex-col h-full bg-white dark:bg-slate-900 w-full transition-colors duration-300" style={font}>
-    <div className="p-5 border-b border-slate-100 dark:border-slate-800 space-y-4 shrink-0">
+  <div className="flex flex-col h-full bg-white dark:bg-[#0a0a0a] w-full transition-colors duration-300" style={font}>
+    <div className="p-5 border-b border-slate-100 dark:border-white/5 space-y-4 shrink-0">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-indigo-600 dark:text-indigo-400 font-bold text-[10px] tracking-widest uppercase mb-0.5">Support</p>
@@ -36,7 +36,7 @@ const Sidebar = ({
           placeholder="Search..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-2.5 pl-9 pr-4 text-sm font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+          className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/5 rounded-xl py-2.5 pl-9 pr-4 text-sm font-medium text-slate-700 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
         />
       </div>
     </div>
@@ -54,7 +54,7 @@ const Sidebar = ({
         ))
       ) : filteredConversations.length === 0 ? (
         <div className="text-center py-16 px-4">
-          <div className="w-12 h-12 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-3">
+          <div className="w-12 h-12 bg-slate-50 dark:bg-black border border-slate-100 dark:border-white/5 rounded-2xl flex items-center justify-center mx-auto mb-3">
             <MessageCircle size={20} className="text-slate-300 dark:text-slate-700" />
           </div>
           <p className="text-xs font-bold text-slate-400 dark:text-slate-600">No conversations yet</p>
@@ -106,8 +106,8 @@ const Chat = ({
   messagesEndRef, inputRef, user, message,
   handleTyping, handleSend,
 }) => (
-  <div className="flex flex-col h-full w-full bg-white dark:bg-slate-900 transition-colors duration-300" style={font}>
-    <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3 shrink-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
+  <div className="flex flex-col h-full w-full bg-white dark:bg-[#0a0a0a] transition-colors duration-300" style={font}>
+    <div className="px-4 py-3.5 border-b border-slate-100 dark:border-white/5 flex items-center gap-3 shrink-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md">
       <button
         onClick={() => setMobileView('sidebar')}
         className="md:hidden p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 transition shrink-0"
@@ -140,7 +140,7 @@ const Chat = ({
       )}
     </div>
 
-    <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 bg-slate-50/30 dark:bg-slate-950/20">
+    <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 bg-slate-50/30 dark:bg-black/20">
       {!activeConversation ? (
         <div className="flex flex-col items-center justify-center h-full text-slate-300 dark:text-slate-800 text-center px-6">
           <ShieldCheck size={48} className="mb-4 opacity-50" />
@@ -154,7 +154,7 @@ const Chat = ({
         ))
       ) : activeMessages.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-center px-6">
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-8 shadow-sm max-w-[280px]">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-slate-100 dark:border-white/5 rounded-3xl p-8 shadow-sm max-w-[280px]">
             <MessageCircle size={32} className="mx-auto mb-4 text-indigo-200 dark:text-indigo-900" />
             <p className="text-sm font-black text-slate-600 dark:text-slate-300 mb-1">Secure Channel</p>
             <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
@@ -171,7 +171,7 @@ const Chat = ({
                 <div className={`px-4 py-2.5 rounded-2xl text-sm font-medium leading-relaxed shadow-sm transition-colors
                   ${isMine
                     ? 'bg-indigo-600 text-white rounded-br-none shadow-indigo-100 dark:shadow-none'
-                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-none border border-slate-100 dark:border-slate-700/50'}`}>
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-white rounded-bl-none border border-slate-100 dark:border-slate-700/50'}`}>
                   {msg.message}
                 </div>
                 <span className="text-[9px] font-black text-slate-400 dark:text-slate-600 mt-1.5 px-1 uppercase tracking-tighter">
@@ -196,9 +196,9 @@ const Chat = ({
       <div ref={messagesEndRef} className="h-2" />
     </div>
 
-    <div className="px-4 py-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shrink-0">
+    <div className="px-4 py-4 bg-white dark:bg-[#0a0a0a] border-t border-slate-100 dark:border-white/5 shrink-0">
       <div className="flex gap-2 items-end">
-        <div className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl flex items-end px-4 py-2 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-400 dark:focus-within:border-indigo-500/50 transition-all">
+        <div className="flex-1 bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/5 rounded-2xl flex items-end px-4 py-2 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-400 dark:focus-within:border-indigo-500/50 transition-all">
           <textarea
             ref={inputRef}
             rows={1}
@@ -213,7 +213,7 @@ const Chat = ({
               !activeConversation ? 'Select a chat...'     :
               'Write a message...'
             }
-            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 resize-none max-h-32 font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 outline-none"
+            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 resize-none max-h-32 font-medium text-slate-700 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 outline-none"
           />
         </div>
         <button
@@ -354,11 +354,11 @@ const ChatPage = () => {
       </button>
 
       <div
-        className="flex overflow-hidden rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 transition-all duration-300"
+        className="flex overflow-hidden rounded-3xl border border-slate-100 dark:border-white/5 shadow-sm bg-white dark:bg-[#0a0a0a] transition-all duration-300"
         style={{ height: 'calc(100vh - 140px)' }}
       >
         {/* Sidebar Desktop */}
-        <div className="hidden md:flex w-80 border-r border-slate-100 dark:border-slate-800 shrink-0 flex-col">
+        <div className="hidden md:flex w-80 border-r border-slate-100 dark:border-white/5 shrink-0 flex-col">
           <Sidebar {...sharedProps} searchQuery={searchQuery} setSearchQuery={setSearchQuery} filteredConversations={filteredConversations} />
         </div>
 

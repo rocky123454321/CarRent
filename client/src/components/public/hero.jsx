@@ -33,7 +33,7 @@ const Hero = () => {
   return (
     <section
       ref={ref}
-      className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-white transition-colors duration-500 dark:bg-slate-950"
+      className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-white transition-colors duration-500 dark:bg-black"
     >
       {/* SaaS Mesh Background - Optimized for Dark Mode */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -44,7 +44,7 @@ const Hero = () => {
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center px-6 py-24 text-center">
         
         {/* Animated Badge */}
-        <div className="fu mb-8 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50/50 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 shadow-sm backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/50 dark:text-indigo-400">
+        <div className="fu mb-8 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50/50 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 shadow-sm backdrop-blur-sm dark:border-white/5 dark:bg-[#0a0a0a] dark:text-indigo-400">
           <Sparkles size={12} className="animate-pulse" />
           The Future of Car Rentals
         </div>
@@ -83,7 +83,7 @@ const Hero = () => {
         </div>
 
         {/* Trust Footer */}
-        <div className="fu flex w-full max-w-lg flex-col items-center gap-8 border-t border-slate-100 pt-12 dark:border-slate-800">
+        <div className="fu flex w-full max-w-lg flex-col items-center gap-8 border-t border-slate-100 pt-12 dark:border-white/5">
           <div className="flex w-full items-center justify-around opacity-40 transition-all duration-500 hover:opacity-100 dark:text-white">
             <span className="text-xs font-black tracking-widest">TRUSTED</span>
             <span className="text-xs font-black tracking-widest">SECURE</span>

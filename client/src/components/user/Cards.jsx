@@ -57,7 +57,7 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
         <div
           key={car._id}
           onClick={() => handleSelect(car)}
-          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden hover:border-blue-200 dark:hover:border-blue-500/50 hover:shadow-md dark:hover:shadow-blue-500/10 transition-all group cursor-pointer"
+          className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-2xl overflow-hidden hover:border-blue-200 dark:hover:border-blue-500/50 hover:shadow-md dark:hover:shadow-blue-500/10 transition-all group cursor-pointer"
         >
           {/* Heart / Favorite */}
           <div className="flex justify-end p-3 pb-0">
@@ -80,7 +80,7 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
           </div>
 
           {/* Image Container */}
-          <div className="mx-3 bg-slate-50 dark:bg-slate-950 rounded-xl flex justify-center items-center p-4 h-32 transition-colors">
+          <div className="mx-3 bg-slate-50 dark:bg-black rounded-xl flex justify-center items-center p-4 h-32 transition-colors">
             <img
               src={car.image || carImage}
               alt={car.model}
@@ -89,14 +89,14 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
           </div>
 
           {/* Specs / Icons */}
-          <div className="flex justify-between px-4 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 border-t border-slate-50 dark:border-slate-800/50 mt-3">
+          <div className="flex justify-between px-4 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 border-t border-slate-50 dark:border-white/5 mt-3">
             <span className="flex items-center gap-1.5"><Fuel size={12} className="text-blue-500/70" />{car.fuelType}</span>
             <span className="flex items-center gap-1.5"><Cog size={12} className="text-blue-500/70" />{car.transmission}</span>
             <span className="flex items-center gap-1.5"><Users size={12} className="text-blue-500/70" />{car.mileage} km</span>
           </div>
 
           {/* Pricing & CTA */}
-          <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 px-4 py-3 bg-gray-50/50 dark:bg-slate-800/30">
+          <div className="flex items-center justify-between border-t border-slate-100 dark:border-white/5 px-4 py-3 bg-white/50 dark:bg-black">
             <div>
               <p className="text-sm font-black text-slate-900 dark:text-white">
                 ₱{car.pricePerDay.toLocaleString()}

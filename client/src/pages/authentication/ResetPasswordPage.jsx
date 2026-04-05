@@ -38,7 +38,7 @@ const ResetPasswordPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden transition-all"
+                className="w-full max-w-md bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden transition-all"
             >
                 <div className="px-8 py-10">
                     <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-2 tracking-tight">
@@ -73,7 +73,7 @@ const ResetPasswordPage = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition bg-gray-50 dark:bg-slate-950 dark:text-slate-200"
+                                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-white/5 text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition bg-white dark:bg-black dark:text-white"
                                 />
                             </div>
                         </div>
@@ -90,7 +90,7 @@ const ResetPasswordPage = () => {
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     required
-                                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition bg-gray-50 dark:bg-slate-950 dark:text-slate-200"
+                                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-white/5 text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition bg-white dark:bg-black dark:text-white"
                                 />
                             </div>
                         </div>

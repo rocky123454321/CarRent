@@ -109,13 +109,13 @@ const PaymentDemo = ({ car, rentalDetails, onSuccess }) => {
           <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Success!</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Your reservation is confirmed.</p>
         </div>
-        <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[2rem] px-8 py-6 text-left w-full max-w-sm shadow-xl dark:shadow-none transition-all">
+        <div className="bg-slate-50 dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-[2rem] px-8 py-6 text-left w-full max-w-sm shadow-xl dark:shadow-none transition-all">
           <p className="text-[10px] text-slate-400 dark:text-slate-500 mb-3 font-black uppercase tracking-[0.2em]">Summary</p>
           <div className="space-y-1">
             <p className="text-lg font-black text-slate-900 dark:text-white leading-tight">{carInfo.brand} {carInfo.model}</p>
             <p className="text-xs text-slate-500 font-medium italic">{rental.days} days · {rental.pickup} → {rental.dropoff}</p>
           </div>
-          <div className="mt-6 pt-4 border-t border-slate-200/60 dark:border-slate-800 flex justify-between items-end">
+          <div className="mt-6 pt-4 border-t border-slate-200/60 dark:border-white/5 flex justify-between items-end">
              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Paid</span>
              <p className="text-2xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">₱{total.toLocaleString()}</p>
           </div>
@@ -131,7 +131,7 @@ const PaymentDemo = ({ car, rentalDetails, onSuccess }) => {
       {/* -- STEP 0: Booking Summary -- */}
       {step === 0 && (
         <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
-          <div className="rounded-[2.5rem] border border-slate-100 dark:border-slate-800 overflow-hidden shadow-2xl dark:shadow-none bg-white dark:bg-slate-900/50 transition-all">
+          <div className="rounded-[2.5rem] border border-slate-100 dark:border-white/5 overflow-hidden shadow-2xl dark:shadow-none bg-white dark:bg-[#0a0a0a] transition-all">
             <div className="bg-slate-900 dark:bg-slate-800 px-6 py-6 flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-sm shadow-inner">
                 <Car className="w-6 h-6 text-white" />
@@ -153,7 +153,7 @@ const PaymentDemo = ({ car, rentalDetails, onSuccess }) => {
                   <span className="truncate">{rental.pickup}</span>
                 </div>
               </div>
-              <div className="border-t border-slate-100 dark:border-slate-800 pt-5 flex justify-between items-center">
+              <div className="border-t border-slate-100 dark:border-white/5 pt-5 flex justify-between items-center">
                 <span className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Amount Due</span>
                 <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">₱{total.toLocaleString()}</span>
               </div>
@@ -166,7 +166,7 @@ const PaymentDemo = ({ car, rentalDetails, onSuccess }) => {
               { icon: Lock, label: "ENCRYPTED", color: "text-blue-500" },
               { icon: CheckCircle2, label: "VERIFIED", color: "text-purple-500" },
             ].map(({ icon: Icon, label, color }) => (
-              <div key={label} className="flex flex-col items-center gap-2 py-4 rounded-3xl bg-slate-50/50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-800 transition-colors hover:border-slate-200 dark:hover:border-slate-700">
+              <div key={label} className="flex flex-col items-center gap-2 py-4 rounded-3xl bg-slate-50/50 dark:bg-[#0a0a0a]/30 border border-slate-100 dark:border-white/5 transition-colors hover:border-slate-200 dark:hover:border-slate-700">
                 <Icon size={18} className={color} />
                 <span className="text-[9px] font-black text-slate-500 dark:text-slate-600 tracking-tighter">{label}</span>
               </div>
@@ -203,7 +203,7 @@ const PaymentDemo = ({ car, rentalDetails, onSuccess }) => {
                     value={cardName}
                     onChange={(e) => setCardName(e.target.value)}
                     placeholder="JUAN DELA CRUZ"
-                    className="bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 h-12 rounded-xl focus:ring-2 focus:ring-blue-500/20 pr-10 uppercase font-bold"
+                    className="bg-slate-50/50 dark:bg-[#0a0a0a] border-slate-200 dark:border-white/5 h-12 rounded-xl focus:ring-2 focus:ring-blue-500/20 pr-10 uppercase font-bold"
                   />
                   <User size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-700 group-focus-within:text-blue-500 transition-colors" />
                 </div>
@@ -216,7 +216,7 @@ const PaymentDemo = ({ car, rentalDetails, onSuccess }) => {
                     value={cardNumber}
                     onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
                     placeholder="0000 0000 0000 0000"
-                    className="bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 h-12 rounded-xl focus:ring-2 focus:ring-blue-500/20 font-mono tracking-[0.2em] font-black text-base pr-16"
+                    className="bg-slate-50/50 dark:bg-[#0a0a0a] border-slate-200 dark:border-white/5 h-12 rounded-xl focus:ring-2 focus:ring-blue-500/20 font-mono tracking-[0.2em] font-black text-base pr-16"
                   />
                   <CardBrandBadge brand={brand} />
                 </div>
@@ -226,8 +226,8 @@ const PaymentDemo = ({ car, rentalDetails, onSuccess }) => {
                 <Field>
                   <FieldLabel className="text-[10px] font-black uppercase tracking-widest dark:text-slate-500">Month</FieldLabel>
                   <Select value={expMonth} onValueChange={setExpMonth}>
-                    <SelectTrigger className="h-12 rounded-xl dark:bg-slate-900/50 dark:border-slate-800"><SelectValue placeholder="MM" /></SelectTrigger>
-                    <SelectContent className="dark:bg-slate-950 dark:border-slate-800">
+                    <SelectTrigger className="h-12 rounded-xl dark:bg-[#0a0a0a] dark:border-white/5"><SelectValue placeholder="MM" /></SelectTrigger>
+                    <SelectContent className="dark:bg-black dark:border-white/5">
                       {["01","02","03","04","05","06","07","08","09","10","11","12"].map(m => (
                         <SelectItem key={m} value={m} className="font-bold">{m}</SelectItem>
                       ))}
@@ -237,8 +237,8 @@ const PaymentDemo = ({ car, rentalDetails, onSuccess }) => {
                 <Field>
                   <FieldLabel className="text-[10px] font-black uppercase tracking-widest dark:text-slate-500">Year</FieldLabel>
                   <Select value={expYear} onValueChange={setExpYear}>
-                    <SelectTrigger className="h-12 rounded-xl dark:bg-slate-900/50 dark:border-slate-800"><SelectValue placeholder="YYYY" /></SelectTrigger>
-                    <SelectContent className="dark:bg-slate-950 dark:border-slate-800">
+                    <SelectTrigger className="h-12 rounded-xl dark:bg-[#0a0a0a] dark:border-white/5"><SelectValue placeholder="YYYY" /></SelectTrigger>
+                    <SelectContent className="dark:bg-black dark:border-white/5">
                       {["2025","2026","2027","2028","2029","2030"].map(y => (
                         <SelectItem key={y} value={y} className="font-bold">{y}</SelectItem>
                       ))}
@@ -252,14 +252,14 @@ const PaymentDemo = ({ car, rentalDetails, onSuccess }) => {
                     onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
                     placeholder="•••"
                     type="password"
-                    className="h-12 rounded-xl dark:bg-slate-900/50 dark:border-slate-800 text-center font-black tracking-widest"
+                    className="h-12 rounded-xl dark:bg-[#0a0a0a] dark:border-white/5 text-center font-black tracking-widest"
                   />
                 </Field>
               </div>
             </div>
           </FieldSet>
 
-          <FieldSeparator className="border-slate-100 dark:border-slate-800" />
+          <FieldSeparator className="border-slate-100 dark:border-white/5" />
 
           <div className="space-y-4">
             <Field orientation="horizontal" className="flex items-center gap-3">
@@ -273,12 +273,12 @@ const PaymentDemo = ({ car, rentalDetails, onSuccess }) => {
                 value={comments}
                 onChange={(e) => setComments(e.target.value)}
                 placeholder="Ex. Pick up near terminal..."
-                className="bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 rounded-xl min-h-[80px]"
+                className="bg-slate-50/50 dark:bg-[#0a0a0a] border-slate-200 dark:border-white/5 rounded-xl min-h-[80px]"
               />
             </Field>
 
             <div className="flex gap-3">
-              <Button variant="outline" type="button" onClick={() => setStep(0)} className="h-12 flex-1 rounded-xl border-slate-200 dark:border-slate-800 dark:text-white font-bold uppercase tracking-widest text-[10px]">Back</Button>
+              <Button variant="outline" type="button" onClick={() => setStep(0)} className="h-12 flex-1 rounded-xl border-slate-200 dark:border-white/5 dark:text-white font-bold uppercase tracking-widest text-[10px]">Back</Button>
               <Button type="submit" className="h-12 flex-[2] bg-blue-600 text-white rounded-xl font-bold uppercase tracking-widest text-[10px]">Review Order</Button>
             </div>
           </div>
@@ -288,8 +288,8 @@ const PaymentDemo = ({ car, rentalDetails, onSuccess }) => {
       {/* -- STEP 2: Confirm & Pay -- */}
       {step === 2 && (
         <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
-          <div className="rounded-3xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 overflow-hidden shadow-xl transition-all">
-            <div className="px-6 py-4 border-b border-slate-50 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-800/50">
+          <div className="rounded-3xl border border-slate-100 dark:border-white/5 bg-white dark:bg-[#0a0a0a] overflow-hidden shadow-xl transition-all">
+            <div className="px-6 py-4 border-b border-slate-50 dark:border-white/5 bg-slate-50/50 dark:bg-slate-800/50">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">Final Verification</p>
             </div>
             <div className="p-6 space-y-4">
@@ -305,7 +305,7 @@ const PaymentDemo = ({ car, rentalDetails, onSuccess }) => {
                 <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Payment Method</span>
                 <span className="font-mono font-black text-slate-900 dark:text-white tracking-widest underline decoration-blue-500/30">•••• {cardNumber.slice(-4)}</span>
               </div>
-              <div className="border-t border-slate-50 dark:border-slate-800 pt-4 flex justify-between items-end">
+              <div className="border-t border-slate-50 dark:border-white/5 pt-4 flex justify-between items-end">
                 <span className="font-black text-slate-900 dark:text-white text-base">TOTAL DUE</span>
                 <span className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">₱{total.toLocaleString()}</span>
               </div>

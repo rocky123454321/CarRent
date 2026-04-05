@@ -68,7 +68,7 @@ const Popular = () => {
               placeholder="Search brand or model..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all dark:text-white"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all dark:text-white"
             />
           </div>
           <button 
@@ -76,7 +76,7 @@ const Popular = () => {
             className={`p-2.5 rounded-xl border transition-all ${
               showFilters 
               ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' 
-              : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-blue-500'
+              : 'bg-white dark:bg-[#0a0a0a] border-slate-200 dark:border-white/5 text-slate-600 dark:text-slate-400 hover:border-blue-500'
             }`}
           >
             <SlidersHorizontal size={20} />
@@ -86,7 +86,7 @@ const Popular = () => {
 
       {/* Filter Panel */}
       {showFilters && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-6 shadow-xl dark:shadow-black/20 animate-in slide-in-from-top-4 duration-300">
+        <div className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-2xl p-6 space-y-6 shadow-xl dark:shadow-black/20 animate-in slide-in-from-top-4 duration-300">
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Fuel Type */}
@@ -149,7 +149,7 @@ const Popular = () => {
 
           {/* Reset Action */}
           {hasActiveFilters && (
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+            <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex justify-end">
               <button
                 onClick={resetFilters}
                 className="flex items-center gap-2 text-[10px] font-black text-red-500 hover:text-red-600 dark:text-red-400 uppercase tracking-widest transition-colors"

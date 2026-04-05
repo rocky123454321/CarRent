@@ -28,7 +28,7 @@ const CarsListPage = () => {
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm p-5 space-y-4"
+              className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-slate-100 dark:border-white/5 shadow-sm p-5 space-y-4"
             >
               <Skeleton className="h-40 w-full rounded-2xl dark:bg-slate-800" />
               <div className="space-y-2">

@@ -93,10 +93,10 @@ const EmailVerificationPage = () => {
       transition={{ duration: 0.4 }}
       className="w-full max-w-md mx-auto px-4"
     >
-      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden transition-all">
+      <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden transition-all">
         
         {/* Header */}
-        <div className="px-8 pt-10 pb-6 text-center border-b border-gray-50 dark:border-slate-800/50">
+        <div className="px-8 pt-10 pb-6 text-center border-b border-gray-50 dark:border-white/5">
           <img src={brand} alt="brand" className="h-10 mx-auto mb-4 dark:brightness-110" />
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Verify Your Email</h2>
           <p className="text-sm text-gray-400 dark:text-slate-500 mt-1">
@@ -117,7 +117,7 @@ const EmailVerificationPage = () => {
                   value={digit}
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-full h-14 text-center text-xl font-black bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-slate-800 rounded-2xl focus:border-blue-500 dark:focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all"
+                  className="w-full h-14 text-center text-xl font-black bg-white dark:bg-black text-gray-900 dark:text-white border-2 border-gray-200 dark:border-white/5 rounded-2xl focus:border-blue-500 dark:focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all"
                 />
               ))}
             </div>
@@ -145,7 +145,7 @@ const EmailVerificationPage = () => {
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-6 bg-gray-50 dark:bg-slate-800/30 border-t border-gray-100 dark:border-slate-800 text-center">
+        <div className="px-8 py-6 bg-white dark:bg-black border-t border-gray-100 dark:border-white/5 text-center">
           <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">
             Didn't receive a code?{" "}
             {count === 0 ? (

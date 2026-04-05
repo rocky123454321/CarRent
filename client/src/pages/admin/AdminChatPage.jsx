@@ -16,8 +16,8 @@ const Sidebar = ({
   onlineUsers, activeConversation, selectConversation,
   getDisplayName, getLastMessage,
 }) => (
-  <div className="flex flex-col h-full bg-white dark:bg-slate-900 w-full transition-colors duration-300" style={font}>
-    <div className="p-5 border-b border-slate-100 dark:border-slate-800 space-y-4 shrink-0">
+  <div className="flex flex-col h-full bg-white dark:bg-[#0a0a0a] w-full transition-colors duration-300" style={font}>
+    <div className="p-5 border-b border-slate-100 dark:border-white/5 space-y-4 shrink-0">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-indigo-600 dark:text-indigo-400 font-semibold text-[10px] tracking-widest uppercase mb-0.5">Support</p>
@@ -38,7 +38,7 @@ const Sidebar = ({
           placeholder="Search conversations..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 pl-9 pr-4 text-sm font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition"
+          className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 pl-9 pr-4 text-sm font-medium text-slate-700 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition"
         />
       </div>
     </div>
@@ -110,8 +110,8 @@ const Chat = ({
   userIsTyping, messagesEndRef, inputRef,
   user, message, handleTyping, handleSend, isConnected,
 }) => (
-  <div className="flex flex-col h-full w-full bg-white dark:bg-slate-900 transition-colors duration-300" style={font}>
-    <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3 shrink-0 bg-white dark:bg-slate-900">
+  <div className="flex flex-col h-full w-full bg-white dark:bg-[#0a0a0a] transition-colors duration-300" style={font}>
+    <div className="px-4 py-3.5 border-b border-slate-100 dark:border-white/5 flex items-center gap-3 shrink-0 bg-white dark:bg-[#0a0a0a]">
       <button
         onClick={() => setMobileView("sidebar")}
         className="md:hidden p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 transition shrink-0"
@@ -138,7 +138,7 @@ const Chat = ({
       )}
     </div>
 
-    <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-slate-50/30 dark:bg-slate-950/20">
+    <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-slate-50/30 dark:bg-black/20">
       {!activeConversation ? (
         <div className="flex flex-col items-center justify-center h-full text-slate-300 dark:text-slate-800 text-center px-6">
           <Sparkles size={36} className="mb-3 text-indigo-200 dark:text-indigo-900/40" />
@@ -152,7 +152,7 @@ const Chat = ({
         ))
       ) : activeMessages.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-center px-6">
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-8 shadow-sm max-w-[280px]">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-slate-100 dark:border-white/5 rounded-3xl p-8 shadow-sm max-w-[280px]">
             <Inbox size={28} className="mx-auto mb-3 text-indigo-200 dark:text-indigo-800" />
             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">No messages yet</p>
           </div>
@@ -166,7 +166,7 @@ const Chat = ({
                 <div className={`px-4 py-2.5 rounded-2xl text-sm font-medium leading-relaxed shadow-sm transition-colors
                   ${isMine
                     ? 'bg-indigo-600 text-white rounded-br-none dark:bg-indigo-500'
-                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-none border border-slate-100 dark:border-slate-700/50'}`}>
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-white rounded-bl-none border border-slate-100 dark:border-slate-700/50'}`}>
                   {msg.message}
                 </div>
                 <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-1.5 px-1 uppercase tracking-wider">
@@ -191,7 +191,7 @@ const Chat = ({
       <div ref={messagesEndRef} className="h-2" />
     </div>
 
-    <div className="px-4 py-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shrink-0">
+    <div className="px-4 py-4 bg-white dark:bg-[#0a0a0a] border-t border-slate-100 dark:border-white/5 shrink-0">
       <div className="flex gap-2 items-end">
         <div className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl flex items-end px-4 py-2 focus-within:ring-2 focus-within:ring-indigo-500/20 transition">
           <textarea
@@ -203,7 +203,7 @@ const Chat = ({
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
             }}
             placeholder="Type a message..."
-            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 resize-none max-h-32 font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none"
+            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 resize-none max-h-32 font-medium text-slate-700 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none"
           />
         </div>
         <button
@@ -317,10 +317,10 @@ const AdminChatPage = () => {
       </div>
 
       <div
-        className="flex overflow-hidden rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900"
+        className="flex overflow-hidden rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm bg-white dark:bg-[#0a0a0a]"
         style={{ height: 'calc(100vh - 180px)' }}
       >
-        <div className="hidden md:flex w-72 border-r border-slate-100 dark:border-slate-800 shrink-0 flex-col">
+        <div className="hidden md:flex w-72 border-r border-slate-100 dark:border-white/5 shrink-0 flex-col">
           <Sidebar {...sharedProps}
             searchTerm={searchTerm} setSearchTerm={setSearchTerm}
             conversationUserIds={conversationUserIds}

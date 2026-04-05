@@ -21,7 +21,7 @@ const ConfirmDialog = ({ open, title, desc, confirmLabel, confirmColor, onConfir
   if (!open) return null;
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-in zoom-in-95 duration-200">
         <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">{title}</h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">{desc}</p>
         <div className="flex gap-3">
@@ -105,7 +105,7 @@ const MyRentals = () => {
     return (
       <div className="space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 animate-pulse">
+          <div key={i} className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-2xl p-5 animate-pulse">
             <div className="flex gap-4">
               <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-xl shrink-0" />
               <div className="flex-1 space-y-2">
@@ -156,7 +156,7 @@ const MyRentals = () => {
               className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold border transition-all capitalize
                 ${filter === f
                   ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20'
-                  : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-900'}`}
+                  : 'bg-white dark:bg-[#0a0a0a] text-slate-500 dark:text-slate-400 border-slate-200 dark:border-white/5 hover:border-blue-300 dark:hover:border-blue-900'}`}
             >
               {f === 'all' ? `All (${userRentals.length})` : `${STATUS_STYLE[f]?.label || f} (${userRentals.filter(r => r.status === f).length})`}
             </button>
@@ -165,7 +165,7 @@ const MyRentals = () => {
 
         {/* List */}
         {filtered.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl text-center py-20">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-3xl text-center py-20">
             <BadgeCheck className="w-16 h-16 mx-auto mb-4 text-slate-100 dark:text-slate-800" />
             <p className="text-base font-bold text-slate-900 dark:text-white">No rentals found</p>
             <p className="text-sm text-slate-400 dark:text-slate-500 mt-1 max-w-[200px] mx-auto">
@@ -182,7 +182,7 @@ const MyRentals = () => {
               return (
                 <div
                   key={rental._id}
-                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden hover:shadow-xl dark:hover:shadow-black/20 hover:border-blue-200 dark:hover:border-blue-900 transition-all duration-300"
+                  className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-2xl overflow-hidden hover:shadow-xl dark:hover:shadow-black/20 hover:border-blue-200 dark:hover:border-blue-900 transition-all duration-300"
                 >
                   <div className="p-4 md:p-6">
                     <div className="flex flex-col md:flex-row md:items-center gap-5">
@@ -211,7 +211,7 @@ const MyRentals = () => {
                           {formatDate(rental.rentalStartDate)} <span className="text-slate-300 dark:text-slate-700">→</span> {formatDate(rental.rentalEndDate)}
                         </div>
 
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-5 pt-5 border-t border-slate-50 dark:border-slate-800 gap-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-5 pt-5 border-t border-slate-50 dark:border-white/5 gap-4">
                           <div className="flex items-baseline gap-1">
                             <span className="text-2xl font-black text-slate-900 dark:text-white">₱{rental.totalPrice?.toLocaleString()}</span>
                             <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total</span>
@@ -247,7 +247,7 @@ const MyRentals = () => {
 
                             <button
                               onClick={() => setExpandedId(isExpanded ? null : rental._id)}
-                              className="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 hover:bg-slate-100 dark:hover:bg-slate-800 px-4 py-2 rounded-xl transition-all"
+                              className="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-black hover:bg-slate-100 dark:hover:bg-slate-800 px-4 py-2 rounded-xl transition-all"
                             >
                               {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                               DETAILS
@@ -260,16 +260,16 @@ const MyRentals = () => {
 
                   {/* Expanded Section */}
                   {isExpanded && (
-                    <div className="border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 p-6 animate-in slide-in-from-top-2 duration-300">
+                    <div className="border-t border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-black/50 p-6 animate-in slide-in-from-top-2 duration-300">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
                           <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-4">Rental Period</h4>
                           <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl shadow-sm">
+                            <div className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 p-3 rounded-2xl shadow-sm">
                               <p className="text-[9px] font-bold text-blue-500 uppercase mb-1">Pick-up</p>
                               <p className="text-xs font-black dark:text-white">{formatDate(rental.rentalStartDate)}</p>
                             </div>
-                            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl shadow-sm">
+                            <div className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 p-3 rounded-2xl shadow-sm">
                               <p className="text-[9px] font-bold text-blue-500 uppercase mb-1">Return</p>
                               <p className="text-xs font-black dark:text-white">{formatDate(rental.rentalEndDate)}</p>
                             </div>
@@ -280,11 +280,11 @@ const MyRentals = () => {
                           <div>
                             <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-4">Customer Details</h4>
                             <div className="space-y-2">
-                              <div className="flex justify-between items-center py-2 border-b border-slate-200/50 dark:border-slate-800">
+                              <div className="flex justify-between items-center py-2 border-b border-slate-200/50 dark:border-white/5">
                                 <span className="text-[11px] font-bold text-slate-400">Full Name</span>
                                 <span className="text-xs font-black dark:text-white">{rental.personalDetails.fullName}</span>
                               </div>
-                              <div className="flex justify-between items-center py-2 border-b border-slate-200/50 dark:border-slate-800">
+                              <div className="flex justify-between items-center py-2 border-b border-slate-200/50 dark:border-white/5">
                                 <span className="text-[11px] font-bold text-slate-400">Phone</span>
                                 <span className="text-xs font-black dark:text-white">{rental.personalDetails.phone}</span>
                               </div>

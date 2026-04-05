@@ -30,11 +30,11 @@ const AdminSidebarLayout = ({ isOpen, onClose }) => {
 
   return (
     <aside
-      className={`fixed top-0 left-0 z-50 h-screen w-[240px] bg-white dark:bg-slate-900 flex flex-col border-r border-slate-100 dark:border-slate-800 transition-all duration-300
+      className={`fixed top-0 left-0 z-50 h-screen w-[240px] bg-white dark:bg-[#0a0a0a] flex flex-col border-r border-slate-100 dark:border-white/5 transition-all duration-300
         ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
     >
       {/* Logo + Close button */}
-      <div className="py-5 px-5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+      <div className="py-5 px-5 flex items-center justify-between border-b border-slate-100 dark:border-white/5">
         <Link to="/admin">
           {/* Kung may dark version ang logo mo, pwede mong i-toggle ang filter para mas visible sa dark mode */}
           <img src={img} alt="Car Rent Logo" width={120} className="dark:brightness-110" />
@@ -103,7 +103,7 @@ const AdminSidebarLayout = ({ isOpen, onClose }) => {
                   />
                 </button>
                 {openMenus.cars && (
-                  <ul className="ml-8 mt-0.5 flex flex-col gap-0.5 border-l border-slate-100 dark:border-slate-800 pl-2">
+                  <ul className="ml-8 mt-0.5 flex flex-col gap-0.5 border-l border-slate-100 dark:border-white/5 pl-2">
                     <li>
                       <Link to="/admin/list" className={subLinkClass("/admin/list")} onClick={onClose}>
                         Car List
@@ -136,7 +136,7 @@ const AdminSidebarLayout = ({ isOpen, onClose }) => {
                   />
                 </button>
                 {openMenus.reports && (
-                  <ul className="ml-8 mt-0.5 flex flex-col gap-0.5 border-l border-slate-100 dark:border-slate-800 pl-2">
+                  <ul className="ml-8 mt-0.5 flex flex-col gap-0.5 border-l border-slate-100 dark:border-white/5 pl-2">
                     <li>
                       <Link to="/admin/reports/daily" className={subLinkClass("/admin/reports/daily")} onClick={onClose}>
                         Daily

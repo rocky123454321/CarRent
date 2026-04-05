@@ -67,7 +67,7 @@ const Recomended = () => {
               placeholder="Quick search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white"
             />
           </div>
           <button 
@@ -75,7 +75,7 @@ const Recomended = () => {
             className={`p-2.5 rounded-2xl border transition-all duration-300 ${
               showFilters 
               ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/30' 
-              : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-blue-500'
+              : 'bg-white dark:bg-[#0a0a0a] border-slate-200 dark:border-white/5 text-slate-600 dark:text-slate-400 hover:border-blue-500'
             }`}
           >
             <SlidersHorizontal size={20} />
@@ -85,7 +85,7 @@ const Recomended = () => {
 
       {/* Filter Panel */}
       {showFilters && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl dark:shadow-black/40 animate-in zoom-in-95 duration-300">
+        <div className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-3xl p-6 shadow-2xl dark:shadow-black/40 animate-in zoom-in-95 duration-300">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             
             {/* Fuel Type */}
@@ -150,7 +150,7 @@ const Recomended = () => {
           </div>
 
           {hasActiveFilters && (
-            <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+            <div className="mt-6 pt-6 border-t border-slate-100 dark:border-white/5 flex justify-between items-center">
                <span className="text-[10px] font-medium text-slate-400 italic">Filters are actively modifying the list</span>
                <button
                 onClick={resetFilters}
@@ -166,7 +166,7 @@ const Recomended = () => {
       {/* Grid Display */}
       <div className="relative">
         {isLoading && (
-          <div className="absolute inset-0 bg-white/50 dark:bg-slate-950/50 z-10 backdrop-blur-[1px] rounded-3xl transition-all" />
+          <div className="absolute inset-0 bg-white/50 dark:bg-black/50 z-10 backdrop-blur-[1px] rounded-3xl transition-all" />
         )}
         <Cards
           filterFuel={filterFuel}

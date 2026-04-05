@@ -108,7 +108,7 @@ const FeaturesSection = () => {
   }, []);
 
   return (
-    <section className="bg-white py-24 px-6 transition-colors duration-500 dark:bg-slate-950 lg:px-16">
+    <section className="bg-white py-24 px-6 transition-colors duration-500 dark:bg-black lg:px-16">
       <div className="mx-auto max-w-7xl">
         <SectionHeader
           eyebrow="Core Benefits"
@@ -120,7 +120,7 @@ const FeaturesSection = () => {
           {features.map(({ icon: Icon, title, desc, accent, bg }) => (
             <div
               key={title}
-              className="feat-card group rounded-[2.5rem] border border-slate-100 bg-white p-8 opacity-0 translate-y-10 transition-all duration-700 hover:border-indigo-100 hover:shadow-2xl hover:shadow-indigo-500/5 dark:border-slate-800 dark:bg-slate-900/50 dark:hover:border-indigo-900/40"
+              className="feat-card group rounded-[2.5rem] border border-slate-100 bg-white p-8 opacity-0 translate-y-10 transition-all duration-700 hover:border-indigo-100 hover:shadow-2xl hover:shadow-indigo-500/5 dark:border-white/5 dark:bg-[#0a0a0a] dark:hover:border-indigo-900/40"
             >
               <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-2xl ${bg} ${accent} shadow-sm transition-transform group-hover:scale-110`}>
                 <Icon size={24} />
@@ -156,7 +156,7 @@ const TestimonialsSection = () => {
   }, []);
 
   return (
-    <section className="bg-slate-50/50 py-24 px-6 transition-colors duration-500 dark:bg-slate-900/20 lg:px-16">
+    <section className="bg-slate-50/50 py-24 px-6 transition-colors duration-500 dark:bg-[#0a0a0a]/20 lg:px-16">
       <div className="mx-auto max-w-7xl">
         <SectionHeader
           eyebrow="Community Feedback"
@@ -168,7 +168,7 @@ const TestimonialsSection = () => {
           {testimonials.map((t) => (
             <div
               key={t.name}
-              className="t-card group flex flex-col gap-8 rounded-[2.5rem] border border-slate-100 bg-white p-10 opacity-0 scale-95 transition-all duration-700 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
+              className="t-card group flex flex-col gap-8 rounded-[2.5rem] border border-slate-100 bg-white p-10 opacity-0 scale-95 transition-all duration-700 hover:shadow-xl dark:border-white/5 dark:bg-[#0a0a0a]"
             >
               <div className="flex justify-between items-center">
                 <Quote size={32} className="text-indigo-600/20 transition-transform group-hover:rotate-12" />
@@ -181,7 +181,7 @@ const TestimonialsSection = () => {
               <p className="flex-1 text-[15px] font-medium italic leading-relaxed text-slate-600 dark:text-slate-300">
                 "{t.text}"
               </p>
-              <div className="flex items-center gap-4 pt-6 border-t border-slate-50 dark:border-slate-800">
+              <div className="flex items-center gap-4 pt-6 border-t border-slate-50 dark:border-white/5">
                 <div className={`flex h-11 w-11 items-center justify-center rounded-full text-xs font-black text-white shadow-lg ${t.theme}`}>
                   {t.initials}
                 </div>
@@ -212,7 +212,7 @@ const LandingPage = () => {
 
   if (isCheckingAuth) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-slate-950">
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-black">
         <div className="flex gap-2">
           {[0, 1, 2].map((i) => (
             <div 
@@ -227,7 +227,7 @@ const LandingPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white selection:bg-indigo-600 selection:text-white dark:bg-slate-950 transition-colors duration-500">
+    <div className="min-h-screen bg-white selection:bg-indigo-600 selection:text-white dark:bg-black transition-colors duration-500">
       <Nav />
       <main>
         <Hero />

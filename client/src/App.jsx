@@ -40,7 +40,7 @@ import { useThemeStore } from "./store/themeStore";
 // --- LAYOUTS ---
 
 const PublicLayout = () => (
-  <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex items-center justify-center transition-colors duration-300">
+  <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center transition-colors duration-300">
     <div className="w-full px-6 py-8">
       <Outlet />
     </div>
@@ -48,7 +48,7 @@ const PublicLayout = () => (
 );
 
 const DashboardLayout = () => (
-  <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
+  <div className="min-h-screen bg-white dark:bg-black transition-colors duration-300">
     <Navigation />
     <div className="pt-20 max-w-7xl mx-auto px-6 py-12">
       <Outlet />

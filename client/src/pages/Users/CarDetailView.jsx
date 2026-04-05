@@ -99,17 +99,17 @@ const CarDetailView = ({ car: carProp, onBack }) => {
       </button>
 
       {/* ── Images + Info ── */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-slate-100 dark:border-white/5 shadow-sm overflow-hidden">
         <div className="flex flex-col lg:flex-row">
 
           {/* Left: Images */}
           <div className="lg:w-[55%] p-6 space-y-4">
-            <div className="bg-slate-50 dark:bg-slate-950 rounded-2xl flex items-center justify-center h-64 lg:h-80 overflow-hidden border border-slate-100 dark:border-slate-800">
+            <div className="bg-slate-50 dark:bg-black rounded-2xl flex items-center justify-center h-64 lg:h-80 overflow-hidden border border-slate-100 dark:border-white/5">
               <img src={mainImage} alt={`${car.brand} ${car.model}`} className="h-full object-contain p-4 transition-transform hover:scale-105 duration-500" />
             </div>
             <div className="grid grid-cols-3 gap-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-slate-50 dark:bg-slate-950 rounded-xl flex items-center justify-center h-20 overflow-hidden border-2 border-transparent hover:border-blue-400 dark:hover:border-blue-500 cursor-pointer transition-all">
+                <div key={i} className="bg-slate-50 dark:bg-black rounded-xl flex items-center justify-center h-20 overflow-hidden border-2 border-transparent hover:border-blue-400 dark:hover:border-blue-500 cursor-pointer transition-all">
                   <img src={mainImage} alt={`view ${i}`} className="h-full object-contain opacity-60 hover:opacity-100 transition-opacity p-2" />
                 </div>
               ))}
@@ -117,7 +117,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
           </div>
 
           {/* Right: Info */}
-          <div className="lg:w-[45%] p-8 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-slate-50 dark:border-slate-800">
+          <div className="lg:w-[45%] p-8 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-slate-50 dark:border-white/5">
             <div>
               <div className="flex items-start justify-between gap-4 mb-2">
                 <h2 className="text-3xl font-black text-slate-900 dark:text-white">{car.brand} {car.model}</h2>
@@ -156,11 +156,11 @@ const CarDetailView = ({ car: carProp, onBack }) => {
                 ].map((item) => {
                   const ItemIcon = item.icon;
                   return (
-                    <div key={item.label} className="bg-slate-50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3">
+                    <div key={item.label} className="bg-slate-50 dark:bg-black/50 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-3">
                       <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 mb-1 flex items-center gap-1.5 uppercase tracking-tighter">
                         <ItemIcon size={11} className="text-blue-500" /> {item.label}
                       </p>
-                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{item.value}</p>
+                      <p className="text-xs font-bold text-slate-800 dark:text-white truncate">{item.value}</p>
                     </div>
                   );
                 })}
@@ -179,7 +179,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[10px] text-blue-500 dark:text-blue-400 font-black uppercase tracking-widest">Listed by</p>
-                  <p className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{car.uploadedBy?.name || 'Admin'}</p>
+                  <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{car.uploadedBy?.name || 'Admin'}</p>
                 </div>
                 <button
                   onClick={handleChatWithAdmin}
@@ -216,7 +216,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
       {/* Booking Form Modal */}
       {showBookingForm && (
         <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-2xl relative overflow-y-auto max-h-[90vh] border border-slate-200 dark:border-slate-800">
+          <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-2xl w-full max-w-2xl relative overflow-y-auto max-h-[90vh] border border-slate-200 dark:border-white/5">
             <button
               onClick={() => setShowBookingForm(false)}
               className="absolute top-5 right-5 z-10 w-9 h-9 flex items-center justify-center bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 transition-colors"
@@ -229,7 +229,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
       )}
 
       {/* ── Reviews ── */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm p-8">
+      <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl border border-slate-100 dark:border-white/5 shadow-sm p-8">
         <div className="flex items-start justify-between mb-8">
           <div>
             <h3 className="text-xl font-black text-slate-900 dark:text-white mb-1">Reviews</h3>
@@ -248,7 +248,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
         </div>
 
         {showReviewForm && (
-          <div className="bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 p-6 rounded-2xl mb-8 animate-in slide-in-from-top-4 duration-300">
+          <div className="bg-slate-50 dark:bg-black border border-slate-100 dark:border-white/5 p-6 rounded-2xl mb-8 animate-in slide-in-from-top-4 duration-300">
             <form onSubmit={submitReview} className="space-y-5">
               <div className="flex items-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -260,7 +260,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
               <textarea
                 value={reviewText}
                 onChange={(e) => setReviewText(e.target.value)}
-                className="w-full p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-slate-800 dark:text-slate-200 text-sm min-h-[120px] transition-all"
+                className="w-full p-4 bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-slate-800 dark:text-white text-sm min-h-[120px] transition-all"
                 placeholder="How was your ride? Share the details..."
                 maxLength={500}
               />
@@ -289,13 +289,13 @@ const CarDetailView = ({ car: carProp, onBack }) => {
           {loading ? (
             <p className="text-sm text-slate-400 dark:text-slate-600 text-center py-10 font-medium">Fetching reviews...</p>
           ) : ratings.length === 0 ? (
-            <div className="text-center py-12 bg-slate-50/50 dark:bg-slate-950/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+            <div className="text-center py-12 bg-slate-50/50 dark:bg-black/30 rounded-2xl border border-dashed border-slate-200 dark:border-white/5">
               <p className="text-slate-400 dark:text-slate-600 text-sm font-medium">No reviews yet. Be the first to share your experience!</p>
             </div>
           ) : (
             <div className="grid gap-6">
               {ratings.slice(0, 5).map((review) => (
-                <div key={review._id} className="flex gap-4 p-5 bg-slate-50/30 dark:bg-slate-950/20 rounded-2xl border border-slate-100 dark:border-slate-800/50 transition-colors">
+                <div key={review._id} className="flex gap-4 p-5 bg-slate-50/30 dark:bg-black/20 rounded-2xl border border-slate-100 dark:border-white/5 transition-colors">
                   <div className="w-11 h-11 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center shrink-0 border-2 border-white dark:border-slate-900 shadow-sm">
                     <span className="text-slate-600 dark:text-slate-400 font-black text-sm uppercase">
                       {review.user?.name?.charAt(0) || 'U'}

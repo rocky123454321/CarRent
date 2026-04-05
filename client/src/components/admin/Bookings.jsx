@@ -40,7 +40,7 @@ const Bookings = () => {
       </div>
 
       {/* ── DESKTOP TABLE (md+) ── */}
-      <div className="hidden md:block bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="hidden md:block bg-white dark:bg-[#0a0a0a] rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm overflow-hidden">
         {loading ? (
           <div className="p-6 space-y-4">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -56,7 +56,7 @@ const Bookings = () => {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px] text-sm">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40">
+                <tr className="border-b border-slate-100 dark:border-white/5 bg-slate-50/60 dark:bg-slate-800/40">
                   {["ID", "Car", "Renter", "Dates", "Status", "Total", "Actions"].map((h) => (
                     <th key={h} className="px-5 py-4 text-left text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{h}</th>
                   ))}
@@ -66,7 +66,7 @@ const Bookings = () => {
                 {rentals.length === 0 ? (
                   <tr>
                     <td colSpan={7}>
-                      <div className="text-center py-20 bg-white dark:bg-slate-900">
+                      <div className="text-center py-20 bg-white dark:bg-[#0a0a0a]">
                         <BadgeCheck size={40} className="text-slate-200 dark:text-slate-800 mx-auto mb-3" />
                         <p className="text-slate-400 dark:text-slate-600 font-medium">No bookings found</p>
                       </div>
@@ -83,7 +83,7 @@ const Bookings = () => {
                           <CarFront size={16} className="text-indigo-600 dark:text-indigo-400" />
                         </div>
                         <div>
-                          <p className="font-bold text-slate-800 dark:text-slate-200">{rental.car?.brand} {rental.car?.model}</p>
+                          <p className="font-bold text-slate-800 dark:text-white">{rental.car?.brand} {rental.car?.model}</p>
                           <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">{rental.car?.licensePlate}</p>
                         </div>
                       </div>
@@ -94,7 +94,7 @@ const Bookings = () => {
                           {rental.user?.name?.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-semibold text-slate-800 dark:text-slate-200">{rental.user?.name}</p>
+                          <p className="font-semibold text-slate-800 dark:text-white">{rental.user?.name}</p>
                           <p className="text-[11px] text-slate-400 dark:text-slate-500">{rental.user?.email}</p>
                         </div>
                       </div>
@@ -126,7 +126,7 @@ const Bookings = () => {
                             value={rental.status}
                             disabled={updating[rental._id]}
                             onChange={(e) => updateStatus(rental._id, e.target.value)}
-                            className="appearance-none pl-3 pr-8 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-50 cursor-pointer transition-all"
+                            className="appearance-none pl-3 pr-8 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-white focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-50 cursor-pointer transition-all"
                           >
                             <option value="pending">Pending</option>
                             <option value="confirmed">Confirmed</option>
@@ -149,13 +149,13 @@ const Bookings = () => {
       <div className="md:hidden space-y-4">
         {loading ? (
           Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 space-y-4">
+            <div key={i} className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-slate-100 dark:border-white/5 p-5 space-y-4">
               <div className="flex justify-between"><Skeleton className="h-4 w-16 dark:bg-slate-800" /><Skeleton className="h-4 w-20 dark:bg-slate-800" /></div>
               <Skeleton className="h-10 w-full dark:bg-slate-800" />
             </div>
           ))
         ) : rentals.map((rental) => (
-          <div key={rental._id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 shadow-sm space-y-4">
+          <div key={rental._id} className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-slate-100 dark:border-white/5 p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <span className="font-mono text-[10px] text-slate-400">#{rental._id.slice(-6)}</span>
               <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase border ${BADGE_CLASS[rental.status]}`}>
@@ -173,7 +173,7 @@ const Bookings = () => {
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-white/5">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-[10px] font-bold text-indigo-600">
                   {rental.user?.name?.charAt(0).toUpperCase()}
@@ -198,7 +198,7 @@ const Bookings = () => {
                   value={rental.status}
                   disabled={updating[rental._id]}
                   onChange={(e) => updateStatus(rental._id, e.target.value)}
-                  className="w-full appearance-none px-4 py-3 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full appearance-none px-4 py-3 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-white focus:ring-2 focus:ring-indigo-500/20"
                 >
                   <option value="pending">Pending</option>
                   <option value="confirmed">Confirmed</option>

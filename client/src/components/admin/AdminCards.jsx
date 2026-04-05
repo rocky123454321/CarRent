@@ -58,7 +58,7 @@ export const AdminCards = () => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {cars.map(car => (
-        <div key={car._id} className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl overflow-hidden hover:border-gray-200 dark:hover:border-slate-700 transition-colors shadow-sm">
+        <div key={car._id} className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-white/5 rounded-2xl overflow-hidden hover:border-gray-200 dark:hover:border-slate-700 transition-colors shadow-sm">
 
           {/* Header Status Badge */}
           <div className="flex items-start justify-between p-3 pb-0">
@@ -86,12 +86,12 @@ export const AdminCards = () => {
                 }}
               >
                 <DialogTrigger asChild>
-                  <button className="w-7 h-7 flex items-center justify-center border border-gray-100 dark:border-slate-800 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
+                  <button className="w-7 h-7 flex items-center justify-center border border-gray-100 dark:border-white/5 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition-colors shadow-sm">
                     <Pencil size={13} className="text-gray-500 dark:text-slate-400" />
                   </button>
                 </DialogTrigger>
 
-                <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto dark:bg-slate-900 dark:border-slate-800">
+                <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto dark:bg-[#0a0a0a] dark:border-white/5">
                   <form onSubmit={(e) => { e.preventDefault(); handleUpdate(); }}>
                     <DialogHeader>
                       <DialogTitle className="dark:text-white">Edit Vehicle Details</DialogTitle>
@@ -105,7 +105,7 @@ export const AdminCards = () => {
                           <div
                             onClick={() => !preview && fileInputRef.current?.click()}
                             className={`relative h-40 w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer overflow-hidden mt-1
-                              ${preview ? 'border-indigo-200 bg-gray-50 dark:bg-slate-800/50' : 'border-gray-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50/30'}`}
+                              ${preview ? 'border-indigo-200 bg-white dark:bg-slate-800/50' : 'border-gray-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50/30'}`}
                           >
                             {preview ? (
                               <>
@@ -114,7 +114,7 @@ export const AdminCards = () => {
                                   className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-lg transition">
                                   <X size={14} />
                                 </button>
-                                <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold px-2 py-1 rounded-full border border-emerald-100 dark:border-emerald-500/20">
+                                <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-white/90 dark:bg-[#0a0a0a]/90 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold px-2 py-1 rounded-full border border-emerald-100 dark:border-emerald-500/20">
                                   <CheckCircle size={10} /> Photo ready
                                 </div>
                               </>
@@ -151,7 +151,7 @@ export const AdminCards = () => {
 
                     <DialogFooter className="gap-2">
                       <DialogClose asChild>
-                        <Button type="button" variant="outline" className="flex-1 md:flex-none dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800">Cancel</Button>
+                        <Button type="button" variant="outline" className="flex-1 md:flex-none dark:border-white/5 dark:text-slate-300 dark:hover:bg-slate-800">Cancel</Button>
                       </DialogClose>
                       <Button type="submit" className="flex-1 md:flex-none bg-indigo-600 hover:bg-indigo-700 text-white">Save Changes</Button>
                     </DialogFooter>
@@ -162,11 +162,11 @@ export const AdminCards = () => {
               {/* Delete Alert */}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <button className="w-7 h-7 flex items-center justify-center border border-gray-100 dark:border-slate-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors shadow-sm group">
+                  <button className="w-7 h-7 flex items-center justify-center border border-gray-100 dark:border-white/5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors shadow-sm group">
                     <Trash2Icon size={13} className="text-gray-400 group-hover:text-red-500 dark:text-slate-500" />
                   </button>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="dark:bg-slate-900 dark:border-slate-800">
+                <AlertDialogContent className="dark:bg-[#0a0a0a] dark:border-white/5">
                   <AlertDialogHeader>
                     <AlertDialogTitle className="dark:text-white">Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription className="dark:text-slate-400">
@@ -183,7 +183,7 @@ export const AdminCards = () => {
           </div>
 
           {/* Vehicle Image Display */}
-          <div className="mx-3 my-3 bg-gray-50 dark:bg-slate-800/50 rounded-xl flex justify-center items-center p-4 h-32">
+          <div className="mx-3 my-3 bg-white dark:bg-slate-800/50 rounded-xl flex justify-center items-center p-4 h-32">
             <img 
               src={car.image || carImage} 
               alt={`${car.brand} ${car.model}`} 
@@ -210,12 +210,12 @@ export const AdminCards = () => {
           </div>
 
           {/* Pricing & License Footer */}
-          <div className="flex items-center justify-between border-t border-gray-50 dark:border-slate-800/50 px-4 py-3 mt-2 bg-gray-50/30 dark:bg-slate-800/30">
+          <div className="flex items-center justify-between border-t border-gray-50 dark:border-white/5 px-4 py-3 mt-2 bg-white/30 dark:bg-black">
             <div>
               <span className="text-lg font-bold text-indigo-600 dark:text-indigo-400">₱{car.pricePerDay}</span>
               <span className="text-[10px] text-gray-400 dark:text-slate-500 font-normal"> / day</span>
             </div>
-            <span className="text-[10px] font-mono font-bold text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 px-2 py-1 rounded shadow-sm">
+            <span className="text-[10px] font-mono font-bold text-gray-500 dark:text-slate-400 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-slate-700 px-2 py-1 rounded shadow-sm">
               {car.licensePlate}
             </span>
           </div>

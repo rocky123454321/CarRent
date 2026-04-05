@@ -34,14 +34,14 @@ const Categorysidebar = ({
   return (
     <aside className="hidden lg:block fixed left-0 top-0 h-screen mt-13 w-56 py-6 transition-colors duration-300">
       {/* Container with Dark Mode support */}
-      <div className="h-full bg-white dark:bg-slate-950 border border-gray-100 dark:border-slate-800 overflow-hidden shadow-sm transition-all">
+      <div className="h-full bg-white dark:bg-black border border-gray-100 dark:border-white/5 overflow-hidden shadow-sm transition-all">
         <ScrollArea className="h-full">
 
           {/* Header */}
-          <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-100 dark:border-slate-800">
+          <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-100 dark:border-white/5">
             <div className="flex items-center gap-2">
               <SlidersHorizontal size={13} className="text-gray-400 dark:text-slate-500" />
-              <span className="text-sm font-medium text-gray-700 dark:text-slate-200">Filters</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-white">Filters</span>
             </div>
             {isFiltered && (
               <button
@@ -69,7 +69,7 @@ const Categorysidebar = ({
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left w-full active:scale-95
                       ${activeCategory === value
                         ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold"
-                        : "text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900"
+                        : "text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900"
                       }`}
                   >
                     <Icon size={12} className={activeCategory === value ? "text-blue-600 dark:text-blue-400" : ""} />
@@ -97,7 +97,7 @@ const Categorysidebar = ({
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left w-full active:scale-95
                       ${activeTransmission === t
                         ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold"
-                        : "text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900"
+                        : "text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900"
                       }`}
                   >
                     {t}
@@ -124,7 +124,7 @@ const Categorysidebar = ({
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left w-full active:scale-95
                       ${activePriceRange === value
                         ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold"
-                        : "text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900"
+                        : "text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900"
                       }`}
                   >
                     {label}

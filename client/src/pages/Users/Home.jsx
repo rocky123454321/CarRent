@@ -37,7 +37,7 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-black transition-colors duration-300">
       <div className="w-full px-6 py-4">
         {/* Breadcrumb with Dark Mode Support */}
         <Breadcrumb className="mb-6">
@@ -52,7 +52,7 @@ const Home = () => {
             </BreadcrumbItem>
             <BreadcrumbSeparator className="dark:text-slate-600" />
             <BreadcrumbItem>
-              <BreadcrumbPage className="dark:text-slate-200 font-bold">Category</BreadcrumbPage>
+              <BreadcrumbPage className="dark:text-white font-bold">Category</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -88,17 +88,17 @@ const Home = () => {
               {isFiltered && (
                 <div className="flex items-center gap-1.5 flex-wrap sm:justify-end">
                   {activeCategory !== "all" && (
-                    <Badge variant="secondary" className="text-[10px] dark:bg-slate-800 dark:text-slate-200 uppercase font-bold tracking-wider">
+                    <Badge variant="secondary" className="text-[10px] dark:bg-slate-800 dark:text-white uppercase font-bold tracking-wider">
                       {activeCategory}
                     </Badge>
                   )}
                   {activeTransmission !== "All" && (
-                    <Badge variant="secondary" className="text-[10px] dark:bg-slate-800 dark:text-slate-200 uppercase font-bold tracking-wider">
+                    <Badge variant="secondary" className="text-[10px] dark:bg-slate-800 dark:text-white uppercase font-bold tracking-wider">
                       {activeTransmission}
                     </Badge>
                   )}
                   {activePriceRange !== "all" && (
-                    <Badge variant="secondary" className="text-[10px] dark:bg-slate-800 dark:text-slate-200 uppercase font-bold tracking-wider">
+                    <Badge variant="secondary" className="text-[10px] dark:bg-slate-800 dark:text-white uppercase font-bold tracking-wider">
                       {priceRanges.find((p) => p.value === activePriceRange)?.label}
                     </Badge>
                   )}

@@ -23,10 +23,10 @@ const ForgotPasswordPage = () => {
       transition={{ duration: 0.4 }}
       className="w-full max-w-md mx-auto px-4"
     >
-      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden transition-all">
+      <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden transition-all">
 
         {/* Header */}
-        <div className="px-8 pt-10 pb-6 text-center border-b border-gray-50 dark:border-slate-800/50">
+        <div className="px-8 pt-10 pb-6 text-center border-b border-gray-50 dark:border-white/5">
           <img src={brand} alt="brand" className="h-10 mx-auto mb-4 dark:brightness-110" />
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Forgot Password</h2>
           <p className="text-sm text-gray-400 dark:text-slate-500 mt-1">We'll send you a reset link</p>
@@ -50,7 +50,7 @@ const ForgotPasswordPage = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition bg-gray-50 dark:bg-slate-950 dark:text-slate-200"
+                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-white/5 text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition bg-white dark:bg-black dark:text-white"
                   />
                 </div>
               </div>
@@ -71,7 +71,7 @@ const ForgotPasswordPage = () => {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto border-4 border-white dark:border-slate-800 shadow-xl"
+                className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto border-4 border-white dark:border-white/5 shadow-xl"
               >
                 <Mail className="h-10 w-10 text-blue-600 dark:text-blue-400" />
               </motion.div>
@@ -87,7 +87,7 @@ const ForgotPasswordPage = () => {
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-6 bg-gray-50 dark:bg-slate-800/30 border-t border-gray-100 dark:border-slate-800 flex justify-center">
+        <div className="px-8 py-6 bg-white dark:bg-black border-t border-gray-100 dark:border-white/5 flex justify-center">
           <Link to="/login" className="text-sm text-blue-600 dark:text-blue-400 font-bold hover:underline flex items-center gap-2 transition-colors">
             <ArrowLeft className="h-4 w-4" /> Back to Login
           </Link>
