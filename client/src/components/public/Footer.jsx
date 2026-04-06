@@ -20,7 +20,7 @@ const Footer = () => (
     <div className="mx-auto max-w-6xl">
       <div className="grid grid-cols-2 gap-12 md:grid-cols-4">
 
-        
+        {/* Brand */}
         <div className="col-span-2">
           <span className="text-sm font-bold tracking-tight text-zinc-900 dark:text-white">supernova.</span>
           <p className="mt-3 max-w-xs text-xs leading-relaxed text-zinc-400 dark:text-zinc-500">
