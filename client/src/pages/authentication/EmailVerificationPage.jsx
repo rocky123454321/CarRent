@@ -87,84 +87,92 @@ const EmailVerificationPage = () => {
   }, [code]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="w-full max-w-md mx-auto px-4"
-    >
-      <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden transition-all">
-        
-        {/* Header */}
-        <div className="px-8 pt-10 pb-6 text-center border-b border-gray-50 dark:border-white/5">
-          <img src={brand} alt="brand" className="h-10 mx-auto mb-4 dark:brightness-110" />
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Verify Your Email</h2>
-          <p className="text-sm text-gray-400 dark:text-slate-500 mt-1">
-            Enter the 6-digit code sent to your email
-          </p>
-        </div>
+    <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center px-8 transition-colors duration-300">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="w-full max-w-[440px]"
+      >
+        <div className="bg-white dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-zinc-900 overflow-hidden shadow-sm">
+          
+          {/* Header */}
+          <div className="px-10 pt-12 pb-8 text-center">
+            <img 
+              src={brand} 
+              alt="brand" 
+              className="h-8 mx-auto mb-6 dark:brightness-0 dark:invert opacity-90" 
+            />
+            <h2 className="text-2xl font-bold tracking-tighter text-zinc-900 dark:text-white leading-tight">
+              Verify Email.
+            </h2>
+            <p className="text-[11px] uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 mt-3 font-medium">
+              Enter 6-digit code
+            </p>
+          </div>
 
-        {/* Form */}
-        <div className="px-8 py-8 space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="flex justify-between gap-2 sm:gap-3">
-              {code.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={(el) => (inputRefs.current[index] = el)}
-                  type="text"
-                  maxLength="1"
-                  value={digit}
-                  onChange={(e) => handleChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-full h-14 text-center text-xl font-black bg-white dark:bg-black text-gray-900 dark:text-white border-2 border-gray-200 dark:border-white/5 rounded-2xl focus:border-blue-500 dark:focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all"
-                />
-              ))}
-            </div>
+          {/* Form Content */}
+          <div className="px-10 pb-10 space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="flex justify-between gap-2 sm:gap-3">
+                {code.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => (inputRefs.current[index] = el)}
+                    type="text"
+                    maxLength="1"
+                    value={digit}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(index, e)}
+                    className="w-full h-12 text-center text-lg font-bold bg-zinc-50/50 dark:bg-zinc-900 text-zinc-900 dark:text-white border border-zinc-100 dark:border-zinc-800 rounded-xl focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500 transition-all"
+                  />
+                ))}
+              </div>
 
-            {error && (
-              <motion.div 
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-xl px-4 py-3"
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-xl px-4 py-3 text-center"
+                >
+                  <p className="text-red-500 dark:text-red-400 text-[11px] font-bold uppercase tracking-wider">{error}</p>
+                </motion.div>
+              )}
+
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                type="submit"
+                disabled={isLoading || code.some((digit) => !digit)}
+                className="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-100 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 dark:disabled:bg-zinc-800 text-white text-[11px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all flex items-center justify-center shadow-sm disabled:cursor-not-allowed"
               >
-                <p className="text-red-500 dark:text-red-400 text-xs font-semibold">{error}</p>
-              </motion.div>
-            )}
+                {isLoading ? "Verifying..." : "Verify Code"}
+              </motion.button>
+            </form>
+          </div>
 
-            <motion.button
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              disabled={isLoading || code.some((digit) => !digit)}
-              className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 dark:disabled:bg-blue-800/50 disabled:cursor-not-allowed text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-blue-500/20"
-            >
-              {isLoading ? "Verifying..." : "Verify Email"}
-            </motion.button>
-          </form>
+          {/* Footer */}
+          <div className="px-10 py-6 bg-zinc-50/50 dark:bg-zinc-900/30 border-t border-zinc-100 dark:border-zinc-900 text-center">
+            <p className="text-[11px] text-zinc-400 uppercase tracking-widest font-medium">
+              Didn't receive a code?{" "}
+              {count === 0 ? (
+                <button
+                  onClick={handleResend}
+                  className="text-zinc-900 dark:text-white font-bold hover:opacity-70 transition-opacity"
+                >
+                  Resend
+                </button>
+              ) : (
+                <span className="text-zinc-300 dark:text-zinc-600 tabular-nums font-bold">
+                  Try again in {count}s
+                </span>
+              )}
+            </p>
+          </div>
+
         </div>
-
-        {/* Footer */}
-        <div className="px-8 py-6 bg-white dark:bg-black border-t border-gray-100 dark:border-white/5 text-center">
-          <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">
-            Didn't receive a code?{" "}
-            {count === 0 ? (
-              <button
-                onClick={handleResend}
-                className="text-blue-600 dark:text-blue-400 font-bold hover:underline transition-colors"
-              >
-                Resend
-              </button>
-            ) : (
-              <span className="text-slate-400 dark:text-slate-600 tabular-nums">
-                Resend in <span className="font-bold">{count}s</span>
-              </span>
-            )}
-          </p>
-        </div>
-
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 };
 

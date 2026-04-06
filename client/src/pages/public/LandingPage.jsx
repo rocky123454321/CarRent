@@ -1,11 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../store/authStore"; 
-import { 
-  Car, Users, MapPin, Star, Quote, Shield, Zap, Clock, ChevronRight 
-} from "lucide-react";
+import { useAuthStore } from "../../store/authStore";
+import { Zap, Shield, Clock, Star, Quote } from "lucide-react";
 
-// Components
 import Hero from "../../components/public/hero.jsx";
 import HowItWorks from "../../components/public/HowItWorks.jsx";
 import Nav from "../../components/public/navigation.jsx";
@@ -18,29 +15,21 @@ const features = [
     icon: Zap,
     title: "Instant booking",
     desc: "Reserve any car in under 60 seconds. Confirmation sent immediately.",
-    accent: "text-indigo-600",
-    bg: "bg-indigo-50 dark:bg-indigo-900/20",
   },
   {
     icon: Shield,
     title: "Fully insured",
     desc: "Every vehicle comes with comprehensive insurance. Drive with peace of mind.",
-    accent: "text-emerald-600",
-    bg: "bg-emerald-50 dark:bg-emerald-900/20",
   },
   {
     icon: Clock,
     title: "24/7 support",
     desc: "Our team is always on standby. Need help at 3 AM? We've got you.",
-    accent: "text-cyan-600",
-    bg: "bg-cyan-50 dark:bg-cyan-900/20",
   },
   {
     icon: Star,
     title: "Curated fleet",
     desc: "Hand-picked premium vehicles — inspected, cleaned, and ready to roll.",
-    accent: "text-amber-600",
-    bg: "bg-amber-50 dark:bg-amber-900/20",
   },
 ];
 
@@ -49,84 +38,85 @@ const testimonials = [
     name: "Sofia Reyes",
     role: "Business Traveler",
     initials: "SR",
-    text: "Absolutely seamless. The AI suggestions were spot-on and I booked my car in under 2 minutes.",
-    theme: "bg-indigo-600",
+    text: "Absolutely seamless. Booked my car in under 2 minutes. No friction at all.",
   },
   {
     name: "Marco Tan",
     role: "Weekend Explorer",
     initials: "MT",
-    text: "Best rental service I've used. No hidden fees, clean cars, and lightning-fast support.",
-    theme: "bg-cyan-600",
+    text: "No hidden fees, clean cars, lightning-fast support. Best rental service I've used.",
   },
   {
     name: "Aiko Yamamoto",
     role: "Family Vacationer",
     initials: "AY",
-    text: "Pickup was effortless and the car was in perfect condition. Will definitely book again!",
-    theme: "bg-emerald-600",
+    text: "Pickup was effortless and the car was in perfect condition. Will book again!",
   },
 ];
 
-/* ─── REUSABLE SECTION HEADER ─── */
+/* ─── SECTION HEADER ─── */
 const SectionHeader = ({ eyebrow, title, highlight, sub }) => (
-  <div className="mb-16 text-center">
+  <div className="mb-14 text-center">
     {eyebrow && (
-      <p className="mb-3 text-[11px] font-black uppercase tracking-[0.25em] text-indigo-600 dark:text-indigo-400">
-        {eyebrow}
-      </p>
+      <div className="inline-flex items-center gap-2 mb-4">
+        <span className="h-px w-5 bg-zinc-300 dark:bg-zinc-700" />
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+          {eyebrow}
+        </p>
+        <span className="h-px w-5 bg-zinc-300 dark:bg-zinc-700" />
+      </div>
     )}
-    <h2 className="text-3xl font-black leading-[1.1] tracking-tight text-slate-900 dark:text-white md:text-5xl">
-      {title} <span className="text-indigo-600">{highlight}</span>
+    <h2 className="text-3xl md:text-4xl font-bold tracking-tighter leading-[1.1] text-zinc-900 dark:text-white">
+      {title}{" "}
+      <span className="text-zinc-300 dark:text-zinc-700">{highlight}</span>
     </h2>
     {sub && (
-      <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-slate-500 dark:text-slate-400 md:text-lg">
+      <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-zinc-400 dark:text-zinc-500">
         {sub}
       </p>
     )}
   </div>
 );
 
-/* ─── FEATURES SECTION ─── */
+/* ─── FEATURES ─── */
 const FeaturesSection = () => {
   const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
   useEffect(() => {
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          e.target.querySelectorAll(".feat-card").forEach((el, i) => {
-            setTimeout(() => {
-              el.classList.add("opacity-100", "translate-y-0");
-              el.classList.remove("opacity-0", "translate-y-10");
-            }, i * 100);
-          });
-        }
-      });
-    }, { threshold: 0.1 });
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.1 }
+    );
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, []);
 
   return (
-    <section className="bg-white py-24 px-6 transition-colors duration-500 dark:bg-black lg:px-16">
-      <div className="mx-auto max-w-7xl">
+    <section className="bg-white dark:bg-zinc-950 py-24 px-8">
+      <div className="mx-auto max-w-6xl">
         <SectionHeader
           eyebrow="Core Benefits"
           title="Drive with"
-          highlight="Confidence."
-          sub="Experience a premium rental service designed for the modern driver."
+          highlight="confidence."
+          sub="A premium rental service designed for the modern driver."
         />
-        <div ref={ref} className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map(({ icon: Icon, title, desc, accent, bg }) => (
+        <div ref={ref} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {features.map(({ icon: Icon, title, desc }, i) => (
             <div
               key={title}
-              className="feat-card group rounded-[2.5rem] border border-slate-100 bg-white p-8 opacity-0 translate-y-10 transition-all duration-700 hover:border-indigo-100 hover:shadow-2xl hover:shadow-indigo-500/5 dark:border-white/5 dark:bg-[#0a0a0a] dark:hover:border-indigo-900/40"
+              className="rounded-2xl border border-zinc-100 dark:border-zinc-900 bg-white dark:bg-zinc-900/50 p-7 transition-all duration-700"
+              style={{
+                opacity: visible ? 1 : 0,
+                transform: visible ? "translateY(0)" : "translateY(16px)",
+                transitionDelay: `${i * 80}ms`,
+              }}
             >
-              <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-2xl ${bg} ${accent} shadow-sm transition-transform group-hover:scale-110`}>
-                <Icon size={24} />
+              <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                <Icon size={18} />
               </div>
-              <h3 className="mb-3 text-lg font-bold text-slate-900 dark:text-white">{title}</h3>
-              <p className="text-sm font-medium leading-relaxed text-slate-500 dark:text-slate-400">{desc}</p>
+              <h3 className="mb-2 text-sm font-semibold text-zinc-900 dark:text-white">{title}</h3>
+              <p className="text-xs leading-relaxed text-zinc-400 dark:text-zinc-500">{desc}</p>
             </div>
           ))}
         </div>
@@ -135,59 +125,56 @@ const FeaturesSection = () => {
   );
 };
 
-/* ─── TESTIMONIALS SECTION ─── */
+/* ─── TESTIMONIALS ─── */
 const TestimonialsSection = () => {
   const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
   useEffect(() => {
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          e.target.querySelectorAll(".t-card").forEach((el, i) => {
-            setTimeout(() => {
-              el.classList.add("opacity-100", "scale-100");
-              el.classList.remove("opacity-0", "scale-95");
-            }, i * 150);
-          });
-        }
-      });
-    }, { threshold: 0.1 });
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.1 }
+    );
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, []);
 
   return (
-    <section className="bg-slate-50/50 py-24 px-6 transition-colors duration-500 dark:bg-[#0a0a0a]/20 lg:px-16">
-      <div className="mx-auto max-w-7xl">
+    <section className="bg-zinc-50 dark:bg-zinc-900/30 py-24 px-8">
+      <div className="mx-auto max-w-6xl">
         <SectionHeader
-          eyebrow="Community Feedback"
+          eyebrow="Community"
           title="Trusted by"
           highlight="thousands."
-          sub="Hear from our global community of explorers who chose the premium way."
+          sub="Hear from drivers who chose the premium way."
         />
-        <div ref={ref} className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {testimonials.map((t) => (
+        <div ref={ref} className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {testimonials.map(({ name, role, initials, text }, i) => (
             <div
-              key={t.name}
-              className="t-card group flex flex-col gap-8 rounded-[2.5rem] border border-slate-100 bg-white p-10 opacity-0 scale-95 transition-all duration-700 hover:shadow-xl dark:border-white/5 dark:bg-[#0a0a0a]"
+              key={name}
+              className="flex flex-col gap-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-8 transition-all duration-700"
+              style={{
+                opacity: visible ? 1 : 0,
+                transform: visible ? "translateY(0)" : "translateY(16px)",
+                transitionDelay: `${i * 100}ms`,
+              }}
             >
-              <div className="flex justify-between items-center">
-                <Quote size={32} className="text-indigo-600/20 transition-transform group-hover:rotate-12" />
-                <div className="flex gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={14} className="fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-              </div>
-              <p className="flex-1 text-[15px] font-medium italic leading-relaxed text-slate-600 dark:text-slate-300">
-                "{t.text}"
+              <Quote size={20} className="text-zinc-200 dark:text-zinc-700" />
+              <p className="flex-1 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400 italic">
+                "{text}"
               </p>
-              <div className="flex items-center gap-4 pt-6 border-t border-slate-50 dark:border-white/5">
-                <div className={`flex h-11 w-11 items-center justify-center rounded-full text-xs font-black text-white shadow-lg ${t.theme}`}>
-                  {t.initials}
+              <div className="flex items-center gap-3 pt-5 border-t border-zinc-100 dark:border-zinc-800">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-900 dark:bg-white text-xs font-bold text-white dark:text-zinc-900">
+                  {initials}
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">{t.name}</p>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t.role}</p>
+                  <p className="text-xs font-semibold text-zinc-900 dark:text-white">{name}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-zinc-400 dark:text-zinc-600">{role}</p>
+                </div>
+                <div className="ml-auto flex gap-0.5">
+                  {[...Array(5)].map((_, j) => (
+                    <Star key={j} size={10} className="fill-amber-400 text-amber-400" />
+                  ))}
                 </div>
               </div>
             </div>
@@ -198,7 +185,7 @@ const TestimonialsSection = () => {
   );
 };
 
-/* ─── MAIN LANDING PAGE ─── */
+/* ─── LANDING PAGE ─── */
 const LandingPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, isCheckingAuth } = useAuthStore();
@@ -212,13 +199,13 @@ const LandingPage = () => {
 
   if (isCheckingAuth) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-black">
-        <div className="flex gap-2">
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-zinc-950">
+        <div className="flex gap-1.5">
           {[0, 1, 2].map((i) => (
-            <div 
-              key={i} 
-              className="h-3 w-3 animate-bounce rounded-full bg-indigo-600" 
-              style={{ animationDelay: `${i * 0.15}s` }} 
+            <div
+              key={i}
+              className="h-2 w-2 rounded-full bg-zinc-300 dark:bg-zinc-700 animate-bounce"
+              style={{ animationDelay: `${i * 0.15}s` }}
             />
           ))}
         </div>
@@ -227,7 +214,7 @@ const LandingPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white selection:bg-indigo-600 selection:text-white dark:bg-black transition-colors duration-500">
+    <div className="min-h-screen bg-white dark:bg-zinc-950">
       <Nav />
       <main>
         <Hero />

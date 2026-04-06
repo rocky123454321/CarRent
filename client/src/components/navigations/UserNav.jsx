@@ -49,36 +49,34 @@ const UserNav = () => {
   };
 
   const NotificationList = () => (
-    <div className="max-h-[60vh] overflow-y-auto bg-white dark:bg-[#0a0a0a]">
+    <div className="max-h-[60vh] overflow-y-auto bg-white dark:bg-zinc-950">
       {notifications.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-slate-400 dark:text-slate-600">
-          <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-3">
-             <Bell size={28} className="opacity-20" />
-          </div>
-          <p className="text-sm font-medium text-slate-500">All caught up!</p>
+        <div className="flex flex-col items-center justify-center py-16 text-zinc-400">
+          <Bell size={20} className="mb-2 opacity-20" />
+          <p className="text-[10px] font-bold uppercase tracking-widest">No Activity</p>
         </div>
       ) : (
-        <div className="divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="divide-y divide-zinc-100 dark:divide-zinc-900">
           {notifications.map((n) => (
             <div 
               key={n.id} 
               onClick={() => handleViewNotification(n)}
-              className="px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:bg-slate-100 dark:active:bg-slate-800 transition-colors cursor-pointer"
+              className="px-6 py-5 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors cursor-pointer"
             >
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 font-bold text-sm">
-                  {n.senderName?.charAt(0)?.toUpperCase() || 'S'}
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 flex items-center justify-center shrink-0 font-bold text-[10px]">
+                  {n.senderName?.charAt(0)?.toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-baseline">
-                    <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate pr-2">
-                      {n.senderName || 'Support'}
+                  <div className="flex justify-between items-baseline mb-1">
+                    <p className="text-xs font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-tight">
+                      {n.senderName}
                     </p>
-                    <span className="text-[10px] font-medium text-slate-400 dark:text-slate-600">
+                    <span className="text-[9px] font-medium text-zinc-400">
                       {new Date(n.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5 leading-relaxed italic">
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed italic">
                     "{n.message}"
                   </p>
                 </div>
@@ -91,205 +89,143 @@ const UserNav = () => {
   );
 
   return (
-    <nav className="bg-white/90 dark:bg-[#0a0a0a] backdrop-blur-md w-full fixed top-0 left-0 z-50 border-b border-slate-200/60 dark:border-white/5 shadow-sm transition-colors">
-      <div className="flex items-center justify-between max-w-7xl mx-auto px-4 sm:px-6 h-16 relative">
+    <nav className="bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md w-full fixed top-0 left-0 z-50 border-b border-zinc-100 dark:border-zinc-900 transition-all">
+      <div className="flex items-center justify-between max-w-7xl mx-auto px-6 h-16 relative">
         
         {/* Left: Brand */}
         <Link to="/" className="shrink-0 active:scale-95 transition-transform">
-          <img src={brand} alt="brand" className="h-8 sm:h-9 dark:brightness-110" />
+          <img src={brand} alt="brand" className="h-6 dark:invert" />
         </Link>
   
         {/* Center: Nav Links */}
-        <div className="hidden md:flex items-center gap-1 lg:absolute lg:left-1/2 lg:-translate-x-1/2">
+        <div className="hidden md:flex items-center gap-2 lg:absolute lg:left-1/2 lg:-translate-x-1/2">
           {['Home', 'Category', 'My Rentals', 'Chat'].map((item) => (
             <Link 
               key={item}
               to={item === 'Home' ? '/' : item === 'Category' ? '/cars' : `/${item.toLowerCase().replace(' ', '-')}`} 
-              className="px-3 lg:px-4 py-2 text-sm font-bold rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition-all whitespace-nowrap"
+              className="px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 hover:text-zinc-950 dark:hover:text-white transition-all"
             >
               {item}
             </Link>
           ))}
         </div>
   
-        {/* Right: Search + Actions */}
-        <div className="flex items-center gap-2">
+        {/* Right: Actions */}
+        <div className="flex items-center gap-3">
           {/* Search */}
-          <div className="hidden lg:flex relative w-[160px] xl:w-[240px]">
-            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <div className="hidden lg:flex relative w-[180px]">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             <input
               type="text"
-              placeholder="Search cars..."
+              placeholder="SEARCH..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-black border border-transparent dark:border-white/5 focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 outline-none text-sm dark:text-white transition-all"
+              className="w-full pl-9 pr-4 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-900 border-none focus:ring-1 ring-zinc-200 dark:ring-zinc-800 outline-none text-[10px] font-bold tracking-widest transition-all"
             />
           </div>
   
-          <div className="hidden lg:block w-px h-6 bg-slate-200 dark:bg-slate-800 mx-1" />
-  
           {/* Notifications */}
-          <div className="hidden sm:block">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 dark:border-white/5 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
-                  <Bell size={18} />
-                  {totalUnread > 0 && (
-                    <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-900" />
-                  )}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-80 rounded-2xl shadow-xl border-slate-200 dark:border-white/5 p-0 mt-2 bg-white dark:bg-[#0a0a0a]" align="end">
-                <div className="px-4 py-3 border-b border-slate-100 dark:border-white/5 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50 rounded-t-2xl">
-                  <h3 className="font-bold text-sm text-slate-800 dark:text-white">Notifications</h3>
-                  {notifications.length > 0 && (
-                    <button onClick={clearNotifications} className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider hover:underline">
-                      Clear All
-                    </button>
-                  )}
-                </div>
-                <NotificationList />
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="relative w-9 h-9 flex items-center justify-center rounded-full border border-zinc-100 dark:border-zinc-900 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all">
+                <Bell size={16} />
+                {totalUnread > 0 && (
+                  <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-zinc-900 dark:bg-white rounded-full ring-2 ring-white dark:ring-zinc-950" />
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-80 rounded-xl shadow-2xl border-zinc-100 dark:border-zinc-900 p-0 mt-3 bg-white dark:bg-zinc-950 overflow-hidden" align="end">
+              <div className="px-6 py-4 border-b border-zinc-50 dark:border-zinc-800 flex items-center justify-between">
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Activity</h3>
+                {notifications.length > 0 && (
+                  <button onClick={clearNotifications} className="text-[9px] font-bold uppercase tracking-tighter hover:underline">Clear</button>
+                )}
+              </div>
+              <NotificationList />
+            </DropdownMenuContent>
+          </DropdownMenu>
   
           {/* Profile */}
-          <div className="hidden sm:block">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 p-1 pr-2 lg:pr-3 rounded-xl border border-slate-200 dark:border-white/5 hover:border-blue-200 dark:hover:border-blue-900 hover:bg-blue-50/30 dark:hover:bg-blue-900/20 transition-all">
-                  <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-xs uppercase shadow-sm">
-                    {user?.name?.charAt(0)}
-                  </div>
-                  <span className="hidden lg:block text-sm font-bold text-slate-700 dark:text-slate-300">
-                    {user?.name?.split(' ')[0]}
-                  </span>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-64 rounded-2xl shadow-xl border-slate-200 dark:border-white/5 p-0 mt-2 overflow-hidden bg-white dark:bg-[#0a0a0a]" align="end">
-                <DropdownMenuLabel className="px-4 py-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-white/5 font-normal">
-                  <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{user?.name}</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{user?.email}</p>
-                </DropdownMenuLabel>
-                <DropdownMenuGroup className="p-1.5">
-                  <DropdownMenuItem onClick={() => navigate("/settings")} className="rounded-xl py-2.5 px-3 cursor-pointer flex items-center gap-2 text-slate-600 dark:text-slate-400 focus:bg-slate-50 dark:focus:bg-slate-800 transition-colors">
-                    <Settings size={16} className="opacity-70" /> Account Settings
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator className="dark:bg-slate-800" />
-                <div className="p-1.5">
-                  <DropdownMenuItem onClick={logout} className="rounded-xl py-2.5 px-3 text-red-600 font-bold cursor-pointer flex items-center gap-2 focus:bg-red-50 dark:focus:bg-red-900/20 transition-colors">
-                    <LogOut size={16} /> Log out
-                  </DropdownMenuItem>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 p-1 pr-3 rounded-full border border-zinc-100 dark:border-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all">
+                <div className="w-7 h-7 rounded-full bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 flex items-center justify-center font-bold text-[10px] uppercase">
+                  {user?.name?.charAt(0)}
                 </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                <span className="hidden lg:block text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">
+                  {user?.name?.split(' ')[0]}
+                </span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 rounded-xl shadow-2xl border-zinc-100 dark:border-zinc-900 p-0 mt-3 bg-white dark:bg-zinc-950 overflow-hidden" align="end">
+              <DropdownMenuLabel className="px-5 py-4 border-b border-zinc-50 dark:border-zinc-900">
+                <p className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-tight">{user?.name}</p>
+                <p className="text-[9px] text-zinc-400 font-medium mt-0.5">{user?.email}</p>
+              </DropdownMenuLabel>
+              <DropdownMenuGroup className="p-1.5">
+                <DropdownMenuItem onClick={() => navigate("/settings")} className="rounded-lg py-2.5 px-4 cursor-pointer text-[10px] font-bold uppercase tracking-widest text-zinc-500 focus:text-zinc-900 dark:focus:text-white focus:bg-zinc-50 dark:focus:bg-zinc-900 transition-colors flex items-center gap-3">
+                  <Settings size={14} /> Settings
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator className="bg-zinc-50 dark:bg-zinc-900" />
+              <div className="p-1.5">
+                <DropdownMenuItem onClick={logout} className="rounded-lg py-2.5 px-4 text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white focus:bg-zinc-900 dark:focus:bg-white focus:text-white dark:focus:text-zinc-950 transition-all flex items-center gap-3 cursor-pointer">
+                  <LogOut size={14} /> Sign Out
+                </DropdownMenuItem>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
   
-          {/* Mobile Menu Trigger */}
+          {/* Mobile Menu */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className={`md:hidden w-10 h-10 flex items-center justify-center rounded-xl transition-all active:scale-95 shadow-lg ${
-              mobileOpen 
-                ? 'bg-red-50 text-red-600 dark:bg-red-900/20 shadow-red-200/20' 
-                : 'bg-slate-900 dark:bg-blue-600 text-white shadow-slate-200/50 dark:shadow-blue-900/30'
+            className={`md:hidden w-9 h-9 flex items-center justify-center rounded-full transition-all ${
+              mobileOpen ? 'bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-white' : 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
             }`}
           >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileOpen ? <X size={16} /> : <Menu size={16} />}
           </button>
         </div>
       </div>
 
       {/* --- Mobile Menu Overlay --- */}
-  
-      {/* --- Mobile Menu Overlay --- */}
       {mobileOpen && (
-        <>
-          <div 
-            className="fixed inset-0 z-40 md:hidden bg-slate-900/20 dark:bg-black/40 backdrop-blur-sm animate-in fade-in duration-300" 
-            onClick={() => setMobileOpen(false)} 
-          />
-          <div className="md:hidden absolute inset-x-0 top-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-2xl z-50 animate-in slide-in-from-top duration-300 ease-out">
-            <div className="p-5 flex flex-col gap-4">
-              
-              {/* User Profile Info */}
-              <div className="flex items-center gap-4 p-4 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30">
-                <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white text-lg font-bold shadow-lg shadow-blue-500/20">
-                  {user?.name?.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-slate-900 dark:text-white truncate">{user?.name}</p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400 truncate">{user?.email}</p>
-                </div>
-              </div>
+        <div className="md:hidden fixed inset-0 top-16 bg-white dark:bg-zinc-950 z-50 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="p-8 flex flex-col h-full">
+            <div className="flex flex-col gap-8">
+              {['Home', 'Category', 'My Rentals', 'Chat'].map((item) => (
+                <Link 
+                  key={item}
+                  to={item === 'Home' ? '/' : item === 'Category' ? '/cars' : `/${item.toLowerCase().replace(' ', '-')}`} 
+                  onClick={() => setMobileOpen(false)}
+                  className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase flex items-center justify-between"
+                >
+                  {item}
+                  <ChevronRight size={24} className="opacity-10" />
+                </Link>
+              ))}
+            </div>
 
-              {/* Quick Actions Grid */}
-              <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => handleMobileNav('/cars')} className="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-black gap-2 shadow-sm active:scale-95 transition-transform">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-600 dark:text-slate-400">
-                    <Search size={20} />
-                  </div>
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Category</span>
-                </button>
-                <button onClick={() => handleMobileNav('/my-rentals')} className="flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-black gap-2 shadow-sm active:scale-95 transition-transform">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-600 dark:text-slate-400">
-                    <CarFront size={20} />
-                  </div>
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Rentals</span>
-                </button>
-              </div>
-
-              {/* Detailed Menu List */}
-              <div className="flex flex-col gap-2">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2 mt-2">Settings & Account</p>
-                
-                <button onClick={() => handleMobileNav('/settings')} className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-black border border-slate-100 dark:border-slate-800 shadow-sm active:bg-slate-50 dark:active:bg-slate-800 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center">
-                      <Settings size={18} />
-                    </div>
-                    <span className="font-bold text-sm text-slate-700 dark:text-slate-300">Account Settings</span>
-                  </div>
-                  <ChevronRight size={16} className="text-slate-300" />
-                </button>
-
-                <button onClick={() => { setNotifOpen(true); setMobileOpen(false); }} className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-black border border-slate-100 dark:border-slate-800 shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 flex items-center justify-center">
-                      <Bell size={18} />
-                    </div>
-                    <span className="font-bold text-slate-700 dark:text-slate-300 text-sm">Notifications</span>
-                  </div>
-                  {totalUnread > 0 && <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{totalUnread}</span>}
-                </button>
-                
-                <button onClick={() => handleMobileNav('/chat')} className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-black border border-slate-100 dark:border-slate-800 shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                      <MessageSquare size={18} />
-                    </div>
-                    <span className="font-bold text-sm text-slate-700 dark:text-slate-300">Messages</span>
-                  </div>
-                  <ChevronRight size={16} className="text-slate-300 dark:text-slate-600" />
-                </button>
-
-                <button onClick={logout} className="flex items-center gap-3 p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-bold mt-2 border border-red-100 dark:border-red-900/30 active:scale-[0.98] transition-transform">
-                  <LogOut size={18} /> Log out
-                </button>
-              </div>
+            <div className="mt-auto flex flex-col gap-3 pb-10 border-t border-zinc-100 dark:border-zinc-900 pt-8">
+              <button onClick={() => handleMobileNav('/settings')} className="flex items-center gap-3 p-4 rounded-xl border border-zinc-100 dark:border-zinc-900 text-[10px] font-bold uppercase tracking-widest">
+                <Settings size={16} /> Account Settings
+              </button>
+              <button onClick={logout} className="flex items-center gap-3 p-4 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 text-[10px] font-black uppercase tracking-widest">
+                <LogOut size={16} /> Sign Out
+              </button>
             </div>
           </div>
-        </>
+        </div>
       )}
 
       {/* Notifications Dialog */}
       <AlertDialog open={notifOpen} onOpenChange={setNotifOpen}>
-        <AlertDialogContent className="max-w-[calc(100%-2rem)] w-full rounded-3xl p-0 overflow-hidden border-none shadow-2xl bg-white dark:bg-[#0a0a0a]">
-          <AlertDialogHeader className="px-5 py-4 border-b border-slate-100 dark:border-white/5 bg-white dark:bg-[#0a0a0a]">
+        <AlertDialogContent className="max-w-[calc(100%-2rem)] w-full rounded-2xl p-0 border border-zinc-100 dark:border-zinc-900 bg-white dark:bg-zinc-950 overflow-hidden shadow-2xl">
+          <AlertDialogHeader className="px-6 py-5 border-b border-zinc-50 dark:border-zinc-900">
             <div className="flex items-center justify-between">
-              <AlertDialogTitle className="text-base font-bold text-slate-900 dark:text-white">Notifications</AlertDialogTitle>
-              <AlertDialogCancel className="h-9 w-9 rounded-full bg-slate-100 dark:bg-slate-800 border-none flex items-center justify-center text-slate-500 dark:text-slate-400 m-0 shadow-sm active:scale-90 transition-all">
-                <X size={18} />
+              <AlertDialogTitle className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Notifications</AlertDialogTitle>
+              <AlertDialogCancel className="h-8 w-8 rounded-full bg-zinc-100 dark:bg-zinc-900 border-none flex items-center justify-center m-0">
+                <X size={14} />
               </AlertDialogCancel>
             </div>
           </AlertDialogHeader>

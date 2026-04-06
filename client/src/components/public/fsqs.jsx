@@ -1,85 +1,71 @@
-import React, { useState } from 'react';
-import { Plus, Minus, MessageCircle } from 'lucide-react';
+import React, { useState } from "react";
+import { Plus, Minus } from "lucide-react";
+
+const faqs = [
+  {
+    question: "How do I book a car?",
+    answer: "Browse our fleet, select your preferred vehicle, choose your dates, and confirm. Verification is handled instantly.",
+  },
+  {
+    question: "Is insurance included?",
+    answer: "Yes, all rentals come with comprehensive insurance coverage. Your safety is always covered.",
+  },
+  {
+    question: "What are the requirements to rent?",
+    answer: "You need a valid driver's license, a government-issued ID, and must be at least 21 years old.",
+  },
+  {
+    question: "Can I cancel my booking?",
+    answer: "Yes. Cancel for free up to 24 hours before your scheduled pick-up time.",
+  },
+  {
+    question: "Is there a mileage limit?",
+    answer: "Most standard rentals come with unlimited mileage so you can focus on the road.",
+  },
+];
 
 const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState(null);
 
-  const faqs = [
-    {
-      question: "How do I book a car?",
-      answer: "Booking is simple. Just browse our fleet, select your preferred vehicle, choose your dates, and confirm your booking. Our AI system will handle the verification instantly."
-    },
-    {
-      question: "Is insurance included in the price?",
-      answer: "Yes, all our rentals come with comprehensive insurance coverage. We prioritize your safety and peace of mind on every journey."
-    },
-    {
-      question: "What are the requirements to rent?",
-      answer: "You need a valid driver's license, a government-issued ID, and you must be at least 21 years old. Some premium vehicles may require a higher age limit."
-    },
-    {
-      question: "Can I cancel my booking?",
-      answer: "Absolutely. We offer flexible cancellation policies. You can cancel for free up to 24 hours before your scheduled pick-up time."
-    },
-    {
-      question: "Is there a limit on mileage?",
-      answer: "Most of our standard rentals come with unlimited mileage, so you can focus on the road ahead without worrying about extra costs."
-    }
-  ];
-
-  const toggleFAQ = (index) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
-
   return (
-    <section className="bg-white py-24 px-6 transition-colors duration-500 dark:bg-black lg:px-16">
-      <div className="mx-auto max-w-4xl">
-        
+    <section className="bg-white dark:bg-zinc-950 py-24 px-8">
+      <div className="mx-auto max-w-2xl">
+
         {/* Header */}
-        <div className="mb-16 text-center">
-          <h2 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white md:text-5xl">
-            Frequently Asked <span className="text-indigo-600">Questions</span>
+        <div className="mb-12 text-center">
+          <div className="inline-flex items-center gap-2 mb-4">
+            <span className="h-px w-5 bg-zinc-300 dark:bg-zinc-700" />
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">FAQ</p>
+            <span className="h-px w-5 bg-zinc-300 dark:bg-zinc-700" />
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tighter leading-[1.1] text-zinc-900 dark:text-white">
+            Common{" "}
+            <span className="text-zinc-300 dark:text-zinc-700">questions.</span>
           </h2>
-          <p className="mt-4 text-lg font-medium text-slate-500 dark:text-slate-400">
-            Everything you need to know about our premium car rental service.
-          </p>
         </div>
 
-        {/* Accordion List */}
-        <div className="space-y-4">
-          {faqs.map((faq, index) => {
-            const isOpen = openIndex === index;
+        {/* Accordion */}
+        <div className="divide-y divide-zinc-100 dark:divide-zinc-900">
+          {faqs.map((faq, i) => {
+            const isOpen = openIndex === i;
             return (
-              <div 
-                key={index}
-                className={`overflow-hidden rounded-[2rem] border transition-all duration-300 ${
-                  isOpen 
-                    ? 'border-indigo-200 bg-indigo-50/30 shadow-xl shadow-indigo-500/5 dark:border-indigo-900/40 dark:bg-indigo-950/20' 
-                    : 'border-slate-100 bg-white hover:border-slate-200 dark:border-white/5 dark:bg-[#0a0a0a]/40 dark:hover:border-slate-700'
-                }`}
-              >
+              <div key={i}>
                 <button
-                  onClick={() => toggleFAQ(index)}
-                  className="flex w-full items-center justify-between px-8 py-7 text-left outline-none"
+                  onClick={() => setOpenIndex(isOpen ? null : i)}
+                  className="flex w-full items-center justify-between py-5 text-left gap-4"
                 >
-                  <span className={`text-lg font-bold tracking-tight transition-colors ${isOpen ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-800 dark:text-white'}`}>
+                  <span className={`text-sm font-medium transition-colors ${isOpen ? "text-zinc-900 dark:text-white" : "text-zinc-600 dark:text-zinc-400"}`}>
                     {faq.question}
                   </span>
-                  <div className={`shrink-0 rounded-full p-2 transition-all duration-300 ${isOpen ? 'rotate-180 bg-indigo-600 text-white shadow-lg shadow-indigo-500/40' : 'bg-slate-100 text-slate-400 dark:bg-slate-800'}`}>
-                    {isOpen ? <Minus size={18} strokeWidth={3} /> : <Plus size={18} strokeWidth={3} />}
-                  </div>
+                  <span className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full border border-zinc-200 dark:border-zinc-800 text-zinc-400">
+                    {isOpen ? <Minus size={12} /> : <Plus size={12} />}
+                  </span>
                 </button>
-                
-                {/* Smooth Height Transition Logic */}
-                <div 
-                  className={`grid transition-all duration-300 ease-in-out ${
-                    isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-                  }`}
-                >
+                <div className={`grid transition-all duration-300 ease-in-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                   <div className="overflow-hidden">
-                    <div className="px-8 pb-8 text-base font-medium leading-relaxed text-slate-500 dark:text-slate-400">
+                    <p className="pb-5 text-sm leading-relaxed text-zinc-400 dark:text-zinc-500">
                       {faq.answer}
-                    </div>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -87,24 +73,15 @@ const FAQSection = () => {
           })}
         </div>
 
-        {/* Support CTA Card */}
-        <div className="relative mt-16 overflow-hidden rounded-[2.5rem] bg-slate-900 px-8 py-12 text-center dark:bg-indigo-950/40">
-          {/* Subtle Glow Effect */}
-          <div className="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-indigo-600 opacity-20 blur-[80px]" />
-          <div className="absolute -right-10 -bottom-10 h-40 w-40 rounded-full bg-blue-600 opacity-20 blur-[80px]" />
-          
-          <div className="relative z-10">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white">
-              <MessageCircle size={24} />
-            </div>
-            <h4 className="mb-2 text-xl font-black text-white">Still have questions?</h4>
-            <p className="mx-auto mb-8 max-w-sm text-sm font-medium text-slate-400 dark:text-indigo-200/60">
-              Can't find the answer you're looking for? Please chat to our friendly team.
-            </p>
-            <button className="rounded-xl bg-white px-10 py-4 text-xs font-black uppercase tracking-widest text-slate-900 transition-all hover:scale-105 hover:bg-indigo-50 active:scale-95">
-              Contact Support
-            </button>
-          </div>
+        {/* Support CTA */}
+        <div className="mt-14 rounded-2xl border border-zinc-100 dark:border-zinc-900 bg-zinc-50 dark:bg-zinc-900/40 px-8 py-10 text-center">
+          <p className="text-sm font-semibold text-zinc-900 dark:text-white mb-1">Still have questions?</p>
+          <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-6">
+            Can't find what you're looking for? Chat with our team.
+          </p>
+          <button className="rounded-full bg-zinc-900 dark:bg-white px-6 py-2.5 text-xs font-semibold tracking-wide text-white dark:text-zinc-900 hover:opacity-80 transition-opacity">
+            Contact Support
+          </button>
         </div>
 
       </div>

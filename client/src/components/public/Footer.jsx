@@ -1,59 +1,75 @@
-import React from 'react';
+import React from "react";
 
-const Footer = () => {
-  return (
-    <footer className="bg-slate-900 dark:bg-black text-white py-12 px-10 lg:px-24">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-        {/* Logo & Description */}
-        <div className="col-span-1 md:col-span-2">
-          <h2 className="text-2xl lg:text-3xl font-black mb-4">SUPERNOVA</h2>
-          <p className="text-slate-400 text-lg leading-relaxed mb-6 max-w-md">
-            Your trusted platform for effortless car rentals. Find the perfect ride or earn by listing yours.
-          </p>
-          <div className="flex space-x-4">
-            <a href="#" className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-700 transition duration-200 shadow-lg hover:shadow-xl">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
-              </svg>
-            </a>
-          
-            
-          </div>
-        </div>
-
-        {/* Quick Links */}
-        <div>
-          <h4 className="text-xl font-bold mb-6">Quick Links</h4>
-          <ul className="space-y-3">
-            <li><a href="/services" className="text-slate-400 hover:text-white transition duration-200 font-medium">Services</a></li>
-            <li><a href="/cars" className="text-slate-400 hover:text-white transition duration-200 font-medium">Cars</a></li>
-            <li><a href="/pricing" className="text-slate-400 hover:text-white transition duration-200 font-medium">Pricing</a></li>
-            <li><a href="/about" className="text-slate-400 hover:text-white transition duration-200 font-medium">About</a></li>
-          </ul>
-        </div>
-
-        {/* Legal */}
-        <div>
-          <h4 className="text-xl font-bold mb-6">Legal</h4>
-          <ul className="space-y-3">
-            <li><a href="/privacy" className="text-slate-400 hover:text-white transition duration-200 font-medium">Privacy</a></li>
-            <li><a href="/terms" className="text-slate-400 hover:text-white transition duration-200 font-medium">Terms</a></li>
-            <li><a href="/refund" className="text-slate-400 hover:text-white transition duration-200 font-medium">Refund</a></li>
-            <li><a href="/contact" className="text-slate-400 hover:text-white transition duration-200 font-medium">Contact</a></li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Bottom Bar */}
-      <div className="border-t border-slate-800 pt-8 mt-12 text-center">
-        <p className="text-slate-400 text-lg font-medium">
-          © 2024 SUPERNOVA. All rights reserved.
-        </p>
-      </div>
-    </footer>
-  );
+const links = {
+  Product: [
+    { label: "Fleet", href: "/cars" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "Locations", href: "/locations" },
+    { label: "How it works", href: "/how-it-works" },
+  ],
+  Legal: [
+    { label: "Privacy", href: "/privacy" },
+    { label: "Terms", href: "/terms" },
+    { label: "Refund", href: "/refund" },
+    { label: "Contact", href: "/contact" },
+  ],
 };
 
+const Footer = () => (
+  <footer className="bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-900 px-8 py-16">
+    <div className="mx-auto max-w-6xl">
+      <div className="grid grid-cols-2 gap-12 md:grid-cols-4">
+
+        {/* Brand */}
+        <div className="col-span-2">
+          <span className="text-sm font-bold tracking-tight text-zinc-900 dark:text-white">supernova.</span>
+          <p className="mt-3 max-w-xs text-xs leading-relaxed text-zinc-400 dark:text-zinc-500">
+            Your trusted platform for effortless car rentals. Find the perfect ride or earn by listing yours.
+          </p>
+          {/* Twitter */}
+          <a
+            href="#"
+            className="mt-5 inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-400 transition-colors"
+          >
+            <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.736-8.857L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+        </div>
+
+        {/* Link columns */}
+        {Object.entries(links).map(([group, items]) => (
+          <div key={group}>
+            <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-600">
+              {group}
+            </p>
+            <ul className="space-y-3">
+              {items.map(({ label, href }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    className="text-xs font-medium text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
+                  >
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom */}
+      <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-zinc-100 dark:border-zinc-900 pt-8 sm:flex-row">
+        <p className="text-[10px] font-medium text-zinc-300 dark:text-zinc-700">
+          © 2024 drivo. All rights reserved.
+        </p>
+        <p className="text-[10px] font-medium text-zinc-300 dark:text-zinc-700">
+          Built with care.
+        </p>
+      </div>
+    </div>
+  </footer>
+);
+
 export default Footer;
-
-

@@ -99,173 +99,177 @@ export const Settings = () => {
   };
 
   return (
-          <div className="max-w-3xl mx-auto space-y-8">
-        
-        {/* Page Title */}
-        <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight uppercase">
-            Account Settings
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-            Manage your personal information and application preferences.
+    <div className="max-w-4xl mx-auto space-y-12 py-12 px-6">
+      
+      {/* ─── SECTION HEADER (Landing Page Style) ─── */}
+      <div className="text-center">
+        <div className="inline-flex items-center gap-2 mb-4">
+          <span className="h-px w-5 bg-zinc-300 dark:bg-zinc-700" />
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+            Account Management
           </p>
+          <span className="h-px w-5 bg-zinc-300 dark:bg-zinc-700" />
         </div>
-
-        <div className="grid gap-6">
-          {/* Profile Settings */}
-          <Card className="border-none shadow-sm bg-white dark:bg-black dark:border dark:border-white/10 rounded-3xl overflow-hidden transition-all">
-            <CardHeader className="border-b border-gray-100 dark:border-white/5 pb-4">
-              <div className="flex items-center gap-2">
-                
-                <CardTitle className="text-lg dark:text-white">Public Profile</CardTitle>
-              </div>
-              <CardDescription className="dark:text-slate-400">Update your basic account details.</CardDescription>
-            </CardHeader>
-            <CardContent className="p-6 space-y-5">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Full Name</Label>
-                  <Input
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    className="bg-white dark:bg-black border-gray-200 dark:border-white/10 rounded-xl focus:ring-blue-500/10 dark:text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Email Address</Label>
-                  <Input
-                    name="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    className="bg-white dark:bg-black border-gray-200 dark:border-white/10 rounded-xl focus:ring-blue-500/10 dark:text-white"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">New Password</Label>
-                <Input
-                  type="password"
-                  name="password"
-                  placeholder="••••••••"
-                  value={form.password}
-                  onChange={handleChange}
-                  className="bg-white dark:bg-black border-gray-200 dark:border-white/10 rounded-xl focus:ring-blue-500/10 dark:text-white"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Preferences */}
-          <Card className="border-none shadow-sm bg-white dark:bg-black dark:border dark:border-white/10 rounded-3xl overflow-hidden transition-all">
-            <CardHeader className="border-b border-gray-100 dark:border-white/5 pb-4">
-              <div className="flex items-center gap-2">
-            
-                <CardTitle className="text-lg dark:text-white">Preferences</CardTitle>
-              </div>
-              <CardDescription className="dark:text-slate-400">Control application appearance and alerts.</CardDescription>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              
-              {/* Appearance Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10">
-                <div className="flex items-center gap-4">
-                  <div className="p-2 rounded-lg bg-white dark:bg-white/5 text-slate-600 dark:text-white shadow-sm border dark:border-white/10">
-                    {form.darkMode ? <Moon size={18} /> : <Sun size={18} />}
-                  </div>
-                  <div className="space-y-0.5">
-                    <Label className="text-base font-bold dark:text-white">Appearance</Label>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Switch between light and dark mode</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={form.darkMode}
-                  onCheckedChange={toggleDarkMode}
-                  className="data-[state=checked]:bg-blue-600"
-                />
-              </div>
-
-              {/* Notifications Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10">
-                <div className="flex items-center gap-4">
-                  <div className="p-2 rounded-lg bg-white dark:bg-white/5 text-slate-600 dark:text-white shadow-sm border dark:border-white/10">
-                    <Bell size={18} />
-                  </div>
-                  <div className="space-y-0.5">
-                    <Label className="text-base font-bold dark:text-white">Push Notifications</Label>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Receive real-time alerts and unit updates</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={form.notifications}
-                  onCheckedChange={() => handleToggle("notifications")}
-                  className="data-[state=checked]:bg-blue-600"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Danger Zone & Save Button */}
-          <div className="flex flex-col-reverse md:flex-row justify-between items-center gap-4 pt-4">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <button className="flex items-center gap-2 text-sm font-bold text-red-500 hover:text-red-600 transition-colors px-4 py-2 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl">
-                  <Trash2 size={16} />
-                  Delete My Account
-                </button>
-              </AlertDialogTrigger>
-
-              <AlertDialogContent className="bg-white dark:bg-black border-none dark:border dark:border-white/10 rounded-3xl shadow-2xl">
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="text-xl font-bold dark:text-white">Verify Account Deletion</AlertDialogTitle>
-                  <AlertDialogDescription className="dark:text-slate-400">
-                    This action is <span className="text-red-500 font-bold uppercase underline">permanent</span>. To proceed, please type <strong>DELETE</strong> below:
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-
-                <div className="my-4">
-                  <Input
-                    placeholder="Type DELETE"
-                    value={confirmationText}
-                    onChange={(e) => setConfirmationText(e.target.value)}
-                    className="bg-gray-50 dark:bg-black border-gray-200 dark:border-white/10 h-12 rounded-xl text-center font-black tracking-widest dark:text-white"
-                  />
-                </div>
-
-                <AlertDialogFooter className="gap-2">
-                  <AlertDialogCancel className="rounded-xl border-gray-200 dark:border-white/10 dark:bg-black dark:text-white">Nevermind</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDeleteAccount}
-                    disabled={confirmationText !== "DELETE" || loading || isLoading}
-                    className="bg-red-600 hover:bg-red-700 text-white rounded-xl"
-                  >
-                    Yes, Delete Everything
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-
-            <Button
-  onClick={handleSubmit}
-  disabled={loading }
-  className="w-full md:w-auto px-8 py-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold uppercase tracking-widest text-[9px] shadow-lg shadow-indigo-600/10 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-70 group"
->
-  {loading  ? (
-    <div className="flex items-center gap-2">
-      <div className="h-3 w-3 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-      <span className="opacity-80">Saving...</span>
-    </div>
-  ) : (
-    <>
-      <Save size={14} className="group-hover:translate-y-[-1px] transition-transform" />
-      <span>Save Changes</span>
-    </>
-  )}
-</Button>
-          </div>
-        </div>
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tighter leading-[1.1] text-zinc-900 dark:text-white uppercase italic">
+          Account <span className="text-zinc-300 dark:text-zinc-700">Settings.</span>
+        </h1>
+        <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-zinc-400 dark:text-zinc-500 font-medium">
+          Manage your personal information and application preferences.
+        </p>
       </div>
 
+      <div className="grid gap-6">
+        
+        {/* Profile Settings - Feature Card Style */}
+        <Card className="rounded-2xl border border-zinc-100 dark:border-zinc-900 bg-white dark:bg-zinc-900/50 shadow-none transition-all">
+          <CardHeader className="p-8 border-b border-zinc-50 dark:border-zinc-800/50">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                <User size={18} />
+              </div>
+              <div>
+                <CardTitle className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider">Public Profile</CardTitle>
+                <CardDescription className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Update basic account details</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-8 space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 italic">Full Name</Label>
+                <Input
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  className="bg-transparent border-none border-b border-zinc-100 dark:border-zinc-800 rounded-none h-10 focus-visible:ring-0 focus-visible:border-zinc-900 dark:focus-visible:border-white transition-colors dark:text-white font-medium px-0"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 italic">Email Address</Label>
+                <Input
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  className="bg-transparent border-none border-b border-zinc-100 dark:border-zinc-800 rounded-none h-10 focus-visible:ring-0 focus-visible:border-zinc-900 dark:focus-visible:border-white transition-colors dark:text-white font-medium px-0"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 italic">New Password</Label>
+              <Input
+                type="password"
+                name="password"
+                placeholder="••••••••"
+                value={form.password}
+                onChange={handleChange}
+                className="bg-transparent border-none border-b border-zinc-100 dark:border-zinc-800 rounded-none h-10 focus-visible:ring-0 focus-visible:border-zinc-900 dark:focus-visible:border-white transition-colors dark:text-white font-medium px-0"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Preferences - Testimonial Card Style */}
+        <Card className="rounded-2xl border border-zinc-100 dark:border-zinc-900 bg-white dark:bg-zinc-900/50 shadow-none transition-all">
+          <CardHeader className="p-8 border-b border-zinc-50 dark:border-zinc-800/50">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                <Moon size={18} />
+              </div>
+              <div>
+                <CardTitle className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider">App Environment</CardTitle>
+                <CardDescription className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Control appearance and alerts</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-8 space-y-4">
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50/50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/50">
+              <div className="flex items-center gap-4">
+                <div className="p-2 rounded-lg bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 shadow-sm border dark:border-zinc-700">
+                  {form.darkMode ? <Moon size={18} /> : <Sun size={18} />}
+                </div>
+                <div>
+                  <Label className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Appearance</Label>
+                  <p className="text-[10px] text-zinc-400 uppercase tracking-tighter">Toggle between light and dark</p>
+                </div>
+              </div>
+              <Switch
+                checked={form.darkMode}
+                onCheckedChange={toggleDarkMode}
+                className="data-[state=checked]:bg-zinc-900 dark:data-[state=checked]:bg-white"
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50/50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/50">
+              <div className="flex items-center gap-4">
+                <div className="p-2 rounded-lg bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 shadow-sm border dark:border-zinc-700">
+                  <Bell size={18} />
+                </div>
+                <div>
+                  <Label className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Notifications</Label>
+                  <p className="text-[10px] text-zinc-400 uppercase tracking-tighter">Real-time status updates</p>
+                </div>
+              </div>
+              <Switch
+                checked={form.notifications}
+                onCheckedChange={() => handleToggle("notifications")}
+                className="data-[state=checked]:bg-zinc-900 dark:data-[state=checked]:bg-white"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Action Bar */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-6">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 hover:text-red-500 transition-colors px-2 italic">
+                <Trash2 size={14} />
+                Terminate Account
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="bg-white dark:bg-zinc-950 border-zinc-100 dark:border-zinc-900 rounded-3xl">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-xl font-bold dark:text-white uppercase italic tracking-tighter">Verify Deletion</AlertDialogTitle>
+                <AlertDialogDescription className="text-xs text-zinc-400">
+                  This action is permanent. Type <strong>DELETE</strong> to proceed:
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <Input
+                placeholder="DELETE"
+                value={confirmationText}
+                onChange={(e) => setConfirmationText(e.target.value)}
+                className="bg-zinc-50 dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800 h-12 rounded-xl text-center font-bold tracking-[0.3em] text-xs dark:text-white"
+              />
+              <AlertDialogFooter className="gap-2">
+                <AlertDialogCancel className="rounded-xl text-[10px] font-bold uppercase tracking-widest border-zinc-100 dark:border-zinc-800">Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteAccount}
+                  disabled={confirmationText !== "DELETE" || loading}
+                  className="bg-red-600 hover:bg-red-700 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest"
+                >
+                  Confirm Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <Button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="w-full md:w-auto px-10 h-12 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 font-bold uppercase tracking-[0.2em] text-[10px] transition-all active:scale-95 flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <div className="h-3 w-3 border-2 border-white/20 border-t-white dark:border-zinc-900/20 dark:border-t-zinc-900 rounded-full animate-spin" />
+            ) : (
+              <>
+                <Save size={14} />
+                <span>Apply Changes</span>
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 };
 

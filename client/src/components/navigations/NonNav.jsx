@@ -8,85 +8,88 @@ const NonNav = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { darkMode, toggleTheme, initTheme } = useThemeStore();
 
-  // Siguraduhin na tama ang theme pagka-load ng app
   useEffect(() => {
     initTheme();
   }, [initTheme]);
 
   return (
-    <nav className="fixed top-0 left-0 z-50 w-full border-b border-slate-200/60 bg-white/70 backdrop-blur-xl transition-all duration-300 dark:border-white/5/60 dark:bg-black/70">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+    <nav className="fixed top-0 left-0 z-50 w-full border-b border-zinc-100 bg-white/80 backdrop-blur-md transition-all duration-300 dark:border-zinc-900 dark:bg-zinc-950/80">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-8 py-4">
         
-        {/* Logo */}
+        {/* Logo - Sized to match the landing page feel */}
         <Link to="/" className="transition-opacity hover:opacity-80">
-          <img src={brand} alt="brand" className="h-9 w-auto object-contain dark:brightness-110" />
+          <img 
+            src={brand} 
+            alt="brand" 
+            className="h-7 w-auto object-contain dark:brightness-0 dark:invert" 
+          />
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden items-center gap-4 md:flex">
+        <div className="hidden items-center gap-8 md:flex">
           
-          {/* Theme Toggle Button */}
+          <div className="flex items-center gap-6">
+            <Link
+              to="/login"
+              className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 transition-colors hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-white"
+            >
+              Login
+            </Link>
+
+            <Link
+              to="/signup"
+              className="rounded-full bg-zinc-900 px-5 py-2 text-[10px] font-bold uppercase tracking-[0.15em] text-white transition-all hover:bg-zinc-800 active:scale-95 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+            >
+              Sign Up
+            </Link>
+          </div>
+
+          <span className="h-4 w-px bg-zinc-200 dark:bg-zinc-800" />
+
+          {/* Theme Toggle - Sized exactly like the feature icons (h-10) */}
           <button 
             onClick={toggleTheme}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition-all hover:bg-slate-50 dark:border-white/5 dark:bg-[#0a0a0a] dark:text-slate-300 dark:hover:bg-slate-800"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-100 text-zinc-600 transition-all hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
           >
-            {darkMode ? (
-              <Sun size={18} className="text-yellow-400 animate-pulse" />
-            ) : (
-              <Moon size={18} className="text-indigo-600" />
-            )}
+            {darkMode ? <Sun size={16} /> : <Moon size={16} />}
           </button>
-
-          <Link
-            to="/login"
-            className="text-sm font-medium text-slate-600 transition-colors hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white"
-          >
-            Login
-          </Link>
-
-          <Link
-            to="/signup"
-            className="rounded-full bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:bg-indigo-700 hover:shadow-indigo-500/50 active:scale-95"
-          >
-            Sign Up
-          </Link>
         </div>
 
         {/* Mobile Controls */}
-        <div className="flex items-center gap-3 md:hidden">
+        <div className="flex items-center gap-4 md:hidden">
           <button 
             onClick={toggleTheme}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 dark:border-white/5"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800"
           >
-            {darkMode ? <Sun size={16} className="text-yellow-400" /> : <Moon size={16} className="text-slate-600" />}
+            {darkMode ? <Sun size={14} className="text-zinc-400" /> : <Moon size={14} className="text-zinc-600" />}
           </button>
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="text-slate-600 dark:text-slate-300"
+            className="text-zinc-900 dark:text-white"
           >
-            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu (Animated Slide Down) */}
+      {/* Mobile Menu */}
       <div className={`
-        absolute left-0 top-full w-full border-b border-slate-200 bg-white/95 p-6 backdrop-blur-lg transition-all duration-300 dark:border-white/5 dark:bg-black/95 md:hidden
-        ${mobileOpen ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0 pointer-events-none"}
+        absolute left-0 top-full w-full border-b border-zinc-100 bg-white/95 p-8 transition-all duration-500 dark:border-zinc-900 dark:bg-zinc-950/95 md:hidden
+        ${mobileOpen ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 pointer-events-none"}
       `}>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           <Link
             to="/login"
             onClick={() => setMobileOpen(false)}
-            className="flex h-12 items-center justify-center rounded-xl border border-slate-200 font-semibold text-slate-700 dark:border-white/5 dark:text-slate-300"
+            className="flex h-11 items-center justify-center rounded-xl border border-zinc-200 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-900 dark:border-zinc-800 dark:text-white"
           >
             Login
           </Link>
           <Link
             to="/signup"
             onClick={() => setMobileOpen(false)}
-            className="flex h-12 items-center justify-center rounded-xl bg-indigo-600 font-semibold text-white"
+            className="flex h-11 items-center justify-center rounded-xl bg-zinc-900 text-[10px] font-bold uppercase tracking-[0.2em] text-white dark:bg-white dark:text-zinc-900"
           >
             Sign Up
           </Link>

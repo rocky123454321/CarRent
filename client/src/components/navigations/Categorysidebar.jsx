@@ -1,6 +1,5 @@
 import React from "react";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Fuel, Zap, Droplets, Leaf,
@@ -8,21 +7,21 @@ import {
 } from "lucide-react";
 
 const fuelCategories = [
-  { label: "All cars", value: "all", icon: LayoutGrid },
-  { label: "Petrol", value: "Petrol", icon: Fuel },
-  { label: "Diesel", value: "Diesel", icon: Droplets },
-  { label: "Electric", value: "Electric", icon: Zap },
-  { label: "Hybrid", value: "Hybrid", icon: Leaf },
+  { label: "ALL FLEET", value: "all", icon: LayoutGrid },
+  { label: "PETROL", value: "Petrol", icon: Fuel },
+  { label: "DIESEL", value: "Diesel", icon: Droplets },
+  { label: "ELECTRIC", value: "Electric", icon: Zap },
+  { label: "HYBRID", value: "Hybrid", icon: Leaf },
 ];
 
-const transmissions = ["All", "Automatic", "Manual"];
+const transmissions = ["ALL", "AUTOMATIC", "MANUAL"];
 
 const priceRanges = [
-  { label: "Any price", value: "all" },
-  { label: "Under ₱1,000", value: "under1000" },
+  { label: "ANY BUDGET", value: "all" },
+  { label: "UNDER ₱1,000", value: "under1000" },
   { label: "₱1,000 – ₱2,000", value: "1000to2000" },
   { label: "₱2,000 – ₱3,000", value: "2000to3000" },
-  { label: "Above ₱3,000", value: "above3000" },
+  { label: "ABOVE ₱3,000", value: "above3000" },
 ];
 
 const Categorysidebar = ({
@@ -31,106 +30,104 @@ const Categorysidebar = ({
   activePriceRange, setActivePriceRange,
   isFiltered, resetFilters,
 }) => {
+  
+  const sidebarStyle = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+
   return (
-    <aside className="hidden lg:block fixed left-0 top-0 h-screen mt-13 w-56 py-6 transition-colors duration-300">
-      {/* Container with Dark Mode support */}
-      <div className="h-full bg-white dark:bg-black border border-gray-100 dark:border-white/5 overflow-hidden shadow-sm transition-all">
+    <aside 
+      className="hidden lg:block fixed left-0 top-0 h-screen mt-14 w-60 py-6 transition-all duration-500"
+      style={sidebarStyle}
+    >
+      <div className="h-full bg-white dark:bg-zinc-950 border-r border-zinc-100 dark:border-zinc-900 overflow-hidden shadow-sm transition-all">
         <ScrollArea className="h-full">
 
-          {/* Header */}
-          <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-100 dark:border-white/5">
-            <div className="flex items-center gap-2">
-              <SlidersHorizontal size={13} className="text-gray-400 dark:text-slate-500" />
-              <span className="text-sm font-medium text-gray-700 dark:text-white">Filters</span>
+          {/* Sidebar Header */}
+          <div className="flex items-center justify-between px-5 py-5 border-b border-zinc-50 dark:border-zinc-900/50">
+            <div className="flex items-center gap-3">
+              <SlidersHorizontal size={14} className="text-zinc-900 dark:text-white" />
+              <span className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-[0.2em]">Refine</span>
             </div>
             {isFiltered && (
               <button
                 onClick={resetFilters}
-                className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
+                className="group flex items-center gap-1.5 text-[9px] font-bold text-red-500 uppercase tracking-widest transition-all"
               >
-                <RotateCcw size={11} />
-                Reset
+                <RotateCcw size={10} className="group-hover:rotate-[-45deg] transition-transform" />
+                Clear
               </button>
             )}
           </div>
 
-          <div className="p-2.5 flex flex-col gap-3">
+          <div className="p-4 flex flex-col gap-8 mt-4">
 
-            {/* Fuel Type */}
-            <div>
-              <p className="text-[10px] text-gray-400 dark:text-slate-500 px-2 mb-1 uppercase tracking-wide font-bold">
-                Fuel type
+            {/* Fuel Type Section */}
+            <div className="space-y-3">
+              <p className="text-[9px] text-zinc-400 dark:text-zinc-600 px-2 uppercase tracking-[0.3em] font-black italic">
+                Engine Type
               </p>
-              <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col gap-1">
                 {fuelCategories.map(({ label, value, icon: Icon }) => (
                   <button
                     key={value}
                     onClick={() => setActiveCategory(value)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left w-full active:scale-95
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] font-bold tracking-widest transition-all text-left w-full uppercase
                       ${activeCategory === value
-                        ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold"
-                        : "text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900"
+                        ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-lg shadow-zinc-200 dark:shadow-none"
+                        : "text-zinc-500 dark:text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 hover:text-zinc-900 dark:hover:text-zinc-100"
                       }`}
                   >
-                    <Icon size={12} className={activeCategory === value ? "text-blue-600 dark:text-blue-400" : ""} />
+                    <Icon size={14} className={activeCategory === value ? "animate-pulse" : "opacity-50"} />
                     {label}
-                    {activeCategory === value && (
-                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500 shadow-lg shadow-blue-500/50" />
-                    )}
                   </button>
                 ))}
               </div>
             </div>
 
-            <Separator className="dark:bg-slate-800" />
+            <Separator className="bg-zinc-50 dark:bg-zinc-900/50" />
 
-            {/* Transmission */}
-            <div>
-              <p className="text-[10px] text-gray-400 dark:text-slate-500 px-2 mb-1 uppercase tracking-wide font-bold">
-                Transmission
+            {/* Transmission Section */}
+            <div className="space-y-3">
+              <p className="text-[9px] text-zinc-400 dark:text-zinc-600 px-2 uppercase tracking-[0.3em] font-black italic">
+                Drivetrain
               </p>
-              <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col gap-1">
                 {transmissions.map((t) => (
                   <button
                     key={t}
                     onClick={() => setActiveTransmission(t)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left w-full active:scale-95
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl text-[10px] font-bold tracking-widest transition-all text-left w-full uppercase
                       ${activeTransmission === t
-                        ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold"
-                        : "text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900"
+                        ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-lg shadow-zinc-200 dark:shadow-none"
+                        : "text-zinc-500 dark:text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 hover:text-zinc-900 dark:hover:text-zinc-100"
                       }`}
                   >
                     {t}
-                    {activeTransmission === t && (
-                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500 shadow-lg shadow-blue-500/50" />
-                    )}
+                    {activeTransmission === t && <div className="w-1 h-1 rounded-full bg-current" />}
                   </button>
                 ))}
               </div>
             </div>
 
-            <Separator className="dark:bg-slate-800" />
+            <Separator className="bg-zinc-50 dark:bg-zinc-900/50" />
 
-            {/* Price Range */}
-            <div>
-              <p className="text-[10px] text-gray-400 dark:text-slate-500 px-2 mb-1 uppercase tracking-wide font-bold">
-                Price / day
+            {/* Price Range Section */}
+            <div className="space-y-3">
+              <p className="text-[9px] text-zinc-400 dark:text-zinc-600 px-2 uppercase tracking-[0.3em] font-black italic">
+                Daily Rate
               </p>
-              <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col gap-1">
                 {priceRanges.map(({ label, value }) => (
                   <button
                     key={value}
                     onClick={() => setActivePriceRange(value)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all text-left w-full active:scale-95
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl text-[10px] font-bold tracking-widest transition-all text-left w-full uppercase
                       ${activePriceRange === value
-                        ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold"
-                        : "text-gray-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900"
+                        ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-lg shadow-zinc-200 dark:shadow-none"
+                        : "text-zinc-500 dark:text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 hover:text-zinc-900 dark:hover:text-zinc-100"
                       }`}
                   >
                     {label}
-                    {activePriceRange === value && (
-                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500 shadow-lg shadow-blue-500/50" />
-                    )}
+                    {activePriceRange === value && <div className="w-1 h-1 rounded-full bg-current" />}
                   </button>
                 ))}
               </div>
