@@ -25,7 +25,7 @@ const LoadingSpinner = () => {
                 className="mt-6 flex flex-col items-center gap-1"
             >
                 <p className="text-white font-black text-[10px] uppercase tracking-[0.3em]">
-                    System Loading
+                    Loading
                 </p>
                 <div className="flex gap-1">
                     {[0, 1, 2].map((i) => (

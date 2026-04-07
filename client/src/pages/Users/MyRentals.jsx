@@ -118,14 +118,7 @@ const MyRentals = () => {
     <div className="transition-colors duration-300 pb-20">
       <div className="space-y-8">
         
-        {/* Navigation */}
-        <button
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all group"
-        >
-          <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> 
-          Fleet Dashboard
-        </button>
+
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
@@ -142,12 +135,7 @@ const MyRentals = () => {
               </p>
             </div>
           )}
-          <button
-            onClick={() => navigate('/cars')}
-            className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-black uppercase tracking-[0.2em] px-8 py-4 rounded-2xl transition-all hover:opacity-90 shadow-xl shadow-zinc-900/10 active:scale-95"
-          >
-            New Reservation
-          </button>
+          
         </div>
 
         {/* Filter Tabs */}

@@ -72,8 +72,8 @@ const Searchpage = () => {
           <div className="flex items-center gap-3" />
           <p className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.2em] italic">
             {isLoading
-              ? 'Synchronizing fleet data...'
-              : `Curated selection: ${cars.filter(c => c.isAvailable).length} available units`}
+              && 'Synchronizing fleet data...'
+            }
           </p>
         </div>
 
