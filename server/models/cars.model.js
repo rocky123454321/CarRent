@@ -17,6 +17,7 @@ const CarsSchema = new mongoose.Schema({
   rentalEndDate:   { type: Date },
   image:   { type: String, default: "" },
   imageId: { type: String, default: "" },
+  
 
   // ✅ PROMO FIELDS
   isPromo:     { type: Boolean, default: false },
