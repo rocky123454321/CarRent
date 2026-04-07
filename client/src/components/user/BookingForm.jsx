@@ -41,8 +41,8 @@ const inputCls = "w-full bg-slate-50 dark:bg-[#0a0a0a] border border-slate-200 d
 const BookingForm = ({ car, onSuccess }) => {
   const { user, isAuthenticated } = useAuthStore();
   const bookCar = useBookingStore((s) => s.bookCar);
-  const [showPayment, setShowPayment]   = useState(false);
-  const [pendingData, setPendingData]   = useState(null);
+  const [showPayment, setShowPayment] = useState(false);
+  const [pendingData, setPendingData] = useState(null);
 
   const { register, handleSubmit, formState: { errors, isSubmitting }, watch, reset } = useForm({
     resolver: yupResolver(schema),
@@ -51,10 +51,12 @@ const BookingForm = ({ car, onSuccess }) => {
 
   const pickupDate  = watch('pickupDate');
   const dropoffDate = watch('dropoffDate');
-  const days        = (pickupDate && dropoffDate)
-    ? Math.max(0, differenceInDays(new Date(dropoffDate), new Date(pickupDate)) + 1)
+  
+  // FIXED CALCULATION: Ensure at least 1 day
+  const days = (pickupDate && dropoffDate)
+    ? Math.max(1, differenceInDays(new Date(dropoffDate), new Date(pickupDate)) + 1)
     : 0;
-  const totalPrice  = days * (car?.pricePerDay || 0);
+  const totalPrice = days * (car?.pricePerDay || 0);
 
   const onSubmit = (data) => {
     if (!isAuthenticated) return toast.error('Please login to book');
@@ -64,17 +66,21 @@ const BookingForm = ({ car, onSuccess }) => {
     setShowPayment(true);
   };
 
+  // FIXED: Passing totalDays and totalPrice to the store
   const handlePaymentSuccess = async () => {
     if (!pendingData) return;
     const result = await bookCar(car._id, {
       rentalStartDate:  new Date(pendingData.pickupDate).toISOString(),
       rentalEndDate:    new Date(pendingData.dropoffDate).toISOString(),
+      totalDays: days,
+      totalPrice: totalPrice,
       personalDetails: {
         fullName: pendingData.fullName,
         phone:     pendingData.phone,
         address:   pendingData.address,
       },
     });
+
     if (result.success) {
       reset();
       setShowPayment(false);

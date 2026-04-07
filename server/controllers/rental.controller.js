@@ -5,8 +5,8 @@ import { User } from '../models/user.model.js';
 export const rentCar = async (req, res) => {
   try {
     const { carId } = req.params;
-    const { rentalStartDate, rentalEndDate, personalDetails } = req.body;
-    const userId = req.userId; // ✅ set by verifyToken middleware
+    const { rentalStartDate, rentalEndDate, personalDetails, totalPrice: clientPrice } = req.body;
+    const userId = req.userId;
 
     if (!rentalStartDate || !rentalEndDate || !personalDetails) {
       return res.status(400).json({ message: 'Missing required fields' });
@@ -24,8 +24,12 @@ export const rentCar = async (req, res) => {
       return res.status(400).json({ message: 'Car not available' });
     }
 
-    const days       = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-    const totalPrice = days * car.pricePerDay;
+    // BACKEND CALCULATION (Safety Check)
+    const diffTime = Math.abs(end - start);
+    const days = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+    
+    // Use the price from the frontend or recalculate if missing
+    const finalPrice = clientPrice || (days * car.pricePerDay);
 
     const rental = new Rental({
       user: userId,
@@ -33,14 +37,16 @@ export const rentCar = async (req, res) => {
       rentalStartDate: start,
       rentalEndDate:   end,
       personalDetails,
-      totalPrice,
+      totalPrice: finalPrice,
     });
+    
     await rental.save();
 
-    car.isAvailable    = false;
-    car.currentRenter  = userId;
+    // Update car status
+    car.isAvailable = false;
+    car.currentRenter = userId;
     car.rentalStartDate = start;
-    car.rentalEndDate   = end;
+    car.rentalEndDate = end;
     await car.save();
 
     await rental.populate('car', 'brand model pricePerDay licensePlate');
@@ -50,6 +56,7 @@ export const rentCar = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 export const getUserRentals = async (req, res) => {
   try {

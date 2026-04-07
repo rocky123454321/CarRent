@@ -48,14 +48,16 @@ export const useBookingStore = create((set, get) => ({
 
   // ── User: book a car ──
   // POST /api/users/:carId/rent
-  bookCar: async (carId, payload) => {
-    try {
-      const res = await axios.post(`${RENTAL}/${carId}/rent`, payload, { withCredentials: true });
-      return { success: true, rental: res.data.rental };
-    } catch (err) {
-      const message = err.response?.data?.message || "Booking failed";
-      toast.error(message);
-      return { success: false, message };
-    }
-  },
+ // User: book a car
+bookCar: async (carId, payload) => {
+  try {
+    // payload now includes totalDays and totalPrice
+    const res = await axios.post(`${RENTAL}/${carId}/rent`, payload, { withCredentials: true });
+    return { success: true, rental: res.data.rental };
+  } catch (err) {
+    const message = err.response?.data?.message || "Booking failed";
+    toast.error(message);
+    return { success: false, message };
+  }
+},
 }));
