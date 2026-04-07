@@ -61,7 +61,7 @@ const AdminDashboard = () => {
   }, [chartData, timeRange]);
 
   return (
-    <div className=" mt-18 ml-5 space-y-8 max-w-7xl transition-colors duration-300">
+    <div className=" mt-18 lg:ml-5 space-y-8 max-w-7xl transition-colors duration-300">
 
       {/* Header - Fixed Positioning, Updated Typography to match Landing Page */}
       <div>

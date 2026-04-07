@@ -14,22 +14,27 @@ export const useAuthStore = create((set) => ({
   isCheckingAuth: true,
   message: null,
 
-  signup: async (email, password, name) => {
+  signup: async (email, password, name, role) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${AUTH}/signup`, { email, password, name });
-      set({ user: response.data.user, isAuthenticated: true, isLoading: false });
+      const response = await axios.post(`${AUTH}/signup`, { email, password, name, role });
+      set({
+        user: response.data.user,
+        isAuthenticated: true,
+        isLoading: false,
+        devToken: response.data.devToken || null, // ✅ null if email sent OK, token if email failed
+      });
     } catch (error) {
       set({ error: error.response?.data?.message || "Error signing up", isLoading: false });
       throw error;
     }
   },
-
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
       const response = await axios.post(`${AUTH}/login`, { email, password });
       set({ isAuthenticated: true, user: response.data.user, error: null, isLoading: false });
+    
     } catch (error) {
       set({ error: error.response?.data?.message || "Error logging in", isLoading: false });
       throw error;
@@ -73,7 +78,11 @@ export const useAuthStore = create((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axios.post(`${AUTH}/forgot-password`, { email });
-      set({ message: response.data.message, isLoading: false });
+      set({
+        message: response.data.message,
+        isLoading: false,
+        devResetURL: response.data.devResetURL || null, // ✅ idagdag ito
+      });
     } catch (error) {
       set({ isLoading: false, error: error.response?.data?.message || "Error sending reset password email" });
       throw error;
@@ -94,15 +103,16 @@ export const useAuthStore = create((set) => ({
   resendVerificationEmail: async () => {
     set({ isLoading: true, error: null });
     try {
-      const res = await axios.post(`${AUTH}/resend-verification`);
-      set({ isLoading: false });
-      return res.data;
+      const response = await axios.post(`${AUTH}/resend-verification`);
+      set({
+        isLoading: false,
+        devToken: response.data.devToken || null, // ✅ update devToken on resend too
+      });
     } catch (error) {
-      set({ isLoading: false, error: error.response?.data?.message || "Failed to resend" });
+      set({ error: error.response?.data?.message || "Error resending email", isLoading: false });
       throw error;
     }
   },
-
   updateProfile: async ({ name, email, password }) => {
     set({ isLoading: true, error: null });
     try {

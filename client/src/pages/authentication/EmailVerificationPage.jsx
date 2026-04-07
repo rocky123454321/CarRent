@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "sonner";
 import brand from "../../assets/brand.png";
+import Codefront from "../../components/Codefront";
 
 const EmailVerificationPage = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
@@ -13,9 +14,8 @@ const EmailVerificationPage = () => {
   });
   const inputRefs = useRef([]);
   const navigate = useNavigate();
-  const { error, isLoading, verifyEmail, resendVerificationEmail } = useAuthStore();
+  const { error, isLoading, verifyEmail, resendVerificationEmail, devToken } = useAuthStore();
 
-  // ✅ Countdown
   useEffect(() => {
     if (count <= 0) return;
     localStorage.setItem("resendTimer", count);
@@ -23,7 +23,6 @@ const EmailVerificationPage = () => {
     return () => clearTimeout(timer);
   }, [count]);
 
-  // ✅ Resend
   const handleResend = async () => {
     try {
       await resendVerificationEmail();
@@ -36,47 +35,47 @@ const EmailVerificationPage = () => {
   };
 
   const handleChange = (index, value) => {
+    const cleaned = value.replace(/\D/g, "");
+    if (!cleaned) return;
+
     const newCode = [...code];
 
-    if (value.length > 1) {
-      const pastedCode = value.slice(0, 6).split("");
+    if (cleaned.length > 1) {
+      const digits = cleaned.slice(0, 6).split("");
       for (let i = 0; i < 6; i++) {
-        newCode[i] = pastedCode[i] || "";
+        newCode[i] = digits[i] || "";
       }
       setCode(newCode);
-
-      const lastFilledIndex = newCode.findLastIndex((digit) => digit !== "");
-      const focusIndex = lastFilledIndex < 5 ? lastFilledIndex + 1 : 5;
-      inputRefs.current[focusIndex].focus();
+      const lastIndex = Math.min(digits.length - 1, 5);
+      inputRefs.current[lastIndex]?.focus();
     } else {
-      newCode[index] = value;
+      newCode[index] = cleaned;
       setCode(newCode);
-
-      if (value && index < 5) {
-        inputRefs.current[index + 1].focus();
-      }
+      if (index < 5) inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
-    if (e.key === "Backspace" && !code[index] && index > 0) {
-      inputRefs.current[index - 1].focus();
+    if (e.key === "Backspace") {
+      if (code[index]) {
+        const newCode = [...code];
+        newCode[index] = "";
+        setCode(newCode);
+      } else if (index > 0) {
+        inputRefs.current[index - 1]?.focus();
+      }
     }
   };
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     const verificationCode = code.join("");
-
     try {
       await verifyEmail(verificationCode);
       navigate("/");
       toast.success("Email verified successfully");
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Verification failed. Check code and try again."
-      );
+      toast.error(error.response?.data?.message || "Verification failed. Check code and try again.");
     }
   };
 
@@ -87,7 +86,10 @@ const EmailVerificationPage = () => {
   }, [code]);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center px-8 transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center transition-colors duration-300">
+      {/* ✅ Dev banner — lalabas lang kung walang email credits */}
+      {import.meta.env.DEV && <Codefront devToken={devToken} />}
+
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -95,14 +97,10 @@ const EmailVerificationPage = () => {
         className="w-full max-w-[440px]"
       >
         <div className="bg-white dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-zinc-900 overflow-hidden shadow-sm">
-          
+
           {/* Header */}
           <div className="px-10 pt-12 pb-8 text-center">
-            <img 
-              src={brand} 
-              alt="brand" 
-              className="h-8 mx-auto mb-6 dark:brightness-0 dark:invert opacity-90" 
-            />
+            <img src={brand} alt="brand" className="h-8 mx-auto mb-6 dark:brightness-0 dark:invert opacity-90" />
             <h2 className="text-2xl font-bold tracking-tighter text-zinc-900 dark:text-white leading-tight">
               Verify Email.
             </h2>
@@ -111,7 +109,7 @@ const EmailVerificationPage = () => {
             </p>
           </div>
 
-          {/* Form Content */}
+          {/* Form */}
           <div className="px-10 pb-10 space-y-8">
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="flex justify-between gap-2 sm:gap-3">
@@ -120,7 +118,8 @@ const EmailVerificationPage = () => {
                     key={index}
                     ref={(el) => (inputRefs.current[index] = el)}
                     type="text"
-                    maxLength="1"
+                    inputMode="numeric"
+                    maxLength="6"
                     value={digit}
                     onChange={(e) => handleChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
@@ -130,7 +129,7 @@ const EmailVerificationPage = () => {
               </div>
 
               {error && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-xl px-4 py-3 text-center"
@@ -156,10 +155,7 @@ const EmailVerificationPage = () => {
             <p className="text-[11px] text-zinc-400 uppercase tracking-widest font-medium">
               Didn't receive a code?{" "}
               {count === 0 ? (
-                <button
-                  onClick={handleResend}
-                  className="text-zinc-900 dark:text-white font-bold hover:opacity-70 transition-opacity"
-                >
+                <button onClick={handleResend} className="text-zinc-900 dark:text-white font-bold hover:opacity-70 transition-opacity">
                   Resend
                 </button>
               ) : (

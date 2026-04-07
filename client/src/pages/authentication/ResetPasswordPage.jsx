@@ -33,7 +33,7 @@ const ResetPasswordPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center px-8 transition-colors duration-300">
+        <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center  transition-colors duration-300">
             <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}

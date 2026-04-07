@@ -79,7 +79,7 @@ const ReportsPage = () => {
     [rentals]);
 
   return (
-    <div className="space-y-8 max-w-7xl transition-colors duration-300">
+    <div className="space-y-8  lg:ml-5 mt-18 max-w-7xl transition-colors duration-300">
 
       {/* Header - Consistent with Dashboard */}
       <div>

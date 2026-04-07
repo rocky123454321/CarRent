@@ -31,7 +31,7 @@ const Bookings = () => {
   });
 
   return (
-    <div className="mt-18 ml-5 max-w-7xl space-y-6 transition-colors duration-300">
+    <div className="mt-18  lg:ml-5 max-w-7xl space-y-6 transition-colors duration-300">
 
       {/* Header - Matching Landing Page Typography */}
       <div className="space-y-1">

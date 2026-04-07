@@ -10,21 +10,24 @@ const SignUpPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user");
+
   const navigate = useNavigate();
   const { signup, error, isLoading } = useAuthStore();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
     try {
-      await signup(email, password, name);
+      await signup(email, password, name ,role);
       navigate("/verify-email");
     } catch (error) {
       console.log(error);
     }
   };
-
+  console.log(role)
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center px-8 transition-colors duration-300">
+    
+    <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center transition-colors duration-300">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -108,6 +111,37 @@ const SignUpPage = () => {
                 />
               </div>
             </div>
+            <div className="flex flex-row gap-5 mt-2">
+  <div className="flex items-center gap-1">
+    <input
+      type="radio"
+      name="role"
+      value="user"
+      checked={role === "user"}
+      onChange={(e) => setRole(e.target.value)}
+      className="accent-zinc-900 dark:green"
+      required
+    />
+    <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.15em]">
+      User
+    </label>
+  </div>
+
+  <div className="flex items-center gap-1">
+    <input
+      type="radio"
+      name="role"
+      value="renter"
+      checked={role === "renter"}
+      onChange={(e) => setRole(e.target.value)}
+      className="accent-zinc-900 "
+      required
+    />
+    <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.15em]">
+      Renter
+    </label>
+  </div>
+</div>
 
             {/* Strength Meter */}
             <div className="pt-1">

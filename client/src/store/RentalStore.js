@@ -48,49 +48,53 @@ export const useRentalStore = create((set, get) => ({
     } catch {
       toast.error('Failed to update status');
     } finally {
-      set({ updating: { ...prev, [rentalId]: false } });
+      const currentUpdating = get().updating;
+      const { [rentalId]: _, ...rest } = currentUpdating;
+      set({ updating: rest });
     }
-  },// Add these inside your create((set, get) => ({ ... }))
-// RentalStore.js
+  },
 
-cancelRental: async (rentalId) => {
-  try {
-    // Siguraduhing tugma ang URL: /api/users/:id/status
-    const res = await axios.patch(`${RENTAL}/${rentalId}/status`, 
-      { status: 'cancelled' }, 
-      { withCredentials: true }
-    );
-    
-    // Optimistic Update sa UI
-    set((state) => ({
-      userRentals: state.userRentals.map(r => 
-        r._id === rentalId ? { ...r, status: 'cancelled' } : r
-      )
-    }));
-    
-    return { success: true };
-  } catch (err) {
-    console.error("Cancel Error:", err.response?.data);
-    return { 
-      success: false, 
-      message: err.response?.data?.message || "Failed to cancel rental" 
-    };
-  }
-},
+  // CANCEL RENTAL
+  cancelRental: async (rentalId) => {
+    try {
+      await axios.patch(`${RENTAL}/${rentalId}/status`, 
+        { status: 'cancelled' }, 
+        { withCredentials: true }
+      );
+      
+      set((state) => ({
+        userRentals: state.userRentals.map(r => 
+          r._id === rentalId ? { ...r, status: 'cancelled' } : r
+        )
+      }));
+      
+      toast.success("Rental cancelled successfully");
+      return { success: true };
+    } catch (err) {
+      console.error("Cancel Error:", err.response?.data);
+      const msg = err.response?.data?.message || "Failed to cancel rental";
+      toast.error(msg);
+      return { success: false, message: msg };
+    }
+  },
+
+  // DELETE RENTAL
   deleteRental: async (rentalId) => {
     try {
-      // Gamitin ang RENTAL variable na na-define mo na sa taas
       await axios.delete(`${RENTAL}/${rentalId}`, { withCredentials: true });
       
       set((state) => ({
-        userRentals: state.userRentals.filter(r => r._id !== rentalId)
+        userRentals: state.userRentals.filter(r => r._id !== rentalId),
+        adminRentals: state.adminRentals.filter(r => r._id !== rentalId)
       }));
+
+      toast.success("Rental record deleted");
       return { success: true };
     } catch (err) {
-      console.error("Delete Error:", err); // Para makita mo ang buong error
-      return { success: false, message: err.response?.data?.message || "Route not found" };
+      console.error("Delete Error:", err);
+      const msg = err.response?.data?.message || "Failed to delete rental";
+      toast.error(msg);
+      return { success: false, message: msg };
     }
   },
 }));
-
-

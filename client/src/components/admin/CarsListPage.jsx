@@ -11,7 +11,7 @@ const CarsListPage = () => {
   }, [getAdminCars])
 
   return (
-    <div className=" mt-18 ml-5 space-y-8 max-w-7xl transition-colors duration-300">
+    <div className=" mt-18  lg:ml-5 space-y-8 max-w-7xl transition-colors duration-300">
       {/* Header - Fixed Position, Zinc Typography */}
       <div className="space-y-1">
         <div className="inline-flex items-center gap-2 mb-1">

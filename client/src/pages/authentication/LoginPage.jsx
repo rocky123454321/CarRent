@@ -21,7 +21,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center px-8 transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center transition-colors duration-300">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -29,7 +29,7 @@ const LoginPage = () => {
         className="w-full max-w-[400px]"
       >
         {/* Container */}
-        <div className="bg-white dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-zinc-900 overflow-hidden shadow-sm">
+        <div className="bg-white dark:bg-zinc-900/50 rounded-2xl border  border-zinc-100 dark:border-zinc-900 overflow-hidden shadow-sm">
 
           {/* Header */}
           <div className="px-10 pt-12 pb-8 text-center">

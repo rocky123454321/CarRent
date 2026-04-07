@@ -4,11 +4,12 @@ import { useAuthStore } from "../../store/authStore";
 import { ArrowLeft, Loader, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import brand from "../../assets/brand.png";
+import Codefront from "../../components/Codefront";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const { isLoading, forgotPassword } = useAuthStore();
+  const { isLoading, forgotPassword, devResetURL } = useAuthStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,7 +18,11 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center px-8 transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center transition-colors duration-300">
+
+      {/* ✅ Codefront banner — lalabas sa taas ng page kung walang email credits */}
+      <Codefront devResetURL={devResetURL} />
+
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -25,14 +30,10 @@ const ForgotPasswordPage = () => {
         className="w-full max-w-[400px]"
       >
         <div className="bg-white dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-zinc-900 overflow-hidden shadow-sm">
-          
+
           {/* Header */}
           <div className="px-10 pt-12 pb-8 text-center">
-            <img 
-              src={brand} 
-              alt="brand" 
-              className="h-8 mx-auto mb-6 dark:brightness-0 dark:invert opacity-90" 
-            />
+            <img src={brand} alt="brand" className="h-8 mx-auto mb-6 dark:brightness-0 dark:invert opacity-90" />
             <h2 className="text-2xl font-bold tracking-tighter text-zinc-900 dark:text-white leading-tight">
               Forgot Password.
             </h2>
@@ -86,6 +87,7 @@ const ForgotPasswordPage = () => {
                 >
                   <Mail className="h-7 w-7 text-zinc-900 dark:text-white" />
                 </motion.div>
+
                 <div className="space-y-3">
                   <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed uppercase tracking-widest font-medium">
                     If an account exists for <br />
@@ -99,8 +101,8 @@ const ForgotPasswordPage = () => {
 
           {/* Footer */}
           <div className="px-10 py-6 bg-zinc-50/50 dark:bg-zinc-900/30 border-t border-zinc-100 dark:border-zinc-900 flex justify-center">
-            <Link 
-              to="/login" 
+            <Link
+              to="/login"
               className="text-[10px] text-zinc-400 hover:text-zinc-900 dark:hover:text-white font-bold uppercase tracking-[0.2em] flex items-center gap-2 transition-all"
             >
               <ArrowLeft size={12} /> Back to Login
