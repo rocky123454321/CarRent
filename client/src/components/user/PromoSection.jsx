@@ -47,7 +47,7 @@ const PromoSection = ({ onSelect }) => {
     // Pick random one — changes on each page load (feels "fresh" each visit)
     return eligible[Math.floor(Math.random() * eligible.length)];
   }, [cars]);
-
+//
   if (!promoCar) return null; // No promo cars — hide section entirely
 
   const theme = SEASON_THEME[promoCar.promoSeason] || DEFAULT_THEME;
