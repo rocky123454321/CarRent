@@ -17,7 +17,7 @@ import ResetPasswordPage from "./pages/authentication/ResetPasswordPage";
 
 // User Pages
 import Category from "./pages/Users/HomePage";
-import DashboardPage from "./pages/Users/Home";
+import Search from "./pages/Users/Searchpage";
 import CarDetailView from "./pages/Users/CarDetailView";
 import ChatPage from "./pages/Chat/ChatPage";
 import MyRentals from "./pages/Users/MyRentals";
@@ -137,7 +137,7 @@ function App() {
         {/* 👤 USER ROUTES */}
         <Route path="/" element={<RootRedirect />}>
           <Route index element={<Category />} />
-          <Route path="cars" element={<DashboardPage />} />
+          <Route path="cars" element={<Search />} />
           <Route path="cars/:id" element={<CarDetailView />} />
           <Route path="popular" element={<Popular />} />
           <Route path="recomended" element={<Recomended />} />

@@ -99,7 +99,7 @@ export const Settings = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12 py-12 px-6">
+    <div className="max-w-4xl mx-auto space-y-12 py-12 ">
       
       {/* ─── SECTION HEADER (Landing Page Style) ─── */}
       <div className="text-center">
@@ -124,9 +124,7 @@ export const Settings = () => {
         <Card className="rounded-2xl border border-zinc-100 dark:border-zinc-900 bg-white dark:bg-zinc-900/50 shadow-none transition-all">
           <CardHeader className="p-8 border-b border-zinc-50 dark:border-zinc-800/50">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-                <User size={18} />
-              </div>
+             
               <div>
                 <CardTitle className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider">Public Profile</CardTitle>
                 <CardDescription className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Update basic account details</CardDescription>
@@ -172,9 +170,7 @@ export const Settings = () => {
         <Card className="rounded-2xl border border-zinc-100 dark:border-zinc-900 bg-white dark:bg-zinc-900/50 shadow-none transition-all">
           <CardHeader className="p-8 border-b border-zinc-50 dark:border-zinc-800/50">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-                <Moon size={18} />
-              </div>
+            
               <div>
                 <CardTitle className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider">App Environment</CardTitle>
                 <CardDescription className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Control appearance and alerts</CardDescription>

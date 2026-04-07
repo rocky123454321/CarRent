@@ -48,6 +48,15 @@ const UserNav = () => {
     navigate(path);
   };
 
+  // --- Search Logic ---
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    // Automatic redirect to cars page when user starts typing
+    if (window.location.pathname !== '/cars') {
+      navigate('/cars');
+    }
+  };
+
   const NotificationList = () => (
     <div className="max-h-[60vh] overflow-y-auto bg-white dark:bg-zinc-950">
       {notifications.length === 0 ? (
@@ -97,12 +106,12 @@ const UserNav = () => {
           <img src={brand} alt="brand" className="h-6 dark:invert" />
         </Link>
   
-        {/* Center: Nav Links */}
+        {/* Center: Nav Links (Category Removed) */}
         <div className="hidden md:flex items-center gap-2 lg:absolute lg:left-1/2 lg:-translate-x-1/2">
-          {['Home', 'Category', 'My Rentals', 'Chat'].map((item) => (
+          {['Home', 'My Rentals', 'Chat'].map((item) => (
             <Link 
               key={item}
-              to={item === 'Home' ? '/' : item === 'Category' ? '/cars' : `/${item.toLowerCase().replace(' ', '-')}`} 
+              to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`} 
               className="px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 hover:text-zinc-950 dark:hover:text-white transition-all"
             >
               {item}
@@ -112,14 +121,14 @@ const UserNav = () => {
   
         {/* Right: Actions */}
         <div className="flex items-center gap-3">
-          {/* Search */}
+          {/* Search Input - Redirects to /cars */}
           <div className="hidden lg:flex relative w-[180px]">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             <input
               type="text"
               placeholder="SEARCH..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               className="w-full pl-9 pr-4 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-900 border-none focus:ring-1 ring-zinc-200 dark:ring-zinc-800 outline-none text-[10px] font-bold tracking-widest transition-all"
             />
           </div>
@@ -176,7 +185,7 @@ const UserNav = () => {
             </DropdownMenuContent>
           </DropdownMenu>
   
-          {/* Mobile Menu */}
+          {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className={`md:hidden w-9 h-9 flex items-center justify-center rounded-full transition-all ${
@@ -188,15 +197,17 @@ const UserNav = () => {
         </div>
       </div>
 
-      {/* --- Mobile Menu Overlay --- */}
+      {/* --- Mobile Menu Overlay (Category Removed) --- */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 top-16 bg-white dark:bg-zinc-950 z-50 animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="md:hidden fixed h-[100vh] w-full backdrop-blur-2xl z-99 top-16 bg-white dark:bg-zinc-950 z-50 animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="p-8 flex flex-col h-full">
+            {/* Search in Mobile */}
+          
             <div className="flex flex-col gap-8">
-              {['Home', 'Category', 'My Rentals', 'Chat'].map((item) => (
+              {['Home', 'My Rentals', 'Chat'].map((item) => (
                 <Link 
                   key={item}
-                  to={item === 'Home' ? '/' : item === 'Category' ? '/cars' : `/${item.toLowerCase().replace(' ', '-')}`} 
+                  to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`} 
                   onClick={() => setMobileOpen(false)}
                   className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase flex items-center justify-between"
                 >

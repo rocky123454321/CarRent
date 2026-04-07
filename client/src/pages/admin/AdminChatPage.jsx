@@ -2,64 +2,64 @@ import React, { useEffect, useRef, useState } from "react";
 import { useChatStore } from "../../store/chatStore.js";
 import { useAuthStore } from "../../store/authStore.js";
 import { useLocation } from "react-router-dom";
-import { Send, Inbox, Search, Sparkles, ArrowLeft } from "lucide-react";
+import { Send, Inbox, Search, Sparkles, ArrowLeft, MoreVertical, ShieldCheck } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Skeleton = ({ className }) => (
-  <div className={`bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl ${className}`} />
+  <div className={`bg-zinc-100 dark:bg-zinc-900 animate-pulse rounded-xl ${className}`} />
 );
 
-// ── Sidebar ──
+// ── Sidebar Component ──
 const Sidebar = ({
   font, searchTerm, setSearchTerm, isConnected,
   conversationUserIds, loadingConversations,
   onlineUsers, activeConversation, selectConversation,
   getDisplayName, getLastMessage,
 }) => (
-  <div className="flex flex-col h-full bg-white dark:bg-[#0a0a0a] w-full transition-colors duration-300" style={font}>
-    <div className="p-5 border-b border-slate-100 dark:border-white/5 space-y-4 shrink-0">
+  <div className="flex flex-col h-full bg-white dark:bg-zinc-950 w-full border-r border-zinc-100 dark:border-zinc-900" style={font}>
+    <div className="p-6 space-y-4 shrink-0">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-indigo-600 dark:text-indigo-400 font-semibold text-[10px] tracking-widest uppercase mb-0.5">Support</p>
-          <h2 className="text-xl font-black text-slate-900 dark:text-white">Messages</h2>
+          <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] mb-1">Support Hub</p>
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Messages</h2>
         </div>
-        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-colors
+        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border transition-all
           ${isConnected 
-            ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' 
-            : 'bg-red-50 text-red-600 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20'}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
-          {isConnected ? 'Live' : 'Offline'}
+            ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
+            : 'bg-zinc-100 text-zinc-400 border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-400'}`} />
+          {isConnected ? 'LIVE' : 'OFFLINE'}
         </div>
       </div>
-      <div className="relative">
-        <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+      <div className="relative group">
+        <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-zinc-900 dark:group-focus-within:text-zinc-100 transition-colors" />
         <input
           type="text"
-          placeholder="Search conversations..."
+          placeholder="Search by name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 pl-9 pr-4 text-sm font-medium text-slate-700 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition"
+          className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl py-3 pl-11 pr-4 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-zinc-900/5 dark:focus:ring-white/5 transition-all"
         />
       </div>
     </div>
 
-    <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin dark:scrollbar-thumb-slate-800">
+    <div className="flex-1 overflow-y-auto px-3 pb-4 space-y-1 custom-scrollbar">
       {loadingConversations ? (
-        Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 px-3 py-4">
-            <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-3 w-3/4" />
-              <Skeleton className="h-2.5 w-1/2" />
+        Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3 px-4 py-5">
+            <Skeleton className="w-12 h-12 rounded-2xl shrink-0" />
+            <div className="flex-1 space-y-2.5">
+              <Skeleton className="h-3 w-1/2" />
+              <Skeleton className="h-2 w-3/4" />
             </div>
           </div>
         ))
       ) : conversationUserIds.length === 0 ? (
-        <div className="text-center py-16 px-4">
-          <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <Inbox size={20} className="text-slate-300 dark:text-slate-600" />
+        <div className="text-center py-20 px-6">
+          <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-900 rounded-[2rem] flex items-center justify-center mx-auto mb-4 border border-zinc-100 dark:border-zinc-800">
+            <Inbox size={20} className="text-zinc-300 dark:text-zinc-600" />
           </div>
-          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">No conversations yet</p>
+          <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Inbox Empty</p>
         </div>
       ) : (
         conversationUserIds.map((userId) => {
@@ -69,28 +69,30 @@ const Sidebar = ({
             <button
               key={userId}
               onClick={() => selectConversation(userId)}
-              className={`w-full flex items-center gap-3 px-3 py-3 rounded-2xl transition-all text-left
+              className={`w-full flex items-center gap-4 px-4 py-4 rounded-[1.5rem] transition-all duration-300 group
                 ${isActive 
-                  ? 'bg-indigo-600 shadow-lg shadow-indigo-100 dark:shadow-none' 
-                  : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300'}`}
+                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 shadow-xl shadow-zinc-900/10' 
+                  : 'hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-400'}`}
             >
               <div className="relative shrink-0">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-colors
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-sm transition-all
                   ${isActive 
-                    ? 'bg-white/20 text-white' 
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700'}`}>
+                    ? 'bg-white/10 dark:bg-zinc-900/10 scale-105' 
+                    : 'bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800'}`}>
                   {getDisplayName(userId).charAt(0).toUpperCase()}
                 </div>
                 {isOnline && (
-                  <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 bg-emerald-500
-                    ${isActive ? 'border-indigo-600' : 'border-white dark:border-slate-900'}`} />
+                  <span className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-[3px] bg-emerald-500
+                    ${isActive ? 'border-zinc-900 dark:border-white' : 'border-white dark:border-zinc-950'}`} />
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-sm font-semibold truncate ${isActive ? 'text-white' : 'text-slate-900 dark:text-slate-100'}`}>
-                  {getDisplayName(userId)}
-                </p>
-                <p className={`text-xs truncate mt-0.5 ${isActive ? 'text-indigo-200' : 'text-slate-400 dark:text-slate-500'}`}>
+                <div className="flex justify-between items-start mb-0.5">
+                  <p className="text-[13px] font-bold truncate leading-none">
+                    {getDisplayName(userId)}
+                  </p>
+                </div>
+                <p className={`text-[11px] truncate font-medium ${isActive ? 'opacity-70' : 'text-zinc-400'}`}>
                   {getLastMessage(userId)}
                 </p>
               </div>
@@ -102,7 +104,7 @@ const Sidebar = ({
   </div>
 );
 
-// ── Chat ──
+// ── Chat View Component ──
 const Chat = ({
   font, activeConversation, setMobileView,
   onlineUsers, getDisplayName,
@@ -110,66 +112,74 @@ const Chat = ({
   userIsTyping, messagesEndRef, inputRef,
   user, message, handleTyping, handleSend, isConnected,
 }) => (
-  <div className="flex flex-col h-full w-full bg-white dark:bg-[#0a0a0a] transition-colors duration-300" style={font}>
-    <div className="px-4 py-3.5 border-b border-slate-100 dark:border-white/5 flex items-center gap-3 shrink-0 bg-white dark:bg-[#0a0a0a]">
-      <button
-        onClick={() => setMobileView("sidebar")}
-        className="md:hidden p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 transition shrink-0"
-      >
-        <ArrowLeft size={16} />
-      </button>
-      {activeConversation ? (
-        <>
-          <div className="w-9 h-9 bg-indigo-600 dark:bg-indigo-500 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0">
-            {getDisplayName(activeConversation).charAt(0).toUpperCase()}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-slate-900 dark:text-white text-sm truncate">{getDisplayName(activeConversation)}</p>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className={`w-1.5 h-1.5 rounded-full ${onlineUsers.includes(activeConversation) ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'}`} />
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                {onlineUsers.includes(activeConversation) ? 'Online' : 'Away'}
-              </p>
+  <div className="flex flex-col h-full w-full bg-white dark:bg-zinc-950" style={font}>
+    {/* Chat Header */}
+    <div className="px-6 py-5 border-b border-zinc-100 dark:border-zinc-900 flex items-center justify-between shrink-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md z-10">
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => setMobileView("sidebar")}
+          className="md:hidden p-2.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-xl transition"
+        >
+          <ArrowLeft size={18} />
+        </button>
+        {activeConversation && (
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-zinc-900 dark:bg-white rounded-2xl flex items-center justify-center text-white dark:text-zinc-950 font-bold text-sm">
+              {getDisplayName(activeConversation).charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                 <p className="font-bold text-zinc-900 dark:text-white text-[15px] leading-tight">{getDisplayName(activeConversation)}</p>
+                 <ShieldCheck size={14} className="text-zinc-400" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className={`w-1.5 h-1.5 rounded-full ${onlineUsers.includes(activeConversation) ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-300 dark:bg-zinc-700'}`} />
+                <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-400">
+                  {onlineUsers.includes(activeConversation) ? 'Active Now' : 'Last seen recently'}
+                </p>
+              </div>
             </div>
           </div>
-        </>
-      ) : (
-        <p className="text-sm text-slate-400 dark:text-slate-600 font-medium">Select a conversation</p>
-      )}
+        )}
+      </div>
+      <button className="p-2.5 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition">
+        <MoreVertical size={20} />
+      </button>
     </div>
 
-    <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-slate-50/30 dark:bg-black/20">
+    {/* Message Area */}
+    <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 bg-zinc-50/30 dark:bg-zinc-900/10 custom-scrollbar">
       {!activeConversation ? (
-        <div className="flex flex-col items-center justify-center h-full text-slate-300 dark:text-slate-800 text-center px-6">
-          <Sparkles size={36} className="mb-3 text-indigo-200 dark:text-indigo-900/40" />
-          <p className="text-xs font-semibold uppercase tracking-widest">Select a conversation to start chatting</p>
+        <div className="flex flex-col items-center justify-center h-full text-center">
+          <div className="w-20 h-20 bg-zinc-50 dark:bg-zinc-900  flex items-center justify-center mb-6 border border-zinc-100 dark:border-zinc-800">
+             <Sparkles size={32} className="text-zinc-200 dark:text-zinc-800" />
+          </div>
+          <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-[0.2em]">Select an Agent</h3>
+          <p className="text-xs text-zinc-400 mt-2">Pick a conversation from the sidebar to begin.</p>
         </div>
       ) : loadingMessages ? (
-        Array.from({ length: 4 }).map((_, i) => (
+        Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className={`flex ${i % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
-            <Skeleton className="h-10 rounded-2xl dark:bg-slate-800" style={{ width: `${140 + (i % 3) * 50}px` }} />
+            <Skeleton className="h-14 rounded-[1.5rem] w-64" />
           </div>
         ))
       ) : activeMessages.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-full text-center px-6">
-          <div className="bg-white dark:bg-[#0a0a0a] border border-slate-100 dark:border-white/5 rounded-3xl p-8 shadow-sm max-w-[280px]">
-            <Inbox size={28} className="mx-auto mb-3 text-indigo-200 dark:text-indigo-800" />
-            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">No messages yet</p>
-          </div>
+        <div className="text-center py-10 opacity-40 uppercase tracking-widest text-[10px] font-bold italic">
+          No previous logs found
         </div>
       ) : (
         activeMessages.map((msg, i) => {
           const isMine = msg.fromUserId === user._id;
           return (
-            <div key={msg._id || i} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-              <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[80%]`}>
-                <div className={`px-4 py-2.5 rounded-2xl text-sm font-medium leading-relaxed shadow-sm transition-colors
+            <div key={msg._id || i} className={`flex ${isMine ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
+              <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[75%]`}>
+                <div className={`px-5 py-3.5 rounded-[1.8rem] text-[13px] font-medium leading-relaxed
                   ${isMine
-                    ? 'bg-indigo-600 text-white rounded-br-none dark:bg-indigo-500'
-                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-white rounded-bl-none border border-slate-100 dark:border-slate-700/50'}`}>
+                    ? 'bg-zinc-900 text-white rounded-br-none dark:bg-white dark:text-zinc-950 shadow-lg shadow-zinc-900/5'
+                    : 'bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 rounded-bl-none border border-zinc-100 dark:border-zinc-800'}`}>
                   {msg.message}
                 </div>
-                <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-1.5 px-1 uppercase tracking-wider">
+                <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-2 px-1">
                   {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
@@ -180,20 +190,21 @@ const Chat = ({
 
       {userIsTyping && (
         <div className="flex justify-start">
-          <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl rounded-bl-none px-4 py-3 shadow-sm flex gap-1.5 items-center">
+          <div className="bg-zinc-100 dark:bg-zinc-900 rounded-full px-4 py-3 flex gap-1.5 items-center">
             {[0, 150, 300].map(delay => (
-              <span key={delay} className="w-1.5 h-1.5 bg-indigo-400 dark:bg-indigo-600 rounded-full animate-bounce"
+              <span key={delay} className="w-1 h-1 bg-zinc-400 dark:bg-zinc-600 rounded-full animate-bounce"
                 style={{ animationDelay: `${delay}ms` }} />
             ))}
           </div>
         </div>
       )}
-      <div ref={messagesEndRef} className="h-2" />
+      <div ref={messagesEndRef} className="h-4" />
     </div>
 
-    <div className="px-4 py-4 bg-white dark:bg-[#0a0a0a] border-t border-slate-100 dark:border-white/5 shrink-0">
-      <div className="flex gap-2 items-end">
-        <div className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl flex items-end px-4 py-2 focus-within:ring-2 focus-within:ring-indigo-500/20 transition">
+    {/* Input Area */}
+    <div className="p-6 bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-900 shrink-0">
+      <div className="flex gap-3 items-center max-w-5xl mx-auto">
+        <div className="flex-1 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[2rem] flex items-center px-6 py-1 focus-within:ring-4 focus-within:ring-zinc-900/5 dark:focus-within:ring-white/5 transition-all">
           <textarea
             ref={inputRef}
             rows={1}
@@ -202,16 +213,16 @@ const Chat = ({
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
             }}
-            placeholder="Type a message..."
-            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 resize-none max-h-32 font-medium text-slate-700 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none"
+            placeholder="Type your secure message..."
+            className="flex-1 bg-transparent border-none focus:ring-0 text-xs py-4 resize-none max-h-32 font-medium text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none"
           />
         </div>
         <button
           onClick={handleSend}
           disabled={!message.trim() || !isConnected}
-          className="bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 text-white p-3.5 rounded-2xl transition-all shadow-md active:scale-95 shrink-0"
+          className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 p-4 rounded-full transition-all shadow-xl active:scale-90 disabled:opacity-20 disabled:grayscale shrink-0"
         >
-          <Send size={17} />
+          <Send size={18} />
         </button>
       </div>
     </div>
@@ -219,7 +230,6 @@ const Chat = ({
 );
 
 const AdminChatPage = () => {
-  // ... (All current logic remains exactly the same)
   const { user } = useAuthStore();
   const location = useLocation();
   const {
@@ -238,10 +248,13 @@ const AdminChatPage = () => {
   const typingTimeout = useRef(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-  const font = { fontFamily: "'Plus Jakarta Sans','DM Sans',sans-serif" };
+  const font = { fontFamily: "'Inter', sans-serif" };
 
   const conversationUserIds = Object.keys(conversations)
-    .filter(id => (userProfiles[id] || id).toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter(id => {
+      const name = userProfiles[id] || id;
+      return name.toLowerCase().includes(searchTerm.toLowerCase());
+    })
     .sort((a, b) => {
       const aLast = conversations[a]?.slice(-1)[0]?.timestamp || 0;
       const bLast = conversations[b]?.slice(-1)[0]?.timestamp || 0;
@@ -265,17 +278,14 @@ const AdminChatPage = () => {
   }, [location.state?.userId, isConnected]);
 
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    });
-    return () => cancelAnimationFrame(frame);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [activeMessages.length, userIsTyping]);
 
   useEffect(() => {
     const t = setTimeout(() => {
       setLoadingConversations(false);
       setLoadingMessages(false);
-    }, 800);
+    }, 600);
     return () => clearTimeout(t);
   }, []);
 
@@ -310,36 +320,28 @@ const AdminChatPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 transition-colors duration-300" style={font}>
-      <div>
-        <p className="text-indigo-600 dark:text-indigo-400 font-semibold text-xs tracking-widest uppercase mb-0.5">Support</p>
-        <h1 className="text-3xl font-black text-slate-900 dark:text-white">Messages</h1>
+    <div className="flex flex-col h-screen md:h-[calc(100vh-100px)] animate-in fade-in duration-700" style={font}>
+      <div className="hidden md:block mb-6">
+        <p className="text-zinc-400 font-bold text-[10px] tracking-[0.3em] uppercase mb-1">Control Center</p>
+        <h1 className="text-3xl font-bold tracking-tighter text-zinc-900 dark:text-white">Communications</h1>
       </div>
 
-      <div
-        className="flex overflow-hidden rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm bg-white dark:bg-[#0a0a0a]"
-        style={{ height: 'calc(100vh - 180px)' }}
-      >
-        <div className="hidden md:flex w-72 border-r border-slate-100 dark:border-white/5 shrink-0 flex-col">
-          <Sidebar {...sharedProps}
-            searchTerm={searchTerm} setSearchTerm={setSearchTerm}
-            conversationUserIds={conversationUserIds}
-            loadingConversations={loadingConversations}
-          />
+      <div className="flex-1 flex overflow-hidden  border border-zinc-100 dark:border-zinc-900 bg-white dark:bg-zinc-950 shadow-2xl shadow-zinc-200/50 dark:shadow-none">
+        {/* Desktop Sidebar */}
+        <div className="hidden md:flex w-80 shrink-0">
+          <Sidebar {...sharedProps} searchTerm={searchTerm} setSearchTerm={setSearchTerm} conversationUserIds={conversationUserIds} loadingConversations={loadingConversations} />
         </div>
 
-        <div className="flex md:hidden flex-1 min-w-0 overflow-hidden">
+        {/* Mobile View Switcher */}
+        <div className="flex md:hidden flex-1 overflow-hidden">
           {mobileView === "sidebar"
-            ? <Sidebar {...sharedProps}
-                searchTerm={searchTerm} setSearchTerm={setSearchTerm}
-                conversationUserIds={conversationUserIds}
-                loadingConversations={loadingConversations}
-              />
+            ? <Sidebar {...sharedProps} searchTerm={searchTerm} setSearchTerm={setSearchTerm} conversationUserIds={conversationUserIds} loadingConversations={loadingConversations} />
             : <Chat {...sharedProps} />
           }
         </div>
 
-        <div className="hidden md:flex flex-1 min-w-0 flex-col overflow-hidden">
+        {/* Desktop Chat */}
+        <div className="hidden md:flex flex-1 min-w-0">
           <Chat {...sharedProps} />
         </div>
       </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Bell, Settings, LogOut, Menu, X, ChevronRight, MessageSquare, Sun, Moon } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useChatStore } from "../../store/chatStore";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuGroup,
   DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator,
@@ -18,6 +18,7 @@ const AdminNav = ({ onMenuClick }) => {
   const { user, logout } = useAuthStore();
   const { unreadCounts, notifications, clearNotifications, setActiveConversation } = useChatStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const { darkMode, toggleTheme, initTheme } = useThemeStore();
@@ -48,36 +49,36 @@ const AdminNav = ({ onMenuClick }) => {
   };
 
   const NotificationList = () => (
-    <div className="max-h-[60vh] overflow-y-auto scrollbar-thin dark:scrollbar-thumb-slate-800 bg-white dark:bg-[#0a0a0a] transition-colors">
+    <div className="max-h-[60vh] overflow-y-auto bg-white dark:bg-zinc-950 transition-colors custom-scrollbar">
       {notifications.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-slate-400 dark:text-slate-600">
-          <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-3 border border-slate-100 dark:border-white/5">
-             <Bell size={28} className="opacity-20" />
+        <div className="flex flex-col items-center justify-center py-16 text-zinc-400">
+          <div className="w-12 h-12 rounded-full bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center mb-3 border border-zinc-100 dark:border-zinc-800">
+            <Bell size={18} className="opacity-30" />
           </div>
-          <p className="text-sm font-bold uppercase tracking-widest text-[10px]">All caught up!</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em]">System Clear</p>
         </div>
       ) : (
-        <div className="divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="divide-y divide-zinc-50 dark:divide-zinc-900">
           {notifications.map((n) => (
             <div 
               key={n.id} 
               onClick={() => handleViewNotification(n)}
-              className="px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:bg-slate-100 dark:active:bg-slate-800 transition-colors cursor-pointer group"
+              className="px-6 py-5 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-all cursor-pointer group"
             >
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 font-black text-xs border border-indigo-200/50 dark:border-indigo-800/50">
-                  {n.senderName?.charAt(0)?.toUpperCase() || 'U'}
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center shrink-0 font-black text-[10px] border border-zinc-800 dark:border-zinc-200">
+                  {n.senderName?.charAt(0)?.toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-baseline">
-                    <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                      {n.senderName || 'User'}
+                  <div className="flex justify-between items-center mb-1">
+                    <p className="text-[11px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-tight group-hover:underline decoration-zinc-400 underline-offset-4 transition-all">
+                      {n.senderName}
                     </p>
-                    <span className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase">
+                    <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase">
                       {new Date(n.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 leading-relaxed">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed font-medium">
                     {n.message}
                   </p>
                 </div>
@@ -90,47 +91,52 @@ const AdminNav = ({ onMenuClick }) => {
   );
 
   return (
-    <header className="sticky top-0 z-40 bg-white dark:bg-black backdrop-blur-xl border-b border-slate-200/60 dark:border-white/5/60 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <header className="fixed top-0 right-0 left-0 lg:left-0 z-40 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-100 dark:border-zinc-900/50 transition-all">
+      <div className="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
 
-        {/* Left: Sidebar Toggle */}
+        {/* Left: Sidebar Toggle (Mobile) */}
         <div className="flex items-center">
           <button
             onClick={onMenuClick}
-            className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-[#0a0a0a] text-slate-600 dark:text-slate-400 active:scale-95 transition-all border border-slate-200 dark:border-white/5"
+            className="lg:hidden w-11 h-11 flex items-center justify-center rounded-2xl bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-white active:scale-95 transition-all border border-zinc-100 dark:border-zinc-800"
           >
             <Menu size={20} />
           </button>
         </div>
 
         {/* Right: Actions */}
+        {/* Right: Actions */}
         <div className="flex items-center gap-3">
           
-          {/* Theme Toggle */}
+          {/* Theme Toggle - UI Matched */}
           <button 
             onClick={toggleTheme}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-zinc-100 dark:border-zinc-900 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all active:scale-95"
           >
-            {darkMode ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-slate-600" />}
+            {darkMode ? (
+              <Sun size={16} className="text-yellow-500" />
+            ) : (
+              <Moon size={16} className="text-zinc-900" />
+            )}
           </button>
 
-          {/* Notifications — Desktop */}
+          {/* Notifications - UI Matched */}
           <div className="hidden sm:block">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="relative w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all">
-                  <Bell size={18} />
+                <button className="relative w-9 h-9 flex items-center justify-center rounded-full border border-zinc-100 dark:border-zinc-900 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all active:scale-95">
+                  <Bell size={16} />
                   {totalUnread > 0 && (
-                    <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-950 animate-pulse" />
+                    <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-zinc-900 dark:bg-white rounded-full ring-2 ring-white dark:ring-zinc-950" />
                   )}
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-80 rounded-[1.5rem] shadow-2xl border-slate-200 dark:border-white/5 bg-white dark:bg-[#0a0a0a] p-0 mt-2" align="end">
-                <div className="px-5 py-4 border-b border-slate-100 dark:border-white/5 flex items-center justify-between bg-slate-50/50 dark:bg-black rounded-t-[1.5rem]">
-                  <h3 className="font-black text-[11px] uppercase tracking-widest text-slate-800 dark:text-white">Notifications</h3>
+              <DropdownMenuContent className="w-80 rounded-xl shadow-2xl border-zinc-100 dark:border-zinc-900 p-0 mt-3 bg-white dark:bg-zinc-950 overflow-hidden" align="end">
+                <div className="px-6 py-4 border-b border-zinc-50 dark:border-zinc-800 flex items-center justify-between">
+                  <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Activity</h3>
                   {notifications.length > 0 && (
-                    <button onClick={clearNotifications} className="text-[10px] text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-tighter hover:underline">
-                      Clear all
+                    <button onClick={clearNotifications} className="text-[9px] font-bold uppercase tracking-tighter hover:underline">
+                      Clear
                     </button>
                   )}
                 </div>
@@ -139,49 +145,49 @@ const AdminNav = ({ onMenuClick }) => {
             </DropdownMenu>
           </div>
 
-          {/* Profile — Desktop */}
+          {/* Profile - UI Matched */}
           <div className="hidden sm:block">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 p-1 pr-3 rounded-xl border border-slate-200 dark:border-white/5 hover:border-indigo-200 dark:hover:border-indigo-900 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-all group">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-600 dark:bg-indigo-500 text-white flex items-center justify-center font-black text-xs shadow-lg shadow-indigo-500/20">
-                    {user?.name?.charAt(0).toUpperCase()}
+                <button className="flex items-center gap-2 p-1 pr-3 rounded-full border border-zinc-100 dark:border-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all active:scale-95 group">
+                  <div className="w-7 h-7 rounded-full bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 flex items-center justify-center font-bold text-[10px] uppercase shadow-sm">
+                    {user?.name?.charAt(0)}
                   </div>
-                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">
                     {user?.name?.split(' ')[0]}
                   </span>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-64 rounded-[1.5rem] shadow-2xl border-slate-200 dark:border-white/5 bg-white dark:bg-black p-0 mt-2 overflow-hidden" align="end">
-                <DropdownMenuLabel className="px-5 py-5 bg-slate-50 dark:bg-[#0a0a0a] border-b border-slate-100 dark:border-white/5 font-normal">
-                  <p className="text-sm font-black text-slate-900 dark:text-white truncate tracking-tight">{user?.name}</p>
-                  <p className="text-[11px] font-medium text-slate-500 dark:text-slate-500 truncate mt-0.5">{user?.email}</p>
+              <DropdownMenuContent className="w-56 rounded-xl shadow-2xl border-zinc-100 dark:border-zinc-900 p-0 mt-3 bg-white dark:bg-zinc-950 overflow-hidden" align="end">
+                <DropdownMenuLabel className="px-5 py-4 border-b border-zinc-50 dark:border-zinc-900">
+                  <p className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-tight">{user?.name}</p>
+                  <p className="text-[9px] font-medium text-zinc-400 mt-0.5">{user?.email}</p>
                 </DropdownMenuLabel>
-                <DropdownMenuGroup className="p-2">
-                  <DropdownMenuItem onClick={() => navigate('settings')} className="rounded-xl py-3 px-4 cursor-pointer flex items-center gap-3 text-slate-600 dark:text-slate-400 focus:bg-slate-50 dark:focus:bg-slate-900 font-bold text-xs uppercase tracking-widest transition-colors">
-                    <Settings size={16} className="text-indigo-500" /> Account Settings
+                <DropdownMenuGroup className="p-1.5">
+                  <DropdownMenuItem onClick={() => navigate('settings')} className="rounded-lg py-2.5 px-4 cursor-pointer flex items-center gap-3 text-zinc-500 hover:text-zinc-900 dark:focus:text-white focus:bg-zinc-50 dark:focus:bg-zinc-900 font-bold text-[10px] uppercase tracking-widest transition-colors">
+                    <Settings size={14} /> Settings
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
-                <DropdownMenuSeparator className="bg-slate-100 dark:bg-slate-800" />
-                <div className="p-2">
-                  <DropdownMenuItem onClick={logout} className="rounded-xl py-3 px-4 text-red-600 dark:text-red-400 font-black cursor-pointer flex items-center gap-3 focus:bg-red-50 dark:focus:bg-red-900/20 text-xs uppercase tracking-widest transition-colors">
-                    <LogOut size={16} /> Log out
+                <DropdownMenuSeparator className="bg-zinc-50 dark:bg-zinc-900" />
+                <div className="p-1.5">
+                  <DropdownMenuItem onClick={logout} className="rounded-lg py-2.5 px-4 text-zinc-900 dark:text-white font-black cursor-pointer flex items-center gap-3 focus:bg-zinc-900 dark:focus:bg-white focus:text-white dark:focus:text-zinc-950 text-[10px] uppercase tracking-widest transition-all">
+                    <LogOut size={14} /> Sign Out
                   </DropdownMenuItem>
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
-          {/* Mobile Profile Trigger */}
+          {/* Mobile Profile Trigger - UI Matched */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className={`sm:hidden w-10 h-10 flex items-center justify-center rounded-xl transition-all active:scale-95 border ${
+            className={`sm:hidden w-9 h-9 flex items-center justify-center rounded-full transition-all active:scale-95 ${
               mobileOpen 
-                ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700' 
-                : 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 border-transparent'
+                ? 'bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-white' 
+                : 'bg-zinc-950 dark:bg-white text-white dark:text-zinc-950'
             }`}
           >
-            {mobileOpen ? <X size={20} /> : <span className="font-black text-sm">{user?.name?.charAt(0).toUpperCase()}</span>}
+            {mobileOpen ? <X size={16} /> : <span className="font-bold text-[10px] uppercase">{user?.name?.charAt(0)}</span>}
           </button>
         </div>
       </div>
@@ -189,38 +195,38 @@ const AdminNav = ({ onMenuClick }) => {
       {/* Mobile Menu Overlay */}
       {mobileOpen && (
         <>
-          <div className="fixed inset-0 z-40 sm:hidden bg-slate-950/20 dark:bg-black/60 backdrop-blur-sm transition-all" onClick={() => setMobileOpen(false)} />
-          <div className="sm:hidden absolute inset-x-0 top-full bg-white dark:bg-[#0a0a0a] border-b border-slate-200 dark:border-white/5 shadow-2xl z-50 animate-in slide-in-from-top duration-200">
-            <div className="p-5 flex flex-col gap-4">
-              <div className="flex items-center gap-4 p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50">
-                <div className="w-12 h-12 rounded-xl bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center text-white text-lg font-black shadow-lg shadow-indigo-500/20">
+          <div className="fixed inset-0 z-40 sm:hidden bg-zinc-950/20 dark:bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+          <div className="sm:hidden absolute inset-x-0 top-full bg-white dark:bg-zinc-950 border-b border-zinc-100 dark:border-zinc-900 shadow-2xl z-50 animate-in slide-in-from-top-2 duration-300">
+            <div className="p-6 flex flex-col gap-4">
+              <div className="flex items-center gap-4 p-5 rounded-[1.5rem] bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800/50">
+                <div className="w-12 h-12 rounded-2xl bg-zinc-950 dark:bg-white flex items-center justify-center text-white dark:text-zinc-950 text-xs font-black shadow-lg">
                   {user?.name?.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-black text-slate-900 dark:text-white truncate tracking-tight">{user?.name}</p>
-                  <p className="text-[10px] text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-widest mt-0.5">System Admin</p>
+                  <p className="font-black text-[11px] text-zinc-900 dark:text-white uppercase tracking-tight">{user?.name}</p>
+                  <p className="text-[9px] text-zinc-400 font-black uppercase tracking-widest mt-0.5">Administrator</p>
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-2">
                 {[
-                  { icon: <Bell size={20} />, label: "Notifications", color: "text-orange-500", onClick: () => { setNotifOpen(true); setMobileOpen(false); }, unread: totalUnread },
-                  { icon: <MessageSquare size={20} />, label: "Messages", color: "text-blue-500", onClick: () => handleMobileNav('/admin/chat') },
-                  { icon: <Settings size={20} />, label: "Settings", color: "text-slate-500", onClick: () => handleMobileNav('settings') },
+                  { icon: <Bell size={18} />, label: "Notifications", onClick: () => { setNotifOpen(true); setMobileOpen(false); }, unread: totalUnread },
+                  { icon: <MessageSquare size={18} />, label: "Chat Center", onClick: () => handleMobileNav('/admin/chat') },
+                  { icon: <Settings size={18} />, label: "Settings", onClick: () => handleMobileNav('settings') },
                 ].map((item, idx) => (
-                  <button key={idx} onClick={item.onClick} className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-white/5 active:bg-slate-50 dark:active:bg-slate-700 transition-colors">
-                    <div className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
-                      <span className={item.color}>{item.icon}</span>
-                      <span className="font-bold text-sm">{item.label}</span>
+                  <button key={idx} onClick={item.onClick} className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-900 active:bg-zinc-50 dark:active:bg-zinc-800 transition-all group">
+                    <div className="flex items-center gap-3 text-zinc-500 dark:text-zinc-400 group-active:text-zinc-900 dark:group-active:text-white transition-colors">
+                      {item.icon}
+                      <span className="font-black text-[10px] uppercase tracking-widest">{item.label}</span>
                     </div>
                     {item.unread > 0 ? (
-                      <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse">{item.unread}</span>
+                      <span className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 text-[9px] font-black px-2 py-0.5 rounded-full">{item.unread}</span>
                     ) : (
-                      <ChevronRight size={16} className="text-slate-300 dark:text-slate-600" />
+                      <ChevronRight size={14} className="text-zinc-300 dark:text-zinc-700" />
                     )}
                   </button>
                 ))}
-                <button onClick={logout} className="flex items-center gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-black mt-2 active:bg-red-100 dark:active:bg-red-900/30 transition-colors uppercase tracking-widest text-[11px]">
-                  <LogOut size={20} /> 
+                <button onClick={logout} className="flex items-center gap-3 p-5 rounded-2xl bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 font-black mt-2 active:scale-[0.98] transition-all uppercase tracking-[0.2em] text-[10px]">
+                  <LogOut size={18} /> 
                   <span>Sign Out</span>
                 </button>
               </div>
@@ -231,24 +237,22 @@ const AdminNav = ({ onMenuClick }) => {
 
       {/* Notifications Dialog (Mobile) */}
       <AlertDialog open={notifOpen} onOpenChange={setNotifOpen}>
-        <AlertDialogContent className="max-w-[calc(100%-2rem)] w-full rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl bg-white dark:bg-[#0a0a0a] transition-all">
-          <AlertDialogHeader className="px-6 py-5 border-b border-slate-100 dark:border-white/5 bg-white dark:bg-[#0a0a0a]">
+        <AlertDialogContent className="max-w-[calc(100%-2rem)] w-full rounded-[2.5rem] p-0 overflow-hidden border border-zinc-100 dark:border-zinc-900 shadow-2xl bg-white dark:bg-zinc-950 transition-all">
+          <AlertDialogHeader className="px-6 py-6 border-b border-zinc-50 dark:border-zinc-900 bg-zinc-50/50 dark:bg-zinc-900/50">
             <div className="flex items-center justify-between w-full">
-              <AlertDialogTitle className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Notifications</AlertDialogTitle>
-              <AlertDialogCancel className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 border-none flex items-center justify-center text-slate-500 dark:text-slate-400 m-0 hover:rotate-90 transition-transform">
-                <X size={20} />
+              <AlertDialogTitle className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Activity</AlertDialogTitle>
+              <AlertDialogCancel className="h-10 w-10 rounded-full bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 flex items-center justify-center text-zinc-950 dark:text-white m-0 transition-transform">
+                <X size={18} />
               </AlertDialogCancel>
             </div>
           </AlertDialogHeader>
-          <div className="bg-white dark:bg-[#0a0a0a]">
-            <NotificationList />
-          </div>
-          <div className="p-5 bg-slate-50 dark:bg-slate-800/50">
+          <NotificationList />
+          <div className="p-6 bg-zinc-50/50 dark:bg-zinc-900/50 border-t border-zinc-50 dark:border-zinc-900">
              <button
               onClick={() => { handleMobileNav('/admin/chat'); setNotifOpen(false); }}
-              className="w-full py-4 bg-indigo-600 dark:bg-indigo-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] shadow-xl shadow-indigo-500/20 active:scale-[0.98] transition-all"
+              className="w-full py-4 bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl active:scale-[0.98] transition-all"
             >
-              Go to Messages
+              Open Messaging Center
             </button>
           </div>
         </AlertDialogContent>

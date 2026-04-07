@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 
 const chartConfig = {
-  revenue:  { label: "Revenue",  color: "hsl(var(--chart-1))" },
-  bookings: { label: "Bookings", color: "hsl(var(--chart-2))" },
+  revenue:  { label: "Revenue",  color: "hsl(var(--zinc-900))" }, 
+  bookings: { label: "Bookings", color: "hsl(var(--zinc-400))" },
 };
 
 const AdminDashboard = () => {
@@ -29,11 +29,13 @@ const AdminDashboard = () => {
     const orders         = rentals.length;
     const revenue        = rentals.reduce((sum, r) => sum + (Number(r.totalPrice) || 0), 0);
     const activeBookings = rentals.filter((r) => ["pending","confirmed"].includes(r.status)).length;
+    
+    // Position remains the same, only colors/borders updated to Zinc theme
     return [
-      { title: 'Customers', value: customers.toLocaleString(), icon: UsersRound, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-100 dark:border-blue-800' },
-      { title: 'Orders', value: orders.toLocaleString(), icon: ShoppingBag, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/20', border: 'border-emerald-100 dark:border-emerald-800' },
-      { title: 'Revenue', value: `₱${revenue.toLocaleString()}`, icon: DollarSign, color: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-50 dark:bg-indigo-900/20', border: 'border-indigo-100 dark:border-indigo-800' },
-      { title: 'Active Bookings', value: activeBookings.toLocaleString(), icon: Calendar, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-100 dark:border-amber-800' },
+      { title: 'Customers', value: customers.toLocaleString(), icon: UsersRound, color: 'text-zinc-600 dark:text-zinc-400', bg: 'bg-zinc-50 dark:bg-zinc-900/50', border: 'border-zinc-100 dark:border-zinc-800' },
+      { title: 'Orders', value: orders.toLocaleString(), icon: ShoppingBag, color: 'text-zinc-600 dark:text-zinc-400', bg: 'bg-zinc-50 dark:bg-zinc-900/50', border: 'border-zinc-100 dark:border-zinc-800' },
+      { title: 'Revenue', value: `₱${revenue.toLocaleString()}`, icon: DollarSign, color: 'text-zinc-600 dark:text-zinc-400', bg: 'bg-zinc-50 dark:bg-zinc-900/50', border: 'border-zinc-100 dark:border-zinc-800' },
+      { title: 'Active Bookings', value: activeBookings.toLocaleString(), icon: Calendar, color: 'text-zinc-600 dark:text-zinc-400', bg: 'bg-zinc-50 dark:bg-zinc-900/50', border: 'border-zinc-100 dark:border-zinc-800' },
     ];
   }, [rentals]);
 
@@ -59,61 +61,61 @@ const AdminDashboard = () => {
   }, [chartData, timeRange]);
 
   return (
-    <div className="space-y-8 max-w-7xl transition-colors duration-300" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div className=" mt-18 ml-5 space-y-8 max-w-7xl transition-colors duration-300">
 
-      {/* Header */}
+      {/* Header - Fixed Positioning, Updated Typography to match Landing Page */}
       <div>
-        <p className="text-indigo-600 dark:text-indigo-400 font-semibold text-sm tracking-widest uppercase mb-1">Overview</p>
-        <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-1">Dashboard</h1>
-        <p className="text-slate-500 dark:text-slate-400">Welcome back, {user?.name}. Here's what's happening today.</p>
+        <p className="text-zinc-400 dark:text-zinc-500 font-semibold text-[10px] tracking-[0.2em] uppercase mb-1">Overview</p>
+        <h1 className="text-3xl font-bold tracking-tighter text-zinc-900 dark:text-white mb-1">Dashboard</h1>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Welcome back, {user?.name}. Here's what's happening today.</p>
       </div>
 
-      {/* Stats Grid */}
+      {/* Stats Grid - Fixed Positioning */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm p-6 space-y-4">
-                <Skeleton className="w-11 h-11 rounded-xl dark:bg-slate-800" />
-                <Skeleton className="h-3 w-20 rounded-full dark:bg-slate-800" />
-                <Skeleton className="h-7 w-28 rounded-full dark:bg-slate-800" />
+              <div key={i} className="bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-100 dark:border-zinc-900 shadow-sm p-6 space-y-4">
+                <Skeleton className="w-11 h-11 rounded-xl dark:bg-zinc-900" />
+                <Skeleton className="h-3 w-20 rounded-full dark:bg-zinc-900" />
+                <Skeleton className="h-7 w-28 rounded-full dark:bg-zinc-900" />
               </div>
             ))
           : stats.map(({ title, value, icon: Icon, color, bg, border }, i) => (
-              <div key={i} className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm p-6 hover:shadow-md hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-200">
+              <div key={i} className="bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-100 dark:border-zinc-900 shadow-sm p-6 hover:shadow-md hover:border-zinc-200 dark:hover:border-zinc-800 transition-all duration-200">
                 <div className={`w-11 h-11 flex items-center justify-center rounded-xl mb-4 ${bg} border ${border}`}>
                   <Icon size={20} className={color} />
                 </div>
-                <h3 className="text-sm font-semibold text-slate-400 dark:text-slate-500 mb-1">{title}</h3>
-                <div className="text-2xl font-black text-slate-900 dark:text-white">{value}</div>
+                <h3 className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 mb-1">{title}</h3>
+                <div className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">{value}</div>
               </div>
             ))
         }
       </div>
 
-      {/* Area Chart */}
+      {/* Area Chart - Fixed Positioning */}
       {loading ? (
-        <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm p-6 space-y-4">
+        <div className="bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-100 dark:border-zinc-900 shadow-sm p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
-              <Skeleton className="h-4 w-36 rounded-full dark:bg-slate-800" />
-              <Skeleton className="h-3 w-52 rounded-full dark:bg-slate-800" />
+              <Skeleton className="h-4 w-36 rounded-full dark:bg-zinc-900" />
+              <Skeleton className="h-3 w-52 rounded-full dark:bg-zinc-900" />
             </div>
-            <Skeleton className="h-9 w-36 rounded-xl dark:bg-slate-800" />
+            <Skeleton className="h-9 w-36 rounded-xl dark:bg-zinc-900" />
           </div>
-          <Skeleton className="h-[250px] w-full rounded-xl dark:bg-slate-800" />
+          <Skeleton className="h-[250px] w-full rounded-xl dark:bg-zinc-900" />
         </div>
       ) : (
-        <Card className="rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-[#0a0a0a] shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-          <CardHeader className="flex items-center gap-2 space-y-0 border-b border-slate-100 dark:border-white/5 py-5 sm:flex-row bg-white dark:bg-[#0a0a0a]">
+        <Card className="rounded-2xl border border-zinc-100 dark:border-zinc-900 bg-white dark:bg-zinc-950 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+          <CardHeader className="flex items-center gap-2 space-y-0 border-b border-zinc-100 dark:border-zinc-900 py-5 sm:flex-row bg-white dark:bg-zinc-950">
             <div className="grid flex-1 gap-1">
-              <CardTitle className="text-base font-bold text-slate-800 dark:text-slate-100">Rentals Overview</CardTitle>
-              <CardDescription className="text-xs text-slate-400 dark:text-slate-500">Revenue and bookings over time</CardDescription>
+              <CardTitle className="text-base font-bold text-zinc-900 dark:text-white">Rentals Overview</CardTitle>
+              <CardDescription className="text-xs text-zinc-400 dark:text-zinc-500">Revenue and bookings over time</CardDescription>
             </div>
             <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[160px] rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white text-sm" aria-label="Select range">
+              <SelectTrigger className="w-[160px] rounded-xl border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white text-sm" aria-label="Select range">
                 <SelectValue placeholder="Last 3 months" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl dark:bg-[#0a0a0a] dark:border-white/5">
+              <SelectContent className="rounded-xl dark:bg-zinc-950 dark:border-zinc-800">
                 <SelectItem value="90d" className="text-sm">Last 3 months</SelectItem>
                 <SelectItem value="30d" className="text-sm">Last 30 days</SelectItem>
                 <SelectItem value="7d"  className="text-sm">Last 7 days</SelectItem>
@@ -122,7 +124,7 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
             {filteredChartData.length === 0 ? (
-              <div className="h-[250px] flex items-center justify-center text-sm text-slate-400 dark:text-slate-600">
+              <div className="h-[250px] flex items-center justify-center text-sm text-zinc-400 dark:text-zinc-600 italic">
                 No data available for this period.
               </div>
             ) : (
@@ -130,15 +132,15 @@ const AdminDashboard = () => {
                 <AreaChart data={filteredChartData}>
                   <defs>
                     <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="var(--color-revenue)"  stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="var(--color-revenue)"  stopOpacity={0.1} />
+                      <stop offset="5%"  stopColor="var(--color-revenue)"  stopOpacity={0.1} />
+                      <stop offset="95%" stopColor="var(--color-revenue)"  stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="fillBookings" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="var(--color-bookings)" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="var(--color-bookings)" stopOpacity={0.1} />
+                      <stop offset="5%"  stopColor="var(--color-bookings)" stopOpacity={0.1} />
+                      <stop offset="95%" stopColor="var(--color-bookings)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid vertical={false} stroke="currentColor" className="text-slate-100 dark:text-slate-800" />
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-zinc-100 dark:stroke-zinc-900" />
                   <XAxis
                     dataKey="date" 
                     tickLine={false} 
@@ -146,18 +148,18 @@ const AdminDashboard = () => {
                     tickMargin={8} 
                     minTickGap={32}
                     tickFormatter={(v) => new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                    className="text-xs text-slate-400 dark:text-slate-500"
+                    className="text-xs text-zinc-400"
                   />
                   <ChartTooltip cursor={false} content={
                     <ChartTooltipContent
-                      className="dark:bg-black dark:border-white/5"
+                      className="dark:bg-zinc-950 dark:border-zinc-800"
                       labelFormatter={(v) => new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                       indicator="dot"
                     />
                   } />
-                  <Area dataKey="bookings" type="natural" fill="url(#fillBookings)" stroke="var(--color-bookings)" stackId="a" />
-                  <Area dataKey="revenue"  type="natural" fill="url(#fillRevenue)"  stroke="var(--color-revenue)"  stackId="a" />
-                  <ChartLegend content={<ChartLegendContent className="dark:text-slate-400" />} />
+                  <Area dataKey="bookings" type="monotone" fill="url(#fillBookings)" stroke="var(--color-bookings)" stackId="a" strokeWidth={2} />
+                  <Area dataKey="revenue"  type="monotone" fill="url(#fillRevenue)"  stroke="var(--color-revenue)"  stackId="a" strokeWidth={2} />
+                  <ChartLegend content={<ChartLegendContent className="dark:text-zinc-400 uppercase text-[10px] tracking-widest mt-4" />} />
                 </AreaChart>
               </ChartContainer>
             )}

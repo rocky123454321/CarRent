@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
-import { useThemeStore } from "@/store/themeStore"; // ✅ Global theme state
-import { Card, CardContent } from "@/components/ui/card";
+import { useThemeStore } from "@/store/themeStore"; // ✅ Using your global theme store
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { User, Bell, Trash2, Save, Moon, Sun } from "lucide-react";
+import { User, Bell, Trash2, Save, Moon, Sun, ShieldCheck } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,7 +24,7 @@ import {
 export const SettingsAdmin = () => {
   const navigate = useNavigate();
   const { user, logout, updateProfile, deleteAccount, isLoading: authLoading } = useAuthStore();
-  const { darkMode, toggleTheme } = useThemeStore(); // ✅ Global theme state
+  const { darkMode, toggleTheme } = useThemeStore();
 
   const [confirmationText, setConfirmationText] = useState("");
   const [form, setForm] = useState({
@@ -57,10 +57,10 @@ export const SettingsAdmin = () => {
       setLoading(true);
       await deleteAccount();
       await logout();
-      toast.success("Account deleted successfully");
+      toast.success("Account permanently removed");
       navigate("/landing", { replace: true });
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Delete failed");
+      toast.error(error?.response?.data?.message || "Deletion failed");
     } finally {
       setLoading(false);
     }
@@ -84,169 +84,180 @@ export const SettingsAdmin = () => {
   };
 
   return (
-         <div className="max-w-4xl mx-auto space-y-8">
-        
-        {/* Page Title */}
-        <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-black tracking-tight uppercase">Admin Settings</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-            Manage administrative profile and system preferences.
+    <div className="max-w-4xl mx-auto space-y-12 py-12 px-6">
+      
+      {/* ─── SECTION HEADER (Landing Page Style) ─── */}
+      <div className="text-center">
+        <div className="inline-flex items-center gap-2 mb-4">
+          <span className="h-px w-5 bg-zinc-300 dark:bg-zinc-700" />
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+            System Administration
           </p>
+          <span className="h-px w-5 bg-zinc-300 dark:bg-zinc-700" />
         </div>
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tighter leading-[1.1] text-zinc-900 dark:text-white uppercase italic">
+          Admin <span className="text-zinc-300 dark:text-zinc-700">Settings.</span>
+        </h1>
+        <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-zinc-400 dark:text-zinc-500 font-medium">
+          Manage administrative credentials and global environment preferences.
+        </p>
+      </div>
 
-        {/* Profile Settings */}
-        <Card className="rounded-3xl border-none shadow-sm bg-white dark:bg-black dark:border dark:border-white/10 overflow-hidden">
-          <CardContent className="p-8 space-y-6">
-            <div className="flex items-center gap-2 mb-2">
-             
-              <h2 className="text-lg font-bold uppercase tracking-tight">Public Profile</h2>
+      <div className="grid gap-6">
+        
+        {/* Profile Settings - Underlined Style */}
+        <Card className="rounded-2xl border border-zinc-100 dark:border-zinc-900 bg-white dark:bg-zinc-900/50 shadow-none overflow-hidden">
+          <CardHeader className="p-8 border-b border-zinc-50 dark:border-zinc-800/50">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                <ShieldCheck size={18} />
+              </div>
+              <div>
+                <CardTitle className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider">Identity Matrix</CardTitle>
+                <CardDescription className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Update admin credentials</CardDescription>
+              </div>
             </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
+          </CardHeader>
+          <CardContent className="p-8 space-y-8">
+            <div className="grid gap-8 md:grid-cols-2">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Full Name</Label>
+                <Label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 italic">Full Name</Label>
                 <Input
                   name="name"
                   value={form.name}
                   onChange={handleChange}
-                  className="bg-gray-50/50 dark:bg-black border-gray-200 dark:border-white/10 rounded-xl focus:ring-indigo-500/10"
+                  className="bg-transparent border-none border-b border-zinc-100 dark:border-zinc-800 rounded-none h-10 focus-visible:ring-0 focus-visible:border-zinc-900 dark:focus-visible:border-white transition-colors dark:text-white font-medium px-0"
                 />
               </div>
-
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Email Address</Label>
+                <Label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 italic">Admin Email</Label>
                 <Input
                   name="email"
                   value={form.email}
                   onChange={handleChange}
-                  className="bg-gray-50/50 dark:bg-black border-gray-200 dark:border-white/10 rounded-xl focus:ring-indigo-500/10"
+                  className="bg-transparent border-none border-b border-zinc-100 dark:border-zinc-800 rounded-none h-10 focus-visible:ring-0 focus-visible:border-zinc-900 dark:focus-visible:border-white transition-colors dark:text-white font-medium px-0"
                 />
               </div>
             </div>
-
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">New Password</Label>
+              <Label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 italic">Security Credential</Label>
               <Input
                 type="password"
                 name="password"
+                placeholder="••••••••"
                 value={form.password}
                 onChange={handleChange}
-                placeholder="••••••••"
-                className="bg-gray-50/50 dark:bg-black border-gray-200 dark:border-white/10 rounded-xl focus:ring-indigo-500/10"
+                className="bg-transparent border-none border-b border-zinc-100 dark:border-zinc-800 rounded-none h-10 focus-visible:ring-0 focus-visible:border-zinc-900 dark:focus-visible:border-white transition-colors dark:text-white font-medium px-0 tracking-widest"
               />
             </div>
           </CardContent>
         </Card>
 
-        {/* Preferences */}
-        <Card className="rounded-3xl border-none shadow-sm bg-white dark:bg-black dark:border dark:border-white/10 overflow-hidden">
-          <CardContent className="p-8 space-y-4">
-            <div className="flex items-center gap-2 mb-2">
-         
-              <h2 className="text-lg font-bold uppercase tracking-tight">Preferences</h2>
+        {/* Preferences - Switch Row Style */}
+        <Card className="rounded-2xl border border-zinc-100 dark:border-zinc-900 bg-white dark:bg-zinc-900/50 shadow-none overflow-hidden">
+          <CardHeader className="p-8 border-b border-zinc-50 dark:border-zinc-800/50">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                <Moon size={18} />
+              </div>
+              <div>
+                <CardTitle className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider">Environment Sync</CardTitle>
+                <CardDescription className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Global aesthetic and alerts</CardDescription>
+              </div>
             </div>
-
-            {/* Dark Mode Switch */}
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10">
+          </CardHeader>
+          <CardContent className="p-8 space-y-4">
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50/50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/50">
               <div className="flex items-center gap-4">
-                <div className="p-2 rounded-lg bg-white dark:bg-white/5 text-slate-600 dark:text-white shadow-sm border dark:border-white/10">
+                <div className="p-2 rounded-lg bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 shadow-sm border dark:border-zinc-700">
                   {darkMode ? <Moon size={18} /> : <Sun size={18} />}
                 </div>
-                <div className="space-y-0.5">
-                  <p className="font-bold">Appearance</p>
-                  <p className="text-xs text-gray-500 dark:text-slate-500">Enable dark theme across the dashboard</p>
+                <div>
+                  <Label className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Interface Mode</Label>
+                  <p className="text-[10px] text-zinc-400 uppercase tracking-tighter">Toggle dark/light matrix</p>
                 </div>
               </div>
               <Switch
                 checked={darkMode}
                 onCheckedChange={toggleTheme}
-                className="data-[state=checked]:bg-indigo-600"
+                className="data-[state=checked]:bg-zinc-900 dark:data-[state=checked]:bg-white"
               />
             </div>
 
-            {/* Notifications Switch */}
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10">
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50/50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/50">
               <div className="flex items-center gap-4">
-                <div className="p-2 rounded-lg bg-white dark:bg-white/5 text-slate-600 dark:text-white shadow-sm border dark:border-white/10">
+                <div className="p-2 rounded-lg bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 shadow-sm border dark:border-zinc-700">
                   <Bell size={18} />
                 </div>
-                <div className="space-y-0.5">
-                  <p className="font-bold">Notifications</p>
-                  <p className="text-xs text-gray-500 dark:text-slate-500">Receive system updates and alerts</p>
+                <div>
+                  <Label className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Signal Alerts</Label>
+                  <p className="text-[10px] text-zinc-400 uppercase tracking-tighter">Real-time status notifications</p>
                 </div>
               </div>
               <Switch
                 checked={form.notifications}
                 onCheckedChange={() => handleToggle("notifications")}
-                className="data-[state=checked]:bg-indigo-600"
+                className="data-[state=checked]:bg-zinc-900 dark:data-[state=checked]:bg-white"
               />
             </div>
           </CardContent>
         </Card>
 
-        {/* Actions */}
-        <div className="flex flex-col-reverse md:flex-row justify-between items-center gap-4 pt-4">
+        {/* Footer Actions */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-6">
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <button className="flex items-center gap-2 text-sm font-bold text-red-500 hover:text-red-600 transition-colors px-4 py-2 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl">
-                <Trash2 size={16} />
-                {loading || authLoading ? "Deleting..." : "Delete Account"}
+              <button className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 hover:text-red-500 transition-colors px-2 italic">
+                <Trash2 size={14} />
+                Purge Administrative Data
               </button>
             </AlertDialogTrigger>
-
-            <AlertDialogContent className="bg-white dark:bg-black border-none dark:border dark:border-white/10 rounded-3xl shadow-2xl">
+            <AlertDialogContent className="bg-white dark:bg-zinc-950 border-zinc-100 dark:border-zinc-900 rounded-[2rem] shadow-2xl p-8">
               <AlertDialogHeader>
-                <AlertDialogTitle className="text-xl font-bold dark:text-white uppercase tracking-tight">Verify Deletion</AlertDialogTitle>
-                <AlertDialogDescription className="dark:text-slate-400">
-                  This action is permanent. To confirm, type{" "}
-                  <strong className="text-red-500 font-bold underline">DELETE</strong> below:
+                <AlertDialogTitle className="text-xl font-bold dark:text-white uppercase italic tracking-tighter">Verify Execution</AlertDialogTitle>
+                <AlertDialogDescription className="text-xs text-zinc-400 leading-relaxed">
+                  This protocol is permanent. To confirm the account purge, type <strong className="text-red-500 underline underline-offset-4 font-black">DELETE</strong> below:
                 </AlertDialogDescription>
               </AlertDialogHeader>
-
-              <div className="my-4">
+              <div className="my-6">
                 <Input
-                  placeholder="Type DELETE"
+                  placeholder="TYPE DELETE"
                   value={confirmationText}
                   onChange={(e) => setConfirmationText(e.target.value)}
-                  className="bg-gray-50 dark:bg-black border-gray-200 dark:border-white/10 h-12 rounded-xl text-center font-black tracking-widest"
+                  className="bg-zinc-50 dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800 h-12 rounded-xl text-center font-bold tracking-[0.4em] text-xs dark:text-white focus-visible:ring-red-500/10 transition-all"
                 />
               </div>
-
-              <AlertDialogFooter className="gap-2">
-                <AlertDialogCancel className="rounded-xl border-gray-200 dark:border-white/10 dark:bg-black">Cancel</AlertDialogCancel>
+              <AlertDialogFooter className="gap-3">
+                <AlertDialogCancel className="h-11 rounded-xl text-[10px] font-bold uppercase tracking-widest border-zinc-100 dark:border-zinc-800">Abort</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleDeleteAccount}
-                  disabled={confirmationText !== "DELETE" || loading || authLoading}
-                  className="bg-red-600 hover:bg-red-700 text-white rounded-xl"
+                  disabled={confirmationText !== "DELETE" || loading}
+                  className="h-11 bg-red-600 hover:bg-red-700 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-red-600/20"
                 >
-                  Confirm Deletion
+                  Confirm Purge
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
 
           <Button
-  onClick={handleSubmit}
-  disabled={loading || authLoading}
-  className="w-full md:w-auto px-8 py-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold uppercase tracking-widest text-[9px] shadow-lg shadow-indigo-600/10 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-70 group"
->
-  {loading || authLoading ? (
-    <div className="flex items-center gap-2">
-      <div className="h-3 w-3 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-      <span className="opacity-80">Saving...</span>
-    </div>
-  ) : (
-    <>
-      <Save size={14} className="group-hover:translate-y-[-1px] transition-transform" />
-      <span>Save Changes</span>
-    </>
-  )}
-</Button>
+            onClick={handleSubmit}
+            disabled={loading || authLoading}
+            className="w-full md:w-auto px-10 h-12 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 font-bold uppercase tracking-[0.2em] text-[10px] transition-all active:scale-95 flex items-center justify-center gap-2 shadow-2xl shadow-zinc-500/10"
+          >
+            {loading || authLoading ? (
+              <div className="h-3 w-3 border-2 border-current/20 border-t-current rounded-full animate-spin" />
+            ) : (
+              <>
+                <Save size={14} />
+                <span>Commit Changes</span>
+              </>
+            )}
+          </Button>
         </div>
       </div>
+    </div>
   );
 };
 
 export default SettingsAdmin;
-
-

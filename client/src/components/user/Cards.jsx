@@ -1,14 +1,14 @@
-import React, { useEffect } from "react";
+import React from "react";
 import carImage from "../../assets/carpichero.png";
-import { Fuel, Cog, Users, Heart } from "lucide-react";
+import { Fuel, Cog, Users, Heart, ArrowRight } from "lucide-react";
 import { useCarStore } from "../../store/CarStore";
 import { useNavigate } from "react-router-dom";
 
 const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect }) => {
   const navigate = useNavigate();
-  const { cars = [], getCars, searchQuery } = useCarStore();
+  const { cars = [], searchQuery } = useCarStore();
 
-  useEffect(() => { getCars(); }, [getCars]);
+  // NO useEffect here — parent (Searchpage) handles fetching
 
   const handleSelect = (car) => {
     if (onSelect) {
@@ -24,7 +24,7 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
 
-    const fuelMatch  = !filterFuel         || filterFuel === "all"  || car.fuelType     === filterFuel;
+    const fuelMatch  = !filterFuel || filterFuel === "all" || car.fuelType === filterFuel;
     const transMatch = !filterTransmission || filterTransmission === "All" || car.transmission === filterTransmission;
 
     const priceMatch = (() => {
@@ -45,69 +45,77 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
   if (displayCars.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <p className="text-slate-400 dark:text-slate-500 text-sm font-medium">No cars match your filters.</p>
-        <p className="text-slate-300 dark:text-slate-600 text-xs mt-1">Try adjusting or resetting the filters.</p>
+        <p className="text-zinc-400 dark:text-zinc-500 text-sm font-medium">No cars match your filters.</p>
+        <p className="text-zinc-300 dark:text-zinc-600 text-[10px] uppercase tracking-widest mt-2">Try adjusting the search</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {displayCars.map((car) => (
         <div
           key={car._id}
           onClick={() => handleSelect(car)}
-          className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-2xl overflow-hidden hover:border-blue-200 dark:hover:border-blue-500/50 hover:shadow-md dark:hover:shadow-blue-500/10 transition-all group cursor-pointer"
+          className="group relative bg-white dark:bg-zinc-900/40 border border-zinc-100 dark:border-zinc-800/50 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-zinc-200/20 dark:hover:shadow-none transition-all duration-500 cursor-pointer"
         >
-          {/* Heart / Favorite */}
-          <div className="flex justify-end p-3 pb-0">
-            <button
-              className="text-slate-300 dark:text-slate-700 hover:text-red-400 dark:hover:text-red-500 transition-colors"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Heart size={16} />
-            </button>
-          </div>
-
-          {/* Name & Details */}
-          <div className="px-4 pb-3">
-            <p className="font-bold text-sm text-slate-900 dark:text-white truncate">
-              {car.brand} {car.model}
-            </p>
-            <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500 mt-0.5 uppercase tracking-wider">
-              {car.color} • {car.year}
-            </p>
-          </div>
-
-          {/* Image Container */}
-          <div className="mx-3 bg-slate-50 dark:bg-black rounded-xl flex justify-center items-center p-4 h-32 transition-colors">
-            <img
-              src={car.image || carImage}
-              alt={car.model}
-              className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-110"
-            />
-          </div>
-
-          {/* Specs / Icons */}
-          <div className="flex justify-between px-4 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 border-t border-slate-50 dark:border-white/5 mt-3">
-            <span className="flex items-center gap-1.5"><Fuel size={12} className="text-blue-500/70" />{car.fuelType}</span>
-            <span className="flex items-center gap-1.5"><Cog size={12} className="text-blue-500/70" />{car.transmission}</span>
-            <span className="flex items-center gap-1.5"><Users size={12} className="text-blue-500/70" />{car.mileage} km</span>
-          </div>
-
-          {/* Pricing & CTA */}
-          <div className="flex items-center justify-between border-t border-slate-100 dark:border-white/5 px-4 py-3 bg-white/50 dark:bg-black">
+          {/* Header Info */}
+          <div className="p-5 pb-0 flex justify-between items-start">
             <div>
-              <p className="text-sm font-black text-slate-900 dark:text-white">
-                ₱{car.pricePerDay.toLocaleString()}
-                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal uppercase ml-0.5">/ day</span>
+              <h3 className="font-bold text-zinc-900 dark:text-white text-base tracking-tight truncate w-40">
+                {car.brand} {car.model}
+              </h3>
+              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.15em] mt-1">
+                {car.year} • {car.color}
               </p>
             </div>
             <button
-              className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-[11px] font-bold px-4 py-2 rounded-lg transition-all shadow-lg shadow-blue-500/20 active:scale-95"
+              className="text-zinc-300 dark:text-zinc-700 hover:text-red-500 transition-colors duration-300"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Heart size={18} />
+            </button>
+          </div>
+
+          {/* Image Section */}
+          <div className="relative h-40 flex items-center justify-center p-6">
+            <div className="absolute inset-x-6 inset-y-10 bg-zinc-50 dark:bg-zinc-800/30 rounded-[2rem] -rotate-2 group-hover:rotate-0 transition-transform duration-700" />
+            <img
+              src={car.image || carImage}
+              alt={car.model}
+              className="relative z-10 h-full w-full object-contain transition-transform duration-700 group-hover:scale-110 group-hover:-translate-y-2"
+            />
+          </div>
+
+          {/* Specs Bar */}
+          <div className="flex justify-between px-5 py-4 border-t border-zinc-50 dark:border-zinc-800/50">
+            <div className="flex flex-col items-center gap-1">
+              <Fuel size={14} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors" />
+              <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">{car.fuelType}</span>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <Cog size={14} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors" />
+              <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">{car.transmission}</span>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <Users size={14} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors" />
+              <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">{car.mileage} km</span>
+            </div>
+          </div>
+
+          {/* Footer - Price & CTA */}
+          <div className="bg-zinc-50 dark:bg-zinc-800/20 px-5 py-4 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800">
+            <div>
+              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest leading-none mb-1">Daily Rate</p>
+              <p className="text-lg font-black text-zinc-900 dark:text-white leading-none">
+                ₱{car.pricePerDay.toLocaleString()}
+              </p>
+            </div>
+            <button
+              className="h-10 w-10 flex items-center justify-center rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 group-hover:scale-110 transition-all duration-300 shadow-lg shadow-zinc-900/10"
               onClick={(e) => { e.stopPropagation(); handleSelect(car); }}
             >
-              Rent now
+              <ArrowRight size={18} />
             </button>
           </div>
         </div>

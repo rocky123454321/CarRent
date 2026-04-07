@@ -7,7 +7,19 @@ const CARS = `${API_URL}/api/cars`;
 
 axios.defaults.withCredentials = true;
 
-export const useCarStore = create((set) => ({
+// Helper: detect current season (matches seasonalAnnouncements.js logic)
+const getCurrentSeason = () => {
+  const month = new Date().getMonth() + 1;
+  const day   = new Date().getDate();
+  if (month === 12 || (month === 1 && day === 1)) return "christmas";
+  if (month === 2)                                 return "valentines";
+  if (month >= 3 && month <= 5)                    return "summer";
+  if (month === 10)                                return "halloween";
+  if (day >= 28 || day <= 2)                       return "payday";
+  return "sale";
+};
+
+export const useCarStore = create((set, get) => ({
   cars: [],
   car: null,
   isLoading: false,
@@ -15,6 +27,27 @@ export const useCarStore = create((set) => ({
   message: null,
   searchQuery: "",
   setSearchQuery: (query) => set({ searchQuery: query }),
+
+  // ✅ PROMO GETTERS
+  // Returns all promo cars that match current season (or any active promo)
+  getPromoCars: () => {
+    const { cars } = get();
+    const season = getCurrentSeason();
+    const now = new Date();
+    return cars.filter(car =>
+      car.isPromo &&
+      car.isAvailable &&
+      (car.promoSeason === season || !car.promoSeason) &&
+      (!car.promoExpiry || new Date(car.promoExpiry) > now)
+    );
+  },
+
+  // Returns 1 random promo car for the current season
+  getRandomPromoCar: () => {
+    const promoCars = get().getPromoCars();
+    if (!promoCars.length) return null;
+    return promoCars[Math.floor(Math.random() * promoCars.length)];
+  },
 
   // GET /api/cars
   getCars: async () => {
@@ -93,7 +126,7 @@ export const useCarStore = create((set) => ({
     }
   },
 
-  // GET /api/cars/admin (for admin cars list)
+  // GET /api/cars/admin
   getAdminCars: async () => {
     set({ isLoading: true, error: null });
     try {

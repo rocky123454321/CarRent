@@ -151,13 +151,13 @@ const Chat = ({
         ))
       ) : activeMessages.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-center px-6">
-          <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-[2.5rem] p-10 shadow-sm max-w-[320px]">
-            <MessageCircle size={32} className="mx-auto mb-6 text-zinc-200 dark:text-zinc-800" />
+         
+           
             <p className="text-xs font-bold text-zinc-900 dark:text-white mb-2 uppercase tracking-widest italic">New Protocol</p>
             <p className="text-[10px] leading-relaxed font-medium text-zinc-400 dark:text-zinc-600 uppercase tracking-tighter">
               Communication line established for {carName ? <span className="text-zinc-900 dark:text-white font-black underline">{carName}</span> : 'support'}.
             </p>
-          </div>
+          
         </div>
       ) : (
         activeMessages.map((msg, i) => {
@@ -338,7 +338,7 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in duration-700 p-4 md:p-8" style={font}>
+    <div className="flex flex-col gap-6 animate-in fade-in duration-700 md:p-8" style={font}>
       <button
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition w-fit italic"

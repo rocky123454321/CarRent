@@ -8,10 +8,20 @@ import {
   SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ImagePlus, X, CheckCircle } from "lucide-react";
+import { ImagePlus, X, CheckCircle, Tag, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+const SEASON_OPTIONS = [
+  { value: "summer",     label: "☀️ Summer" },
+  { value: "christmas",  label: "🎄 Christmas" },
+  { value: "valentines", label: "💝 Valentine's" },
+  { value: "halloween",  label: "🎃 Halloween" },
+  { value: "new_year",   label: "🎆 New Year" },
+  { value: "payday",     label: "💸 Payday" },
+  { value: "sale",       label: "🛍️ General Sale" },
+];
 
 const AddCar = () => {
   const [form, setForm] = useState({
@@ -19,6 +29,8 @@ const AddCar = () => {
     pricePerDay: "", mileage: "", fuelType: "Petrol",
     transmission: "Automatic", licensePlate: "",
     isAvailable: true, image: null,
+    isPromo: false, promoPrice: "", promoLabel: "",
+    promoSeason: "", promoExpiry: "",
   });
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -33,10 +45,7 @@ const AddCar = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be under 5MB");
-      return;
-    }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
     setForm(prev => ({ ...prev, image: file }));
     const reader = new FileReader();
     reader.onloadend = () => setPreview(reader.result);
@@ -56,39 +65,34 @@ const AddCar = () => {
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append("brand", form.brand);
-      formData.append("model", form.model);
-      formData.append("year", form.year);
-      formData.append("color", form.color);
-      formData.append("pricePerDay", form.pricePerDay);
-      formData.append("mileage", form.mileage || 0);
-      formData.append("fuelType", form.fuelType);
-      formData.append("transmission", form.transmission);
-      formData.append("licensePlate", form.licensePlate.toUpperCase());
-      formData.append("isAvailable", form.isAvailable);
+      Object.keys(form).forEach(key => {
+        if (key === 'image') {
+           if (form.image) formData.append("image", form.image);
+        } else if (key === 'licensePlate') {
+           formData.append(key, form[key].toUpperCase());
+        } else {
+           formData.append(key, form[key]);
+        }
+      });
       formData.append("uploadedBy", user._id);
-      if (form.image) formData.append("image", form.image);
 
       const res = await fetch(`${API_URL}/api/cars`, {
-        method: "POST",
-        body: formData,
-        credentials: "include",
+        method: "POST", body: formData, credentials: "include",
       });
-
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to add car");
 
       toast.success("Car added successfully!");
       fetchAdminCars();
-
       setForm({
         brand: "", model: "", year: "", color: "",
         pricePerDay: "", mileage: "", fuelType: "Petrol",
         transmission: "Automatic", licensePlate: "",
         isAvailable: true, image: null,
+        isPromo: false, promoPrice: "", promoLabel: "",
+        promoSeason: "", promoExpiry: "",
       });
       setPreview(null);
-
     } catch (error) {
       toast.error(error.message || "Failed to add car");
     } finally {
@@ -96,155 +100,206 @@ const AddCar = () => {
     }
   };
 
-  // DARK MODE CLASS HELPER
-  const labelClass = "text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-1.5 block";
+  const labelClass = "text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-500 mb-2 block";
 
   return (
-    <div className="max-w-xl mx-auto mt-10 mb-10 p-8 bg-white dark:bg-[#0a0a0a] rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm transition-colors">
-      <div className="mb-6">
-        <p className="text-indigo-600 dark:text-indigo-400 font-semibold text-sm tracking-widest uppercase mb-1">Management</p>
-        <h2 className="text-2xl font-black text-gray-900 dark:text-white">Add New Vehicle</h2>
-        <p className="text-xs text-gray-400 dark:text-slate-500">Fill in the technical specifications below.</p>
+    <div className="max-w-2xl mx-auto my-12 p-10 bg-white dark:bg-zinc-950 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-900 shadow-2xl shadow-zinc-200/50 dark:shadow-none transition-all">
+      <div className="mb-10 text-center sm:text-left">
+        <div className="inline-flex items-center gap-2 mb-2">
+          <span className="h-px w-8 bg-zinc-200 dark:bg-zinc-800" />
+          <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em]">Registry</p>
+        </div>
+        <h2 className="text-3xl font-bold tracking-tighter text-zinc-900 dark:text-white">Add New Vehicle</h2>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Register a new unit to your active inventory.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-8">
 
         {/* Image Upload */}
         <div>
-          <label className={labelClass}>Vehicle Photo</label>
+          <label className={labelClass}>Vehicle Showcase</label>
           <div
             onClick={() => !preview && fileInputRef.current?.click()}
-            className={`relative h-48 w-full rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden
-              ${preview 
-                ? 'border-indigo-200 dark:border-indigo-500/50 bg-white dark:bg-slate-800/50' 
-                : 'border-gray-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5'}`}
+            className={`relative h-56 w-full rounded-[2rem] border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center cursor-pointer overflow-hidden
+              ${preview
+                ? 'border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/30'
+                : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-900 dark:hover:border-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900'}`}
           >
             {preview ? (
               <>
-                <img src={preview} alt="Preview" className="h-full w-full object-cover" />
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); removeImage(); }}
-                  className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-lg transition"
-                >
-                  <X size={14} />
+                <img src={preview} alt="Preview" className="h-full w-full object-contain p-6" />
+                <button type="button" onClick={(e) => { e.stopPropagation(); removeImage(); }}
+                  className="absolute top-4 right-4 p-2 bg-zinc-900 text-white rounded-full hover:bg-zinc-700 shadow-xl transition-all">
+                  <X size={16} />
                 </button>
-                <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-white/90 dark:bg-[#0a0a0a]/90 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold px-2 py-1 rounded-full border border-emerald-100 dark:border-emerald-500/20">
-                  <CheckCircle size={10} /> Photo ready
+                <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-white/90 dark:bg-zinc-950/90 text-zinc-900 dark:text-white text-[10px] font-bold px-4 py-2 rounded-full border border-zinc-200 dark:border-zinc-800 shadow-sm">
+                  <CheckCircle size={12} className="text-emerald-500" /> Ready to Upload
                 </div>
               </>
             ) : (
-              <div className="text-center">
-                <ImagePlus className="mx-auto text-gray-300 dark:text-slate-600 mb-2" size={32} />
-                <p className="text-xs font-medium text-gray-500 dark:text-slate-500">Click to upload car image</p>
-                <p className="text-[10px] text-gray-400 dark:text-slate-600 mt-1">PNG, JPG, WEBP up to 5MB</p>
+              <div className="text-center group">
+                <div className="w-16 h-16 bg-zinc-50 dark:bg-zinc-900 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-zinc-100 dark:border-zinc-800 group-hover:scale-110 transition-transform">
+                  <ImagePlus className="text-zinc-400 dark:text-zinc-600" size={28} />
+                </div>
+                <p className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Drop car photo here</p>
+                <p className="text-[9px] text-zinc-300 dark:text-zinc-700 mt-1 uppercase tracking-tight">Max size 5MB</p>
               </div>
             )}
           </div>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleImageChange}
-            className="hidden"
-            accept="image/*"
-          />
+          <input type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
         </div>
 
-        {/* Brand & Model */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>Brand</label>
-            <Input className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="e.g. Toyota" value={form.brand} onChange={handle("brand")} required />
+        {/* Technical Specs Group */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
+          <div className="space-y-6">
+             <div>
+              <label className={labelClass}>Brand</label>
+              <Input className="h-12 rounded-xl dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus-visible:ring-zinc-950 dark:focus-visible:ring-white" placeholder="e.g. BMW" value={form.brand} onChange={handle("brand")} required />
+            </div>
+            <div>
+              <label className={labelClass}>Year</label>
+              <Input className="h-12 rounded-xl dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800" type="number" min={1990} max={new Date().getFullYear()+1} placeholder="2024" value={form.year} onChange={handle("year")} required />
+            </div>
+            <div>
+              <label className={labelClass}>Daily Rate (₱)</label>
+              <Input className="h-12 rounded-xl font-bold text-zinc-900 dark:text-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800" type="number" min={0} placeholder="2500" value={form.pricePerDay} onChange={handle("pricePerDay")} required />
+            </div>
           </div>
-          <div>
-            <label className={labelClass}>Model</label>
-            <Input className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="e.g. Corolla" value={form.model} onChange={handle("model")} required />
-          </div>
-        </div>
 
-        {/* Year & Color */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>Year</label>
-            <Input className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white" type="number" min={1990} max={new Date().getFullYear()+1} placeholder="2024" value={form.year} onChange={handle("year")} required />
-          </div>
-          <div>
-            <label className={labelClass}>Color</label>
-            <Input className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="Metallic Gray" value={form.color} onChange={handle("color")} />
-          </div>
-        </div>
-
-        {/* Mileage */}
-        <div>
-          <label className={labelClass}>Mileage (km)</label>
-          <Input
-            className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white"
-            type="number"
-            min={0}
-            placeholder="e.g. 50000"
-            value={form.mileage || ""}
-            onChange={handle("mileage")}
-          />
-        </div>
-
-        {/* Price & License Plate */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>Rate per Day (₱)</label>
-            <Input className="rounded-xl font-bold text-indigo-600 dark:text-indigo-400 dark:bg-slate-800 dark:border-slate-700" type="number" min={0} placeholder="1500" value={form.pricePerDay} onChange={handle("pricePerDay")} required />
-          </div>
-          <div>
-            <label className={labelClass}>License Plate</label>
-            <Input className="rounded-xl uppercase dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="ABC 1234" value={form.licensePlate} onChange={handle("licensePlate")} required />
+          <div className="space-y-6">
+            <div>
+              <label className={labelClass}>Model</label>
+              <Input className="h-12 rounded-xl dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800" placeholder="e.g. M4 Competition" value={form.model} onChange={handle("model")} required />
+            </div>
+            <div>
+              <label className={labelClass}>Color</label>
+              <Input className="h-12 rounded-xl dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800" placeholder="Alpine White" value={form.color} onChange={handle("color")} />
+            </div>
+            <div>
+              <label className={labelClass}>License Plate</label>
+              <Input className="h-12 rounded-xl uppercase font-mono tracking-widest dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800" placeholder="ABC-1234" value={form.licensePlate} onChange={handle("licensePlate")} required />
+            </div>
           </div>
         </div>
 
-        {/* Fuel & Transmission */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>Fuel Type</label>
+        {/* Secondary Specs */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+           <div className="md:col-span-1">
+            <label className={labelClass}>Fuel</label>
             <Select value={form.fuelType} onValueChange={(val) => setForm(p => ({ ...p, fuelType: val }))}>
-              <SelectTrigger className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white"><SelectValue /></SelectTrigger>
-              <SelectContent className="dark:bg-[#0a0a0a] dark:border-white/5">
-                <SelectItem value="Petrol" className="dark:text-white dark:focus:bg-slate-800">Petrol</SelectItem>
-                <SelectItem value="Diesel" className="dark:text-white dark:focus:bg-slate-800">Diesel</SelectItem>
-                <SelectItem value="Electric" className="dark:text-white dark:focus:bg-slate-800">Electric</SelectItem>
-                <SelectItem value="Hybrid" className="dark:text-white dark:focus:bg-slate-800">Hybrid</SelectItem>
+              <SelectTrigger className="h-12 rounded-xl dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800"><SelectValue /></SelectTrigger>
+              <SelectContent className="dark:bg-zinc-950 dark:border-zinc-800">
+                <SelectItem value="Petrol">Petrol</SelectItem>
+                <SelectItem value="Diesel">Diesel</SelectItem>
+                <SelectItem value="Electric">Electric</SelectItem>
+                <SelectItem value="Hybrid">Hybrid</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div>
-            <label className={labelClass}>Transmission</label>
+          <div className="md:col-span-1">
+            <label className={labelClass}>Gearbox</label>
             <Select value={form.transmission} onValueChange={(val) => setForm(p => ({ ...p, transmission: val }))}>
-              <SelectTrigger className="rounded-xl dark:bg-slate-800 dark:border-slate-700 dark:text-white"><SelectValue /></SelectTrigger>
-              <SelectContent className="dark:bg-[#0a0a0a] dark:border-white/5">
-                <SelectItem value="Automatic" className="dark:text-white dark:focus:bg-slate-800">Automatic</SelectItem>
-                <SelectItem value="Manual" className="dark:text-white dark:focus:bg-slate-800">Manual</SelectItem>
+              <SelectTrigger className="h-12 rounded-xl dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800"><SelectValue /></SelectTrigger>
+              <SelectContent className="dark:bg-zinc-950 dark:border-zinc-800">
+                <SelectItem value="Automatic">Automatic</SelectItem>
+                <SelectItem value="Manual">Manual</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="md:col-span-1">
+            <label className={labelClass}>Mileage (KM)</label>
+            <Input className="h-12 rounded-xl dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800" type="number" min={0} placeholder="0" value={form.mileage || ""} onChange={handle("mileage")} />
           </div>
         </div>
 
-        {/* Availability */}
-        <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-white/5">
-          <Checkbox
-            id="available"
-            className="dark:border-slate-600 dark:data-[state=checked]:bg-indigo-500"
-            checked={form.isAvailable}
-            onCheckedChange={(checked) => setForm(p => ({ ...p, isAvailable: checked }))}
-          />
-          <div>
-            <label htmlFor="available" className="text-sm font-bold text-gray-700 dark:text-slate-300 cursor-pointer">Available for rent</label>
-            <p className="text-[10px] text-gray-400 dark:text-slate-500">If unchecked, car won't appear in search results.</p>
+        {/* Promo Section - Re-designed as a Feature Card */}
+        <div className={`group rounded-[2rem] border-2 transition-all duration-500 overflow-hidden ${form.isPromo ? 'border-zinc-900 dark:border-zinc-100 bg-zinc-50/50 dark:bg-zinc-900/20' : 'border-zinc-100 dark:border-zinc-900 bg-transparent'}`}>
+          <div 
+            className="flex items-center justify-between p-6 cursor-pointer"
+            onClick={() => setForm(p => ({ ...p, isPromo: !p.isPromo }))}
+          >
+            <div className="flex items-center gap-4">
+               <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${form.isPromo ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-950' : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-900 dark:text-zinc-700'}`}>
+                  <Sparkles size={18} />
+               </div>
+               <div>
+                  <h4 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Seasonal Promotion</h4>
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-500 font-medium uppercase tracking-widest">Apply discounts and labels</p>
+               </div>
+            </div>
+            <Checkbox 
+              id="isPromo" 
+              className="w-6 h-6 rounded-lg dark:border-zinc-800 dark:data-[state=checked]:bg-white dark:data-[state=checked]:text-zinc-950"
+              checked={form.isPromo} 
+              onCheckedChange={(checked) => setForm(p => ({ ...p, isPromo: checked }))} 
+            />
           </div>
+
+          {form.isPromo && (
+            <div className="px-6 pb-6 space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className={labelClass}>Promo Rate (₱)</label>
+                  <Input
+                    className="h-11 rounded-xl font-bold text-emerald-600 dark:text-emerald-400 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800"
+                    type="number"
+                    placeholder="Discounted price"
+                    value={form.promoPrice}
+                    onChange={handle("promoPrice")}
+                  />
+                  {form.pricePerDay && form.promoPrice && (
+                    <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-2">
+                      -{Math.round((1 - form.promoPrice / form.pricePerDay) * 100)}% markdown applied
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className={labelClass}>Event Label</label>
+                  <Input
+                    className="h-11 rounded-xl dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800"
+                    placeholder="e.g. FLASH SALE"
+                    value={form.promoLabel}
+                    onChange={handle("promoLabel")}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className={labelClass}>Season</label>
+                  <Select value={form.promoSeason} onValueChange={(val) => setForm(p => ({ ...p, promoSeason: val }))}>
+                    <SelectTrigger className="h-11 rounded-xl dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
+                      <SelectValue placeholder="Select event" />
+                    </SelectTrigger>
+                    <SelectContent className="dark:bg-zinc-950 dark:border-zinc-800">
+                      {SEASON_OPTIONS.map(s => (
+                        <SelectItem key={s.value} value={s.value} className="font-medium">{s.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className={labelClass}>Expiry</label>
+                  <Input
+                    className="h-11 rounded-xl dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 dark:text-zinc-400"
+                    type="date"
+                    min={new Date().toISOString().split("T")[0]}
+                    value={form.promoExpiry}
+                    onChange={handle("promoExpiry")}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <Button
           type="submit"
           disabled={loading}
-          className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold transition-all shadow-lg shadow-indigo-100 dark:shadow-none"
+          className="w-full h-14 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 font-bold text-xs uppercase tracking-[0.3em] transition-all shadow-xl shadow-zinc-900/10 dark:shadow-none mt-4"
         >
-          {loading ? "Uploading..." : "List Vehicle Now"}
+          {loading ? "Processing..." : "Deploy to Inventory"}
         </Button>
       </form>
     </div>

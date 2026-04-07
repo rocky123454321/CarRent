@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Grid, Calendar, User, PieChart, Box, ChevronDown, X } from "lucide-react";
+import { Grid, Calendar, MessageSquare, PieChart, Box, ChevronDown, X, Zap } from "lucide-react";
 import img from "../../assets/brand.png";
 
 const AdminSidebarLayout = ({ isOpen, onClose }) => {
@@ -15,146 +15,146 @@ const AdminSidebarLayout = ({ isOpen, onClose }) => {
   const isParentActive = (paths) => paths.some((p) => location.pathname.startsWith(p));
 
   const linkClass = (path) =>
-    `flex items-center gap-3 py-2 px-3 rounded-xl transition-all duration-150 font-medium text-sm ${
+    `flex items-center gap-3 py-2.5 px-4 rounded-2xl transition-all duration-200 font-bold text-[13px] tracking-tight ${
       isActive(path)
-        ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-        : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-200"
+        ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 shadow-lg shadow-zinc-900/10"
+        : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100"
     }`;
 
   const subLinkClass = (path) =>
-    `block py-1.5 px-3 rounded-lg text-sm transition-all duration-150 ${
+    `block py-2 px-4 rounded-xl text-[12px] font-bold transition-all duration-200 ${
       isActive(path)
-        ? "bg-indigo-50 text-indigo-600 font-semibold dark:bg-indigo-500/10 dark:text-indigo-400"
-        : "text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+        ? "text-zinc-900 dark:text-white translate-x-1"
+        : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:translate-x-1"
     }`;
 
   return (
     <aside
-      className={`fixed top-0 left-0 z-50 h-screen w-[240px] bg-white dark:bg-[#0a0a0a] flex flex-col border-r border-slate-100 dark:border-white/5 transition-all duration-300
-        ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
+      className={`fixed top-0 left-0 z-50 h-screen w-[260px] bg-white dark:bg-zinc-950 flex flex-col border-r border-zinc-100 dark:border-zinc-900 transition-all duration-300 lg:translate-x-0
+        ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+      style={{ fontFamily: "'Inter', sans-serif" }}
     >
-      {/* Logo + Close button */}
-      <div className="py-5 px-5 flex items-center justify-between border-b border-slate-100 dark:border-white/5">
-        <Link to="/admin">
-          {/* Kung may dark version ang logo mo, pwede mong i-toggle ang filter para mas visible sa dark mode */}
-          <img src={img} alt="Car Rent Logo" width={120} className="dark:brightness-110" />
+      {/* Brand Header */}
+      <div className="h-[80px] px-6 flex items-center justify-between border-b border-zinc-50 dark:border-zinc-900/50">
+        <Link to="/admin" className="flex items-center gap-2">
+          <img src={img} alt="Car Rent Logo" width={110} className="dark:brightness-125 transition-all" />
         </Link>
         <button
           onClick={onClose}
-          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+          className="lg:hidden p-2 rounded-xl text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition"
         >
           <X size={18} />
         </button>
       </div>
 
-      {/* Menu */}
-      <div className="flex-1 overflow-y-auto px-3 py-5 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
-        <nav className="flex flex-col gap-6">
-
-          {/* Main Section */}
-          <div>
-            <p className="text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-widest mb-2 px-3">
-              Main
+      {/* Navigation Menu */}
+      <div className="flex-1 overflow-y-auto px-4 py-8 custom-scrollbar">
+        <nav className="flex flex-col gap-8">
+          
+          {/* Overview Section */}
+          <div className="space-y-2">
+            <p className="text-[10px] font-black text-zinc-300 dark:text-zinc-600 uppercase tracking-[0.2em] px-4 mb-4">
+              Overview
             </p>
-            <ul className="flex flex-col gap-0.5">
+            <ul className="space-y-1.5">
               <li>
                 <Link to="/admin" className={linkClass("/admin")} onClick={onClose}>
-                  <Grid size={17} />
-                  Dashboard
+                  <Grid size={18} />
+                  <span>Dashboard</span>
                 </Link>
               </li>
               <li>
                 <Link to="/admin/bookings" className={linkClass("/admin/bookings")} onClick={onClose}>
-                  <Calendar size={17} />
-                  Bookings
+                  <Calendar size={18} />
+                  <span>Bookings</span>
                 </Link>
               </li>
               <li>
                 <Link to="/admin/chat" className={linkClass("/admin/chat")} onClick={onClose}>
-                  <User size={17} />
-                  Customers
+                  <MessageSquare size={18} />
+                  <span>Messages</span>
                 </Link>
               </li>
             </ul>
           </div>
 
           {/* Management Section */}
-          <div>
-            <p className="text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-widest mb-2 px-3">
+          <div className="space-y-2">
+            <p className="text-[10px] font-black text-zinc-300 dark:text-zinc-600 uppercase tracking-[0.2em] px-4 mb-4">
               Management
             </p>
-            <ul className="flex flex-col gap-0.5">
-
-              {/* Cars Menu */}
+            <ul className="space-y-1.5">
+              {/* Cars Dropdown */}
               <li>
                 <button
-                  className={`flex items-center gap-3 w-full py-2 px-3 rounded-xl transition-all duration-150 text-sm font-medium ${
+                  className={`flex items-center gap-3 w-full py-2.5 px-4 rounded-2xl transition-all duration-200 text-[13px] font-bold tracking-tight ${
                     isParentActive(["/admin/list", "/admin/add"])
-                      ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-                      : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-200"
+                      ? "bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+                      : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100"
                   }`}
                   onClick={() => toggleMenu("cars")}
                 >
-                  <Box size={17} />
-                  <span className="flex-1 text-left">Cars</span>
+                  <Box size={18} />
+                  <span className="flex-1 text-left">Fleet</span>
                   <ChevronDown
                     size={14}
-                    className={`transition-transform duration-200 ${openMenus.cars ? "rotate-180" : ""}`}
+                    className={`transition-transform duration-300 ${openMenus.cars ? "rotate-180" : ""}`}
                   />
                 </button>
                 {openMenus.cars && (
-                  <ul className="ml-8 mt-0.5 flex flex-col gap-0.5 border-l border-slate-100 dark:border-white/5 pl-2">
-                    <li>
+                  <ul className="mt-2 ml-4 space-y-1 border-l-2 border-zinc-100 dark:border-zinc-900">
+                    <li className="pl-4">
                       <Link to="/admin/list" className={subLinkClass("/admin/list")} onClick={onClose}>
-                        Car List
+                        Inventory
                       </Link>
                     </li>
-                    <li>
+                    <li className="pl-4">
                       <Link to="/admin/add" className={subLinkClass("/admin/add")} onClick={onClose}>
-                        Add Car
+                        Register Car
                       </Link>
                     </li>
                   </ul>
                 )}
               </li>
 
-              {/* Reports Menu */}
+              {/* Reports Dropdown */}
               <li>
                 <button
-                  className={`flex items-center gap-3 w-full py-2 px-3 rounded-xl transition-all duration-150 text-sm font-medium ${
+                  className={`flex items-center gap-3 w-full py-2.5 px-4 rounded-2xl transition-all duration-200 text-[13px] font-bold tracking-tight ${
                     isParentActive(["/admin/reports"])
-                      ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"
-                      : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-200"
+                      ? "bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+                      : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-100"
                   }`}
                   onClick={() => toggleMenu("reports")}
                 >
-                  <PieChart size={17} />
-                  <span className="flex-1 text-left">Reports</span>
+                  <PieChart size={18} />
+                  <span className="flex-1 text-left">Analytics</span>
                   <ChevronDown
                     size={14}
-                    className={`transition-transform duration-200 ${openMenus.reports ? "rotate-180" : ""}`}
+                    className={`transition-transform duration-300 ${openMenus.reports ? "rotate-180" : ""}`}
                   />
                 </button>
                 {openMenus.reports && (
-                  <ul className="ml-8 mt-0.5 flex flex-col gap-0.5 border-l border-slate-100 dark:border-white/5 pl-2">
-                    <li>
+                  <ul className="mt-2 ml-4 space-y-1 border-l-2 border-zinc-100 dark:border-zinc-900">
+                    <li className="pl-4">
                       <Link to="/admin/reports/daily" className={subLinkClass("/admin/reports/daily")} onClick={onClose}>
-                        Daily
+                        Daily Performance
                       </Link>
                     </li>
-                    <li>
+                    <li className="pl-4">
                       <Link to="/admin/reports/monthly" className={subLinkClass("/admin/reports/monthly")} onClick={onClose}>
-                        Monthly
+                        Monthly Audit
                       </Link>
                     </li>
                   </ul>
                 )}
               </li>
-
             </ul>
           </div>
         </nav>
       </div>
+
+      
     </aside>
   );
 };

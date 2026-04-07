@@ -42,7 +42,7 @@ export const AdminCards = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) return alert("Image must be under 5MB");
+    if (file.size * 1024 * 1024 > 5242880) return alert("Image must be under 5MB");
     setEditingCar(prev => ({ ...prev, image: file }));
     const reader = new FileReader();
     reader.onloadend = () => setPreview(reader.result);
@@ -56,21 +56,21 @@ export const AdminCards = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
       {cars.map(car => (
-        <div key={car._id} className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-white/5 rounded-2xl overflow-hidden hover:border-gray-200 dark:hover:border-slate-700 transition-colors shadow-sm">
+        <div key={car._id} className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-3xl overflow-hidden hover:shadow-xl hover:shadow-zinc-500/5 transition-all duration-300">
 
           {/* Header Status Badge */}
-          <div className="flex items-start justify-between p-3 pb-0">
-            <span className={`text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full border ${
+          <div className="flex items-start justify-between p-4 pb-0">
+            <span className={`text-[9px] uppercase tracking-[0.15em] font-bold px-3 py-1 rounded-full border ${
               car.isAvailable 
-                ? "bg-green-50 text-green-700 border-green-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20" 
-                : "bg-red-50 text-red-700 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20"
+                ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50" 
+                : "bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-900 dark:text-zinc-500 dark:border-zinc-800"
             }`}>
-              {car.isAvailable ? "● Available" : "○ Unavailable"}
+              {car.isAvailable ? "● Available" : "○ Rented Out"}
             </span>
 
-            <div className="flex gap-1.5">
+            <div className="flex gap-2">
               {/* Edit Dialog */}
               <Dialog
                 open={openDialogId === car._id}
@@ -86,42 +86,42 @@ export const AdminCards = () => {
                 }}
               >
                 <DialogTrigger asChild>
-                  <button className="w-7 h-7 flex items-center justify-center border border-gray-100 dark:border-white/5 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition-colors shadow-sm">
-                    <Pencil size={13} className="text-gray-500 dark:text-slate-400" />
+                  <button className="w-8 h-8 flex items-center justify-center border border-zinc-100 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-zinc-950 transition-all shadow-sm">
+                    <Pencil size={14} />
                   </button>
                 </DialogTrigger>
 
-                <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto dark:bg-[#0a0a0a] dark:border-white/5">
+                <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-900">
                   <form onSubmit={(e) => { e.preventDefault(); handleUpdate(); }}>
                     <DialogHeader>
-                      <DialogTitle className="dark:text-white">Edit Vehicle Details</DialogTitle>
-                      <DialogDescription className="dark:text-slate-400">Make changes to the car listing here.</DialogDescription>
+                      <DialogTitle className="text-xl font-bold tracking-tighter dark:text-white text-zinc-900">Vehicle Profile</DialogTitle>
+                      <DialogDescription className="text-zinc-500 dark:text-zinc-400 text-sm">Update the specifications for this listing.</DialogDescription>
                     </DialogHeader>
 
                     {editingCar && (
-                      <div className="my-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="my-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="md:col-span-2">
-                          <Label className="text-xs font-semibold text-gray-600 dark:text-slate-400">Vehicle Photo</Label>
+                          <Label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Listing Cover</Label>
                           <div
                             onClick={() => !preview && fileInputRef.current?.click()}
-                            className={`relative h-40 w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer overflow-hidden mt-1
-                              ${preview ? 'border-indigo-200 bg-white dark:bg-slate-800/50' : 'border-gray-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50/30'}`}
+                            className={`relative h-44 w-full rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer overflow-hidden mt-1.5 transition-all
+                              ${preview ? 'border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/50' : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-900 dark:hover:border-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900'}`}
                           >
                             {preview ? (
                               <>
-                                <img src={preview} alt="Preview" className="h-full w-full object-contain p-2" />
+                                <img src={preview} alt="Preview" className="h-full w-full object-contain p-4" />
                                 <button type="button" onClick={(e) => { e.stopPropagation(); removeImage(); }}
-                                  className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-lg transition">
+                                  className="absolute top-3 right-3 p-2 bg-zinc-900 text-white rounded-full hover:bg-zinc-700 shadow-xl transition-all">
                                   <X size={14} />
                                 </button>
-                                <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-white/90 dark:bg-[#0a0a0a]/90 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold px-2 py-1 rounded-full border border-emerald-100 dark:border-emerald-500/20">
-                                  <CheckCircle size={10} /> Photo ready
+                                <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-white/90 dark:bg-zinc-950/90 text-zinc-900 dark:text-white text-[10px] font-bold px-3 py-1.5 rounded-full border border-zinc-200 dark:border-zinc-800">
+                                  <CheckCircle size={10} /> Image Set
                                 </div>
                               </>
                             ) : (
-                              <div className="text-center">
-                                <ImagePlus className="mx-auto text-gray-300 dark:text-slate-600 mb-2" size={28} />
-                                <p className="text-[11px] font-medium text-gray-500 dark:text-slate-500">Click to upload</p>
+                              <div className="text-center group">
+                                <ImagePlus className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2 group-hover:text-zinc-900 transition-colors" size={32} />
+                                <p className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-tight">Upload PNG / JPG</p>
                               </div>
                             )}
                           </div>
@@ -132,15 +132,15 @@ export const AdminCards = () => {
                         <InputField label="Model" value={editingCar.model} onChange={(val) => setEditingCar({ ...editingCar, model: val })} />
                         <InputField label="Color" value={editingCar.color} onChange={(val) => setEditingCar({ ...editingCar, color: val })} />
                         <InputField label="Year" type="number" value={editingCar.year} onChange={(val) => setEditingCar({ ...editingCar, year: parseInt(val) || 0 })} />
-                        <InputField label="Price / day (₱)" type="number" value={editingCar.pricePerDay} onChange={(val) => setEditingCar({ ...editingCar, pricePerDay: parseFloat(val) || 0 })} />
+                        <InputField label="Daily Rate (₱)" type="number" value={editingCar.pricePerDay} onChange={(val) => setEditingCar({ ...editingCar, pricePerDay: parseFloat(val) || 0 })} />
                         <InputField label="Mileage (km)" type="number" value={editingCar.mileage || ""} onChange={(val) => setEditingCar({ ...editingCar, mileage: parseFloat(val) || 0 })} />
 
-                        <SelectField label="Fuel Type" value={editingCar.fuelType} options={["Petrol","Diesel","Electric","Hybrid"]} onChange={(val) => setEditingCar({ ...editingCar, fuelType: val })} />
-                        <SelectField label="Transmission" value={editingCar.transmission} options={["Automatic","Manual"]} onChange={(val) => setEditingCar({ ...editingCar, transmission: val })} />
+                        <SelectField label="Fuel" value={editingCar.fuelType} options={["Petrol","Diesel","Electric","Hybrid"]} onChange={(val) => setEditingCar({ ...editingCar, fuelType: val })} />
+                        <SelectField label="Gearbox" value={editingCar.transmission} options={["Automatic","Manual"]} onChange={(val) => setEditingCar({ ...editingCar, transmission: val })} />
                         
                         <div className="md:col-span-2">
                            <SelectField 
-                            label="Current Availability" 
+                            label="Status" 
                             value={editingCar.isAvailable} 
                             options={[true, false]} 
                             onChange={(val) => setEditingCar({ ...editingCar, isAvailable: val })} 
@@ -149,11 +149,11 @@ export const AdminCards = () => {
                       </div>
                     )}
 
-                    <DialogFooter className="gap-2">
+                    <DialogFooter className="gap-3 sm:justify-between">
                       <DialogClose asChild>
-                        <Button type="button" variant="outline" className="flex-1 md:flex-none dark:border-white/5 dark:text-slate-300 dark:hover:bg-slate-800">Cancel</Button>
+                        <Button type="button" variant="outline" className="flex-1 rounded-xl border-zinc-200 text-zinc-600 dark:border-zinc-800 dark:text-zinc-400 font-bold text-xs uppercase tracking-widest">Cancel</Button>
                       </DialogClose>
-                      <Button type="submit" className="flex-1 md:flex-none bg-indigo-600 hover:bg-indigo-700 text-white">Save Changes</Button>
+                      <Button type="submit" className="flex-1 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 font-bold text-xs uppercase tracking-widest transition-all">Update</Button>
                     </DialogFooter>
                   </form>
                 </DialogContent>
@@ -162,20 +162,20 @@ export const AdminCards = () => {
               {/* Delete Alert */}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <button className="w-7 h-7 flex items-center justify-center border border-gray-100 dark:border-white/5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors shadow-sm group">
-                    <Trash2Icon size={13} className="text-gray-400 group-hover:text-red-500 dark:text-slate-500" />
+                  <button className="w-8 h-8 flex items-center justify-center border border-zinc-100 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900 text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 transition-all shadow-sm group">
+                    <Trash2Icon size={14} className="group-hover:scale-110 transition-transform" />
                   </button>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="dark:bg-[#0a0a0a] dark:border-white/5">
+                <AlertDialogContent className="bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-900 rounded-3xl">
                   <AlertDialogHeader>
-                    <AlertDialogTitle className="dark:text-white">Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription className="dark:text-slate-400">
-                      This will permanently delete <strong className="dark:text-white">{car.brand} {car.model}</strong>.
+                    <AlertDialogTitle className="text-xl font-bold tracking-tighter dark:text-white">Delete Listing?</AlertDialogTitle>
+                    <AlertDialogDescription className="text-zinc-500 dark:text-zinc-400">
+                      This will remove <span className="font-bold text-zinc-900 dark:text-white">{car.brand} {car.model}</span> from your public inventory permanently.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300">Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleDelete(car._id)} className="bg-red-600 hover:bg-red-700 text-white">Delete Vehicle</AlertDialogAction>
+                  <AlertDialogFooter className="gap-2">
+                    <AlertDialogCancel className="rounded-xl border-zinc-200 dark:border-zinc-800 dark:text-zinc-400 font-bold text-[10px] uppercase tracking-widest">Keep It</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => handleDelete(car._id)} className="bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest">Confirm Delete</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
@@ -183,41 +183,44 @@ export const AdminCards = () => {
           </div>
 
           {/* Vehicle Image Display */}
-          <div className="mx-3 my-3 bg-white dark:bg-slate-800/50 rounded-xl flex justify-center items-center p-4 h-32">
+          <div className="mx-4 my-2 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl flex justify-center items-center p-6 h-40 group/img">
             <img 
               src={car.image || carImage} 
               alt={`${car.brand} ${car.model}`} 
-              className="max-h-full w-auto object-contain transition-transform hover:scale-110 duration-300" 
+              className="max-h-full w-auto object-contain transition-all duration-500 group-hover/img:scale-110 group-hover/img:-rotate-2" 
             />
           </div>
 
           {/* Main Info */}
-          <div className="px-4 pb-2">
-            <h3 className="font-bold text-sm text-gray-900 dark:text-white leading-tight">{car.brand} {car.model}</h3>
-            <p className="text-[11px] text-gray-400 dark:text-slate-500 font-medium uppercase tracking-tight mt-0.5">{car.color} • {car.year}</p>
+          <div className="px-5 pt-2">
+            <h3 className="font-bold text-lg text-zinc-900 dark:text-white tracking-tighter">{car.brand} {car.model}</h3>
+            <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-[0.2em] mt-0.5">{car.color} • {car.year}</p>
             
-            <div className="flex flex-wrap gap-1.5 mt-3">
-              <span className="flex items-center gap-1 text-[10px] font-medium text-gray-600 dark:text-slate-300 bg-gray-100/80 dark:bg-slate-800 px-2 py-1 rounded-md">
-                <Fuel size={10} /> {car.fuelType}
+            <div className="flex flex-wrap gap-2 mt-4">
+              <span className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-600 dark:text-zinc-400 bg-zinc-100/80 dark:bg-zinc-900 px-3 py-1.5 rounded-lg border border-zinc-200/50 dark:border-zinc-800/50">
+                <Fuel size={12} className="text-zinc-400" /> {car.fuelType}
               </span>
-              <span className="flex items-center gap-1 text-[10px] font-medium text-gray-600 dark:text-slate-300 bg-gray-100/80 dark:bg-slate-800 px-2 py-1 rounded-md">
-                <Cog size={10} /> {car.transmission}
-              </span>
-              <span className="text-[10px] font-medium text-gray-600 dark:text-slate-300 bg-gray-100/80 dark:bg-slate-800 px-2 py-1 rounded-md">
-                {car.mileage.toLocaleString()} km
+              <span className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-600 dark:text-zinc-400 bg-zinc-100/80 dark:bg-zinc-900 px-3 py-1.5 rounded-lg border border-zinc-200/50 dark:border-zinc-800/50">
+                <Cog size={12} className="text-zinc-400" /> {car.transmission}
               </span>
             </div>
           </div>
 
           {/* Pricing & License Footer */}
-          <div className="flex items-center justify-between border-t border-gray-50 dark:border-white/5 px-4 py-3 mt-2 bg-white/30 dark:bg-black">
-            <div>
-              <span className="text-lg font-bold text-indigo-600 dark:text-indigo-400">₱{car.pricePerDay}</span>
-              <span className="text-[10px] text-gray-400 dark:text-slate-500 font-normal"> / day</span>
+          <div className="flex items-center justify-between border-t border-zinc-50 dark:border-zinc-900 px-5 py-4 mt-5 bg-zinc-50/50 dark:bg-zinc-900/20">
+            <div className="flex flex-col">
+              <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest">Rate</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-xl font-bold text-zinc-900 dark:text-white">₱{car.pricePerDay.toLocaleString()}</span>
+                <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">/day</span>
+              </div>
             </div>
-            <span className="text-[10px] font-mono font-bold text-gray-500 dark:text-slate-400 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-slate-700 px-2 py-1 rounded shadow-sm">
-              {car.licensePlate}
-            </span>
+            <div className="flex flex-col items-end">
+                <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest mb-1">Plate</span>
+                <span className="text-[11px] font-mono font-bold text-zinc-900 dark:text-white bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 px-2 py-1 rounded shadow-sm">
+                {car.licensePlate}
+                </span>
+            </div>
           </div>
         </div>
       ))}
@@ -225,36 +228,34 @@ export const AdminCards = () => {
   );
 };
 
-/** * UI Helper Components 
- */
 const InputField = ({ label, value, onChange, type = "text", min, max }) => (
-  <div className="space-y-1">
-    <Label className="text-[11px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-tight">{label}</Label>
+  <div className="space-y-1.5">
+    <Label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">{label}</Label>
     <Input 
       type={type} 
       min={min} 
       max={max} 
       value={value} 
       onChange={e => onChange(e.target.value)} 
-      className="h-9 focus-visible:ring-indigo-500 dark:bg-slate-800 dark:border-slate-700 dark:text-white"
+      className="h-10 rounded-xl focus-visible:ring-zinc-950 dark:focus-visible:ring-white border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 dark:text-white font-medium"
     />
   </div>
 );
 
 const SelectField = ({ label, value, options, onChange }) => (
-  <div className="space-y-1">
-    <Label className="text-[11px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-tight">{label}</Label>
+  <div className="space-y-1.5">
+    <Label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">{label}</Label>
     <select 
       value={value} 
       onChange={e => {
         const val = e.target.value;
         onChange(val === "true" ? true : val === "false" ? false : val);
       }}
-      className="w-full border border-gray-200 dark:border-slate-700 rounded-md h-9 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all bg-white dark:bg-slate-800 dark:text-white"
+      className="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl h-10 px-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-zinc-950 dark:focus:ring-white transition-all bg-white dark:bg-zinc-900 dark:text-white appearance-none"
     >
       {options.map(opt => (
         <option key={opt.toString()} value={opt}>
-          {opt === true ? "Available for Rent" : opt === false ? "Currently Unavailable" : opt}
+          {opt === true ? "Available for Rent" : opt === false ? "Rented / Maintenance" : opt}
         </option>
       ))}
     </select>
