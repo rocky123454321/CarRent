@@ -218,7 +218,7 @@ const UserNav = () => {
             </div>
 
             <div className="mt-auto mb-8 flex flex-col gap-3 pb-10 border-t border-zinc-100 dark:border-zinc-900 pt-8">
-           
+          
               <button onClick={logout} className="flex items-center gap-3 p-4 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 text-[10px] font-black uppercase tracking-widest">
                 <LogOut size={16} /> Sign Out
               </button>
@@ -227,7 +227,7 @@ const UserNav = () => {
         </div>
       )}
 
-      {/* Notifications Dialog */}
+
       <AlertDialog open={notifOpen} onOpenChange={setNotifOpen}>
         <AlertDialogContent className="max-w-[calc(100%-2rem)] w-full rounded-2xl p-0 border border-zinc-100 dark:border-zinc-900 bg-white dark:bg-zinc-950 overflow-hidden shadow-2xl">
           <AlertDialogHeader className="px-6 py-5 border-b border-zinc-50 dark:border-zinc-900">
