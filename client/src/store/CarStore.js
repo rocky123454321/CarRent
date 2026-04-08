@@ -18,7 +18,8 @@ const getCurrentSeason = () => {
   if (day >= 28 || day <= 2)                       return "payday";
   return "sale";
 };
-/////
+//////
+
 export const useCarStore = create((set, get) => ({
   cars: [],
   car: null,
