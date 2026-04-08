@@ -134,7 +134,7 @@ export const SettingsAdmin = () => {
                 <Input
                   name="email"
                   value={form.email}
-
+                  readOnly
                   className="bg-transparent cursor-not-allowed  border-none border-b border-zinc-100 dark:border-zinc-800 rounded-none h-10 focus-visible:ring-0 focus-visible:border-zinc-900 dark:focus-visible:border-white transition-colors dark:text-white font-medium px-0"
                 />
               </div>

@@ -99,9 +99,7 @@ const BookingForm = ({ car, onSuccess }) => {
               {car?.brand} {car?.model} <span className="text-slate-300 dark:text-slate-700 mx-1">|</span> ₱{car?.pricePerDay?.toLocaleString()}/day
             </p>
           </div>
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-2.5 rounded-2xl">
-            <CreditCard className="text-blue-600" size={20} />
-          </div>
+
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

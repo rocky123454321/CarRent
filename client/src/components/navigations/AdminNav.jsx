@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Bell, Settings, LogOut, Menu, X, ChevronRight, MessageSquare, Sun, Moon } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useChatStore } from "../../store/chatStore";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuGroup,
   DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator,
@@ -60,8 +60,8 @@ const AdminNav = ({ onMenuClick }) => {
       ) : (
         <div className="divide-y divide-zinc-50 dark:divide-zinc-900">
           {notifications.map((n) => (
-            <div 
-              key={n.id} 
+            <div
+              key={n.id}
               onClick={() => handleViewNotification(n)}
               className="px-6 py-5 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-all cursor-pointer group"
             >
@@ -91,10 +91,10 @@ const AdminNav = ({ onMenuClick }) => {
   );
 
   return (
-    <header className="fixed top-0 right-0 left-0 lg:left-0 z-40 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-100 dark:border-zinc-900/50 transition-all">
+    <header className="fixed top-0 right-0 left-0 lg:left-0 z-4 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-100 dark:border-zinc-900/50 transition-all">
       <div className="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
 
-        {/* Left: Sidebar Toggle (Mobile) */}
+        {/* Left: Sidebar Toggle (Desktop) */}
         <div className="flex items-center">
           <button
             onClick={onMenuClick}
@@ -105,11 +105,10 @@ const AdminNav = ({ onMenuClick }) => {
         </div>
 
         {/* Right: Actions */}
-        {/* Right: Actions */}
         <div className="flex items-center gap-3">
-          
-          {/* Theme Toggle - UI Matched */}
-          <button 
+
+          {/* Theme Toggle */}
+          <button
             onClick={toggleTheme}
             className="flex h-9 w-9 items-center justify-center rounded-full border border-zinc-100 dark:border-zinc-900 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all active:scale-95"
           >
@@ -120,7 +119,7 @@ const AdminNav = ({ onMenuClick }) => {
             )}
           </button>
 
-          {/* Notifications - UI Matched */}
+          {/* Notifications — desktop only */}
           <div className="hidden sm:block">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -131,11 +130,17 @@ const AdminNav = ({ onMenuClick }) => {
                   )}
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-80 rounded-xl shadow-2xl border-zinc-100 dark:border-zinc-900 p-0 mt-3 bg-white dark:bg-zinc-950 overflow-hidden" align="end">
+              <DropdownMenuContent
+                className="w-80 rounded-xl shadow-2xl border-zinc-100 dark:border-zinc-900 p-0 mt-3 bg-white dark:bg-zinc-950 overflow-hidden"
+                align="end"
+              >
                 <div className="px-6 py-4 border-b border-zinc-50 dark:border-zinc-800 flex items-center justify-between">
                   <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Activity</h3>
                   {notifications.length > 0 && (
-                    <button onClick={clearNotifications} className="text-[9px] font-bold uppercase tracking-tighter hover:underline">
+                    <button
+                      onClick={clearNotifications}
+                      className="text-[9px] font-bold uppercase tracking-tighter hover:underline"
+                    >
                       Clear
                     </button>
                   )}
@@ -145,7 +150,7 @@ const AdminNav = ({ onMenuClick }) => {
             </DropdownMenu>
           </div>
 
-          {/* Profile - UI Matched */}
+          {/* Profile — desktop only */}
           <div className="hidden sm:block">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -158,19 +163,28 @@ const AdminNav = ({ onMenuClick }) => {
                   </span>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 rounded-xl shadow-2xl border-zinc-100 dark:border-zinc-900 p-0 mt-3 bg-white dark:bg-zinc-950 overflow-hidden" align="end">
+              <DropdownMenuContent
+                className="w-56 rounded-xl shadow-2xl border-zinc-100 dark:border-zinc-900 p-0 mt-3 bg-white dark:bg-zinc-950 overflow-hidden"
+                align="end"
+              >
                 <DropdownMenuLabel className="px-5 py-4 border-b border-zinc-50 dark:border-zinc-900">
                   <p className="text-[11px] font-black text-zinc-900 dark:text-white uppercase tracking-tight">{user?.name}</p>
                   <p className="text-[9px] font-medium text-zinc-400 mt-0.5">{user?.email}</p>
                 </DropdownMenuLabel>
                 <DropdownMenuGroup className="p-1.5">
-                  <DropdownMenuItem onClick={() => navigate('settings')} className="rounded-lg py-2.5 px-4 cursor-pointer flex items-center gap-3 text-zinc-500 hover:text-zinc-900 dark:focus:text-white focus:bg-zinc-50 dark:focus:bg-zinc-900 font-bold text-[10px] uppercase tracking-widest transition-colors">
+                  <DropdownMenuItem
+                    onClick={() => navigate('settings')}
+                    className="rounded-lg py-2.5 px-4 cursor-pointer flex items-center gap-3 text-zinc-500 hover:text-zinc-900 dark:focus:text-white focus:bg-zinc-50 dark:focus:bg-zinc-900 font-bold text-[10px] uppercase tracking-widest transition-colors"
+                  >
                     <Settings size={14} /> Settings
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator className="bg-zinc-50 dark:bg-zinc-900" />
                 <div className="p-1.5">
-                  <DropdownMenuItem onClick={logout} className="rounded-lg py-2.5 px-4 text-zinc-900 dark:text-white font-black cursor-pointer flex items-center gap-3 focus:bg-zinc-900 dark:focus:bg-white focus:text-white dark:focus:text-zinc-950 text-[10px] uppercase tracking-widest transition-all">
+                  <DropdownMenuItem
+                    onClick={logout}
+                    className="rounded-lg py-2.5 px-4 text-zinc-900 dark:text-white font-black cursor-pointer flex items-center gap-3 focus:bg-zinc-900 dark:focus:bg-white focus:text-white dark:focus:text-zinc-950 text-[10px] uppercase tracking-widest transition-all"
+                  >
                     <LogOut size={14} /> Sign Out
                   </DropdownMenuItem>
                 </div>
@@ -178,64 +192,55 @@ const AdminNav = ({ onMenuClick }) => {
             </DropdownMenu>
           </div>
 
-          {/* Mobile Profile Trigger - UI Matched */}
+          {/* Mobile Menu Toggle — matches UserNav style */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className={`sm:hidden w-9 h-9 flex items-center justify-center rounded-full transition-all active:scale-95 ${
-              mobileOpen 
-                ? 'bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-white' 
-                : 'bg-zinc-950 dark:bg-white text-white dark:text-zinc-950'
+              mobileOpen
+                ? 'bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-white'
+                : 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
             }`}
           >
-            {mobileOpen ? <X size={16} /> : <span className="font-bold text-[10px] uppercase">{user?.name?.charAt(0)}</span>}
+            {mobileOpen ? <X size={16} /> : <Menu size={16} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu Overlay — UserNav style */}
       {mobileOpen && (
-        <>
-          <div className="fixed inset-0 z-40 sm:hidden bg-zinc-950/20 dark:bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <div className="sm:hidden absolute inset-x-0 top-full bg-white dark:bg-zinc-950 border-b border-zinc-100 dark:border-zinc-900 shadow-2xl z-50 animate-in slide-in-from-top-2 duration-300">
-            <div className="p-6 flex flex-col gap-4">
-              <div className="flex items-center gap-4 p-5 rounded-[1.5rem] bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800/50">
-                <div className="w-12 h-12 rounded-2xl bg-zinc-950 dark:bg-white flex items-center justify-center text-white dark:text-zinc-950 text-xs font-black shadow-lg">
-                  {user?.name?.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-black text-[11px] text-zinc-900 dark:text-white uppercase tracking-tight">{user?.name}</p>
-                  <p className="text-[9px] text-zinc-400 font-black uppercase tracking-widest mt-0.5">Administrator</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 gap-2">
-                {[
-                  { icon: <Bell size={18} />, label: "Notifications", onClick: () => { setNotifOpen(true); setMobileOpen(false); }, unread: totalUnread },
-                  { icon: <MessageSquare size={18} />, label: "Chat Center", onClick: () => handleMobileNav('/admin/chat') },
-                  { icon: <Settings size={18} />, label: "Settings", onClick: () => handleMobileNav('settings') },
-                ].map((item, idx) => (
-                  <button key={idx} onClick={item.onClick} className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-900 active:bg-zinc-50 dark:active:bg-zinc-800 transition-all group">
-                    <div className="flex items-center gap-3 text-zinc-500 dark:text-zinc-400 group-active:text-zinc-900 dark:group-active:text-white transition-colors">
-                      {item.icon}
-                      <span className="font-black text-[10px] uppercase tracking-widest">{item.label}</span>
-                    </div>
-                    {item.unread > 0 ? (
-                      <span className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 text-[9px] font-black px-2 py-0.5 rounded-full">{item.unread}</span>
-                    ) : (
-                      <ChevronRight size={14} className="text-zinc-300 dark:text-zinc-700" />
-                    )}
-                  </button>
-                ))}
-                <button onClick={logout} className="flex items-center gap-3 p-5 rounded-2xl bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 font-black mt-2 active:scale-[0.98] transition-all uppercase tracking-[0.2em] text-[10px]">
-                  <LogOut size={18} /> 
-                  <span>Sign Out</span>
-                </button>
-              </div>
+        <div className="sm:hidden fixed h-[100vh] w-full backdrop-blur-2xl z-50 top-[72px] bg-white dark:bg-zinc-950 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="p-8 flex flex-col h-full">
+
+            {/* Large Nav Links */}
+            <div className="flex flex-col gap-8">
+              {['Dashboard', 'Chat', 'Settings'].map((item) => (
+                <Link
+                  key={item}
+                  to={item === 'Dashboard' ? '/admin' : `/admin/${item.toLowerCase()}`}
+                  onClick={() => setMobileOpen(false)}
+                  className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase flex items-center justify-between"
+                >
+                  {item}
+                  <ChevronRight size={24} className="opacity-10" />
+                </Link>
+              ))}
+            </div>
+
+            {/* Bottom Actions */}
+            <div className="mt-auto flex flex-col gap-3 pb-10 border-t border-zinc-100 dark:border-zinc-900 pt-8">
+      
+              <button
+                onClick={logout}
+                className="flex items-center mb-8 gap-3 p-4 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 text-[10px] font-black uppercase tracking-widest"
+              >
+                <LogOut size={16} /> Sign Out
+              </button>
             </div>
           </div>
-        </>
+        </div>
       )}
 
-      {/* Notifications Dialog (Mobile) */}
+      {/* Notifications Dialog (mobile fallback via notifOpen) */}
       <AlertDialog open={notifOpen} onOpenChange={setNotifOpen}>
         <AlertDialogContent className="max-w-[calc(100%-2rem)] w-full rounded-[2.5rem] p-0 overflow-hidden border border-zinc-100 dark:border-zinc-900 shadow-2xl bg-white dark:bg-zinc-950 transition-all">
           <AlertDialogHeader className="px-6 py-6 border-b border-zinc-50 dark:border-zinc-900 bg-zinc-50/50 dark:bg-zinc-900/50">
@@ -248,7 +253,7 @@ const AdminNav = ({ onMenuClick }) => {
           </AlertDialogHeader>
           <NotificationList />
           <div className="p-6 bg-zinc-50/50 dark:bg-zinc-900/50 border-t border-zinc-50 dark:border-zinc-900">
-             <button
+            <button
               onClick={() => { handleMobileNav('/admin/chat'); setNotifOpen(false); }}
               className="w-full py-4 bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl active:scale-[0.98] transition-all"
             >

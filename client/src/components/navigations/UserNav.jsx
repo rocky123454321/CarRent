@@ -143,7 +143,7 @@ const UserNav = () => {
                 )}
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-80 rounded-xl shadow-2xl border-zinc-100 dark:border-zinc-900 p-0 mt-3 bg-white dark:bg-zinc-950 overflow-hidden" align="end">
+            <DropdownMenuContent className="w-80  rounded-xl shadow-2xl border-zinc-100 dark:border-zinc-900 p-0 mt-3 bg-white dark:bg-zinc-950 overflow-hidden" align="end">
               <div className="px-6 py-4 border-b border-zinc-50 dark:border-zinc-800 flex items-center justify-between">
                 <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Activity</h3>
                 {notifications.length > 0 && (
@@ -204,7 +204,7 @@ const UserNav = () => {
             {/* Search in Mobile */}
           
             <div className="flex flex-col gap-8">
-              {['Home', 'My Rentals', 'Chat'].map((item) => (
+              {['Home', 'My Rentals', 'Chat','Settings'].map((item) => (
                 <Link 
                   key={item}
                   to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`} 
@@ -217,10 +217,8 @@ const UserNav = () => {
               ))}
             </div>
 
-            <div className="mt-auto flex flex-col gap-3 pb-10 border-t border-zinc-100 dark:border-zinc-900 pt-8">
-              <button onClick={() => handleMobileNav('/settings')} className="flex items-center gap-3 p-4 rounded-xl border border-zinc-100 dark:border-zinc-900 text-[10px] font-bold uppercase tracking-widest">
-                <Settings size={16} /> Account Settings
-              </button>
+            <div className="mt-auto mb-8 flex flex-col gap-3 pb-10 border-t border-zinc-100 dark:border-zinc-900 pt-8">
+           
               <button onClick={logout} className="flex items-center gap-3 p-4 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 text-[10px] font-black uppercase tracking-widest">
                 <LogOut size={16} /> Sign Out
               </button>

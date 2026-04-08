@@ -104,11 +104,7 @@ export const Settings = () => {
       {/* ─── SECTION HEADER (Landing Page Style) ─── */}
       <div className="text-center">
         <div className="inline-flex items-center gap-2 mb-4">
-          <span className="h-px w-5 bg-zinc-300 dark:bg-zinc-700" />
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
-            Account Management
-          </p>
-          <span className="h-px w-5 bg-zinc-300 dark:bg-zinc-700" />
+         
         </div>
         <h1 className="text-3xl md:text-4xl font-bold tracking-tighter leading-[1.1] text-zinc-900 dark:text-white uppercase italic">
           Account <span className="text-zinc-300 dark:text-zinc-700">Settings.</span>
@@ -147,8 +143,8 @@ export const Settings = () => {
                 <Input
                   name="email"
                   value={form.email}
-                  onChange={handleChange}
-                  className="bg-transparent border-none border-b border-zinc-100 dark:border-zinc-800 rounded-none h-10 focus-visible:ring-0 focus-visible:border-zinc-900 dark:focus-visible:border-white transition-colors dark:text-white font-medium px-0"
+                 readOnly
+                  className="bg-transparent cursor-not-allowed border-none border-b border-zinc-100 dark:border-zinc-800 rounded-none h-10 focus-visible:ring-0 focus-visible:border-zinc-900 dark:focus-visible:border-white transition-colors dark:text-white font-medium px-0"
                 />
               </div>
             </div>
