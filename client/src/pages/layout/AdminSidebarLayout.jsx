@@ -30,7 +30,7 @@ const AdminSidebarLayout = ({ isOpen, onClose }) => {
 
   return (
     <aside
-      className={`fixed top-0 left-0 z-50 h-screen w-[260px] bg-white dark:bg-zinc-950 flex flex-col border-r border-zinc-100 dark:border-zinc-900 transition-all duration-300 lg:translate-x-0
+      className={`fixed top-0 left-0 z-100 h-screen w-[260px] bg-white dark:bg-zinc-950 flex flex-col border-r border-zinc-100 dark:border-zinc-900 transition-all duration-300 lg:translate-x-0
         ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       style={{ fontFamily: "'Inter', sans-serif" }}
     >

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Bell, Settings, LogOut, Menu, X, ChevronRight, MessageSquare, Sun, Moon, TextAlignStart } from "lucide-react";
+import { Bell, Settings, LogOut, TextAlignEnd, X, ChevronRight, MessageSquare, Sun, Moon, TextAlignStart } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useChatStore } from "../../store/chatStore";
 import { useNavigate, useLocation, Link } from "react-router-dom";
@@ -91,7 +91,7 @@ const AdminNav = ({ onMenuClick }) => {
   );
 
   return (
-    <header className="fixed top-0 right-0 left-0 lg:left-0 z-4 bg-white/80 dark:bg-black backdrop-blur-xl border-b border-zinc-100 dark:border-zinc-900/50 transition-all">
+    <header className="fixed top-0 right-0 left-0 lg:left-0 z-99 bg-white/80 dark:bg-black backdrop-blur-xl border-b border-zinc-100 dark:border-zinc-900/50 transition-all">
       <div className="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
 
         {/* Left: Sidebar Toggle (Desktop) */}
@@ -203,7 +203,7 @@ const AdminNav = ({ onMenuClick }) => {
                 : 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
             }`}
           >
-            {mobileOpen ? <X size={16} /> : <Menu size={16} />}
+            {mobileOpen ? <X size={16} /> : <TextAlignEnd size={16} />}
           </button>
         </div>
       </div>

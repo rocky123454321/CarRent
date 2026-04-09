@@ -3,7 +3,6 @@ import { useChatStore } from "../../store/chatStore.js";
 import { useAuthStore } from "../../store/authStore.js";
 import { useLocation } from "react-router-dom";
 import { Send, Inbox, Search, Sparkles, ArrowLeft, MoreVertical, ShieldCheck } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Skeleton = ({ className }) => (
   <div className={`bg-zinc-100 dark:bg-zinc-900 animate-pulse rounded-xl ${className}`} />
@@ -16,11 +15,11 @@ const Sidebar = ({
   onlineUsers, activeConversation, selectConversation,
   getDisplayName, getLastMessage,
 }) => (
-  <div className="flex flex-col h-full bg-white dark:bg-zinc-950 w-full border-r border-zinc-100 dark:border-zinc-900" style={font}>
+  <div className="flex flex-col h-full bg-white dark:bg-zinc-950 w-full border-r border-zinc-100 dark:border-zinc-900 transition-colors duration-300" style={font}>
     <div className="p-6 space-y-4 shrink-0">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] mb-1">Support Hub</p>
+        
           <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Messages</h2>
         </div>
         <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border transition-all
@@ -88,7 +87,7 @@ const Sidebar = ({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-start mb-0.5">
-                  <p className="text-[13px] font-bold truncate leading-none">
+                  <p className="text-[13px] font-bold truncate leading-none uppercase tracking-tight">
                     {getDisplayName(userId)}
                   </p>
                 </div>
@@ -112,25 +111,25 @@ const Chat = ({
   userIsTyping, messagesEndRef, inputRef,
   user, message, handleTyping, handleSend, isConnected,
 }) => (
-  <div className="flex flex-col h-full w-full bg-white dark:bg-zinc-950" style={font}>
+  <div className="flex flex-col h-full w-full bg-white dark:bg-zinc-950 transition-colors duration-300" style={font}>
     {/* Chat Header */}
     <div className="px-6 py-5 border-b border-zinc-100 dark:border-zinc-900 flex items-center justify-between shrink-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md z-10">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 min-w-0">
         <button
           onClick={() => setMobileView("sidebar")}
-          className="md:hidden p-2.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-xl transition"
+          className="md:hidden p-2.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-xl transition shrink-0"
         >
           <ArrowLeft size={18} />
         </button>
         {activeConversation && (
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-zinc-900 dark:bg-white rounded-2xl flex items-center justify-center text-white dark:text-zinc-950 font-bold text-sm">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="w-10 h-10 bg-zinc-900 dark:bg-white rounded-2xl flex items-center justify-center text-white dark:text-zinc-950 font-bold text-sm shrink-0">
               {getDisplayName(activeConversation).charAt(0).toUpperCase()}
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                 <p className="font-bold text-zinc-900 dark:text-white text-[15px] leading-tight">{getDisplayName(activeConversation)}</p>
-                 <ShieldCheck size={14} className="text-zinc-400" />
+                 <p className="font-bold text-zinc-900 dark:text-white text-[15px] leading-tight truncate uppercase tracking-tight">{getDisplayName(activeConversation)}</p>
+                 <ShieldCheck size={14} className="text-emerald-500 shrink-0" />
               </div>
               <div className="flex items-center gap-1.5">
                 <span className={`w-1.5 h-1.5 rounded-full ${onlineUsers.includes(activeConversation) ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-300 dark:bg-zinc-700'}`} />
@@ -148,10 +147,10 @@ const Chat = ({
     </div>
 
     {/* Message Area */}
-    <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 bg-zinc-50/30 dark:bg-zinc-900/10 custom-scrollbar">
+    <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 bg-zinc-50/20 dark:bg-black/10 custom-scrollbar">
       {!activeConversation ? (
         <div className="flex flex-col items-center justify-center h-full text-center">
-          <div className="w-20 h-20 bg-zinc-50 dark:bg-zinc-900  flex items-center justify-center mb-6 border border-zinc-100 dark:border-zinc-800">
+          <div className="w-20 h-20 bg-zinc-50 dark:bg-zinc-900 rounded-full flex items-center justify-center mb-6 border border-zinc-100 dark:border-zinc-800">
              <Sparkles size={32} className="text-zinc-200 dark:text-zinc-800" />
           </div>
           <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-[0.2em]">Select an Agent</h3>
@@ -179,7 +178,7 @@ const Chat = ({
                     : 'bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 rounded-bl-none border border-zinc-100 dark:border-zinc-800'}`}>
                   {msg.message}
                 </div>
-                <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-2 px-1">
+                <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-2 px-1 italic">
                   {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
@@ -190,9 +189,9 @@ const Chat = ({
 
       {userIsTyping && (
         <div className="flex justify-start">
-          <div className="bg-zinc-100 dark:bg-zinc-900 rounded-full px-4 py-3 flex gap-1.5 items-center">
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl px-4 py-3 border border-zinc-100 dark:border-zinc-800 flex gap-1.5 items-center">
             {[0, 150, 300].map(delay => (
-              <span key={delay} className="w-1 h-1 bg-zinc-400 dark:bg-zinc-600 rounded-full animate-bounce"
+              <span key={delay} className="w-1.5 h-1.5 bg-zinc-400 dark:bg-zinc-600 rounded-full animate-bounce"
                 style={{ animationDelay: `${delay}ms` }} />
             ))}
           </div>
@@ -203,8 +202,8 @@ const Chat = ({
 
     {/* Input Area */}
     <div className="p-6 bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-900 shrink-0">
-      <div className="flex gap-3 items-center max-w-5xl mx-auto">
-        <div className="flex-1 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[2rem] flex items-center px-6 py-1 focus-within:ring-4 focus-within:ring-zinc-900/5 dark:focus-within:ring-white/5 transition-all">
+      <div className="flex gap-3 items-end max-w-6xl mx-auto">
+        <div className="flex-1 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-[2rem] flex items-center px-6 py-1 transition-all">
           <textarea
             ref={inputRef}
             rows={1}
@@ -214,13 +213,13 @@ const Chat = ({
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
             }}
             placeholder="Type your secure message..."
-            className="flex-1 bg-transparent border-none focus:ring-0 text-xs py-4 resize-none max-h-32 font-medium text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none"
+            className="flex-1 bg-transparent border-none focus:ring-0 text-xs py-4 resize-none max-h-32 font-medium text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none uppercase tracking-widest"
           />
         </div>
         <button
           onClick={handleSend}
           disabled={!message.trim() || !isConnected}
-          className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 p-4 rounded-full transition-all shadow-xl active:scale-90 disabled:opacity-20 disabled:grayscale shrink-0"
+          className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 p-4 rounded-full transition-all shadow-xl active:scale-95 disabled:opacity-20 shrink-0"
         >
           <Send size={18} />
         </button>
@@ -230,6 +229,7 @@ const Chat = ({
 );
 
 const AdminChatPage = () => {
+  // ── Logic: Do Not Touch ──
   const { user } = useAuthStore();
   const location = useLocation();
   const {
@@ -248,7 +248,7 @@ const AdminChatPage = () => {
   const typingTimeout = useRef(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-  const font = { fontFamily: "'Inter', sans-serif" };
+  const font = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
   const conversationUserIds = Object.keys(conversations)
     .filter(id => {
@@ -319,29 +319,24 @@ const AdminChatPage = () => {
     handleTyping, handleSend, setMobileView,
   };
 
+  // ── UI Return: Fixed for Full Width ──
   return (
-    <div className="flex flex-col h-screen md:h-[calc(100vh-100px)] animate-in fade-in duration-700" style={font}>
-      <div className="hidden md:block mb-6">
-        <p className="text-zinc-400 font-bold text-[10px] tracking-[0.3em] uppercase mb-1">Control Center</p>
-        <h1 className="text-3xl font-bold tracking-tighter text-zinc-900 dark:text-white">Communications</h1>
-      </div>
-
-      <div className="flex-1 flex overflow-hidden  border border-zinc-100 dark:border-zinc-900 bg-white dark:bg-zinc-950 shadow-2xl shadow-zinc-200/50 dark:shadow-none">
+    <div className="flex flex-col w-full h-screen mt-15 bg-white dark:bg-zinc-950 overflow-hidden animate-in fade-in duration-700" style={font}>
+      <div className="flex flex-1 overflow-hidden">
+        
         {/* Desktop Sidebar */}
-        <div className="hidden md:flex w-80 shrink-0">
+        <div className={`
+          ${mobileView === "sidebar" ? "flex" : "hidden"} 
+          md:flex w-full md:w-80 lg:w-96 shrink-0 flex-col
+        `}>
           <Sidebar {...sharedProps} searchTerm={searchTerm} setSearchTerm={setSearchTerm} conversationUserIds={conversationUserIds} loadingConversations={loadingConversations} />
         </div>
 
-        {/* Mobile View Switcher */}
-        <div className="flex md:hidden flex-1 overflow-hidden">
-          {mobileView === "sidebar"
-            ? <Sidebar {...sharedProps} searchTerm={searchTerm} setSearchTerm={setSearchTerm} conversationUserIds={conversationUserIds} loadingConversations={loadingConversations} />
-            : <Chat {...sharedProps} />
-          }
-        </div>
-
-        {/* Desktop Chat */}
-        <div className="hidden md:flex flex-1 min-w-0">
+        {/* Mobile/Desktop Chat View */}
+        <div className={`
+          ${mobileView === "chat" ? "flex" : "hidden"} 
+          md:flex flex-1 flex-col min-w-0
+        `}>
           <Chat {...sharedProps} />
         </div>
       </div>
