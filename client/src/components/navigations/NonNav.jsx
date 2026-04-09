@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Menu, Moon, Sun, X } from "lucide-react";
+import { TextAlignEnd, Moon, Sun, X } from "lucide-react";
 import brand from "../../assets/brand.png";
 import { Link } from "react-router-dom";
 import { useThemeStore } from "../../store/themeStore";
@@ -13,7 +13,7 @@ const NonNav = () => {
   }, [initTheme]);
 
   return (
-    <nav className="fixed top-0 left-0 z-50 w-full border-b border-zinc-100 bg-white/80 backdrop-blur-md transition-all duration-300 dark:border-zinc-900 dark:bg-zinc-950/80">
+    <nav className="fixed top-0 left-0 z-50 w-full border-b border-zinc-100 bg-white backdrop-blur-md transition-all duration-300 dark:border-zinc-900 dark:bg-black">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-8 py-4">
         
         {/* Logo - Sized to match the landing page feel */}
@@ -68,7 +68,7 @@ const NonNav = () => {
             onClick={() => setMobileOpen(!mobileOpen)}
             className="text-zinc-900 dark:text-white"
           >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileOpen ? <X size={20} /> : <TextAlignEnd  size={16} />}
           </button>
         </div>
       </div>

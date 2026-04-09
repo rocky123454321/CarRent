@@ -91,7 +91,7 @@ const AdminNav = ({ onMenuClick }) => {
   );
 
   return (
-    <header className="fixed top-0 right-0 left-0 lg:left-0 z-4 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-100 dark:border-zinc-900/50 transition-all">
+    <header className="fixed top-0 right-0 left-0 lg:left-0 z-4 bg-white/80 dark:bg-black backdrop-blur-xl border-b border-zinc-100 dark:border-zinc-900/50 transition-all">
       <div className="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
 
         {/* Left: Sidebar Toggle (Desktop) */}

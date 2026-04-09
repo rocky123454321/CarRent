@@ -98,7 +98,7 @@ const UserNav = () => {
   );
 
   return (
-    <nav className="bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md w-full fixed top-0 left-0 z-50 border-b border-zinc-100 dark:border-zinc-900 transition-all">
+    <nav className="bg-white/80 dark:bg-black backdrop-blur-md w-full fixed top-0 left-0 z-50 border-b border-zinc-100 dark:border-zinc-900 transition-all">
       <div className="flex items-center justify-between max-w-7xl mx-auto px-6 h-16 relative">
         
         {/* Left: Brand */}
