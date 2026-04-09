@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "sonner";
 import brand from "../../assets/brand.png";
-import Codefront from "../../components/Codefront";
+import Codefront from "../../components/codefront";
 
 const EmailVerificationPage = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
