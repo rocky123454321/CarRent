@@ -42,7 +42,7 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
 
   if (displayCars.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="flex flex-col items-center justify-center py-10 text-center">
         <p className="text-zinc-400 dark:text-zinc-500 text-sm font-medium">No cars match your filters.</p>
         <p className="text-zinc-300 dark:text-zinc-600 text-[10px] uppercase tracking-widest mt-2">Try adjusting the search</p>
       </div>
@@ -50,70 +50,71 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+    // Naka-2 columns na sa mobile (grid-cols-2) at niliitan ang gap
+    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4">
       {displayCars.map((car) => (
         <div
           key={car._id}
           onClick={() => handleSelect(car)}
-          className="group relative bg-white dark:bg-zinc-900/40 border border-zinc-100 dark:border-zinc-800/50 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-zinc-200/20 dark:hover:shadow-none transition-all duration-500 cursor-pointer"
+          className="group relative bg-white dark:bg-zinc-900/40 border border-zinc-100 dark:border-zinc-800/50 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-500 cursor-pointer"
         >
-          {/* Header Info */}
-          <div className="p-5 lg:p-7 pb-0 flex justify-between items-start">
-            <div>
-              <h3 className="font-bold text-zinc-900 dark:text-white text-base lg:text-xl tracking-tight truncate w-40 lg:w-64">
+          {/* Header Info - Mas maliit na padding at font sizes */}
+          <div className="p-3 lg:p-4 pb-0 flex justify-between items-start">
+            <div className="truncate">
+              <h3 className="font-bold text-zinc-900 dark:text-white text-xs lg:text-sm tracking-tight truncate">
                 {car.brand} {car.model}
               </h3>
-              <p className="text-[10px] lg:text-sm font-bold text-zinc-400 uppercase tracking-[0.15em] mt-1">
+              <p className="text-[8px] lg:text-[10px] font-bold text-zinc-400 uppercase tracking-wider mt-0.5">
                 {car.year} • {car.color}
               </p>
             </div>
             <button
-              className="text-zinc-300 dark:text-zinc-700 hover:text-red-500 transition-colors duration-300"
+              className="text-zinc-300 dark:text-zinc-700 hover:text-red-500"
               onClick={(e) => e.stopPropagation()}
             >
-              <Heart size={18} className="lg:w-6 lg:h-6" />
+              <Heart size={14} />
             </button>
           </div>
 
-          {/* Image Section */}
-          <div className="relative h-40 lg:h-64 flex items-center justify-center p-6 lg:p-10">
-            <div className="absolute inset-x-6 inset-y-10 bg-zinc-50 dark:bg-zinc-800/30 rounded-[2rem] -rotate-2 group-hover:rotate-0 transition-transform duration-700" />
+          {/* Image Section - Niliitan ang height (h-24 to h-32) */}
+          <div className="relative h-24 lg:h-32 flex items-center justify-center p-3">
+            <div className="absolute inset-x-3 inset-y-4 bg-zinc-50 dark:bg-zinc-800/30 rounded-xl -rotate-1 group-hover:rotate-0 transition-transform duration-700" />
             <img
               src={car.image || carImage}
               alt={car.model}
-              className="relative z-10 h-full w-full object-contain transition-transform duration-700 group-hover:scale-110 group-hover:-translate-y-2"
+              className="relative z-10 h-full w-full object-contain transition-transform duration-700 group-hover:scale-105"
             />
           </div>
 
-          {/* Specs Bar */}
-          <div className="flex justify-between px-5 lg:px-8 py-4 lg:py-5 border-t border-zinc-50 dark:border-zinc-800/50">
-            <div className="flex flex-col items-center gap-1 lg:gap-2">
-              <Fuel size={14} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors lg:w-5 lg:h-5" />
-              <span className="text-[9px] lg:text-xs font-bold text-zinc-400 uppercase tracking-tighter">{car.fuelType}</span>
+          {/* Specs Bar - Mas compact na icons at text */}
+          <div className="flex justify-between px-3 py-2 border-t border-zinc-50 dark:border-zinc-800/50">
+            <div className="flex flex-col items-center gap-0.5">
+              <Fuel size={12} className="text-zinc-400" />
+              <span className="text-[7px] lg:text-[9px] font-bold text-zinc-400 uppercase">{car.fuelType}</span>
             </div>
-            <div className="flex flex-col items-center gap-1 lg:gap-2">
-              <Cog size={14} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors lg:w-5 lg:h-5" />
-              <span className="text-[9px] lg:text-xs font-bold text-zinc-400 uppercase tracking-tighter">{car.transmission}</span>
+            <div className="flex flex-col items-center gap-0.5">
+              <Cog size={12} className="text-zinc-400" />
+              <span className="text-[7px] lg:text-[9px] font-bold text-zinc-400 uppercase">{car.transmission}</span>
             </div>
-            <div className="flex flex-col items-center gap-1 lg:gap-2">
-              <Users size={14} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors lg:w-5 lg:h-5" />
-              <span className="text-[9px] lg:text-xs font-bold text-zinc-400 uppercase tracking-tighter">{car.mileage} km</span>
+            <div className="flex flex-col items-center gap-0.5">
+              <Users size={12} className="text-zinc-400" />
+              <span className="text-[7px] lg:text-[9px] font-bold text-zinc-400 uppercase">{car.mileage} km</span>
             </div>
           </div>
 
-          {/* Footer - Price & CTA */}
-          <div className="bg-zinc-50 dark:bg-zinc-800/20 px-5 lg:px-8 py-4 lg:py-6 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800">
+          {/* Footer - Compact price and button */}
+          <div className="bg-zinc-50/50 dark:bg-zinc-800/20 px-3 py-2 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800">
             <div>
-              <p className="text-[10px] lg:text-xs font-bold text-zinc-400 uppercase tracking-widest leading-none mb-1">Daily Rate</p>
-              <p className="text-lg lg:text-3xl font-black text-zinc-900 dark:text-white leading-none">
+              <p className="text-[8px] font-bold text-zinc-400 uppercase leading-none mb-0.5">Daily Rate</p>
+              <p className="text-sm lg:text-lg font-black text-zinc-900 dark:text-white leading-none">
                 ₱{car.pricePerDay.toLocaleString()}
               </p>
             </div>
             <button
-              className="h-10 w-10 lg:h-14 lg:w-14 flex items-center justify-center rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 group-hover:scale-110 transition-all duration-300 shadow-lg shadow-zinc-900/10"
+              className="h-7 w-7 lg:h-9 lg:w-9 flex items-center justify-center rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 group-hover:scale-110 transition-all duration-300"
               onClick={(e) => { e.stopPropagation(); handleSelect(car); }}
             >
-              <ArrowRight size={18} className="lg:w-6 lg:h-6" />
+              <ArrowRight size={14} />
             </button>
           </div>
         </div>

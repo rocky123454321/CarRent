@@ -73,14 +73,7 @@ const Searchpage = () => {
 
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-2">
-          <div className="flex items-center gap-3" />
-          <p className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.2em] italic">
-            {isLoading
-              && 'Synchronizing fleet data...'
-            }
-          </p>
-        </div>
+      
        
         {/* Action Bar */}
         <div className="flex items-center gap-3">

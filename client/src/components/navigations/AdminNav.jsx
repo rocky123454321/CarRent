@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Bell, Settings, LogOut, Menu, X, ChevronRight, MessageSquare, Sun, Moon } from "lucide-react";
+import { Bell, Settings, LogOut, Menu, X, ChevronRight, MessageSquare, Sun, Moon, TextAlignStart } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useChatStore } from "../../store/chatStore";
 import { useNavigate, useLocation, Link } from "react-router-dom";
@@ -98,9 +98,9 @@ const AdminNav = ({ onMenuClick }) => {
         <div className="flex items-center">
           <button
             onClick={onMenuClick}
-            className="lg:hidden w-11 h-11 flex items-center justify-center rounded-2xl bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-white active:scale-95 transition-all border border-zinc-100 dark:border-zinc-800"
+            className="lg:hidden w-11 h-11 flex items-center justify-center rounded-2xl  text-zinc-900 dark:text-white active:scale-95 transition-all  "
           >
-            <Menu size={20} />
+            <TextAlignStart size={20} />
           </button>
         </div>
 
@@ -120,7 +120,7 @@ const AdminNav = ({ onMenuClick }) => {
           </button>
 
           {/* Notifications — desktop only */}
-          <div className="hidden sm:block">
+          <div className="flex">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="relative w-9 h-9 flex items-center justify-center rounded-full border border-zinc-100 dark:border-zinc-900 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all active:scale-95">
@@ -131,22 +131,24 @@ const AdminNav = ({ onMenuClick }) => {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-80 rounded-xl shadow-2xl border-zinc-100 dark:border-zinc-900 p-0 mt-3 bg-white dark:bg-zinc-950 overflow-hidden"
-                align="end"
-              >
-                <div className="px-6 py-4 border-b border-zinc-50 dark:border-zinc-800 flex items-center justify-between">
-                  <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Activity</h3>
-                  {notifications.length > 0 && (
-                    <button
-                      onClick={clearNotifications}
-                      className="text-[9px] font-bold uppercase tracking-tighter hover:underline"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-                <NotificationList />
-              </DropdownMenuContent>
+  className="w-screen h-[90vh] sm:w-80 sm:h-auto translate-y-2 sm:translate-y-0 shadow-2xl border-zinc-100 dark:border-zinc-900 p-0 bg-white dark:bg-zinc-950 overflow-hidden"
+  align="end"
+  sideOffset={8}
+>
+  {/* Content ng header */}
+  <div className="px-6 py-4 border-b border-zinc-50 dark:border-zinc-800 flex items-center justify-between">
+    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Activity</h3>
+    {notifications.length > 0 && (
+      <button onClick={clearNotifications} className="text-[9px] font-bold uppercase tracking-tighter hover:underline">
+        Clear
+      </button>
+    )}
+  </div>
+  
+  <div className="h-full overflow-y-auto pb-10">
+    <NotificationList />
+  </div>
+</DropdownMenuContent>
             </DropdownMenu>
           </div>
 

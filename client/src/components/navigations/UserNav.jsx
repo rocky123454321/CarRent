@@ -150,15 +150,24 @@ const UserNav = () => {
                 )}
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-80  rounded-xl shadow-2xl border-zinc-100 dark:border-zinc-900 p-0 mt-3 bg-white dark:bg-zinc-950 overflow-hidden" align="end">
-              <div className="px-6 py-4 border-b border-zinc-50 dark:border-zinc-800 flex items-center justify-between">
-                <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Activity</h3>
-                {notifications.length > 0 && (
-                  <button onClick={clearNotifications} className="text-[9px] font-bold uppercase tracking-tighter hover:underline">Clear</button>
-                )}
-              </div>
-              <NotificationList />
-            </DropdownMenuContent>
+            <DropdownMenuContent 
+  className="w-[100vw] h-[100vh] mt-2 mx-auto sm:w-80 sm:h-auto sm:mt-3  shadow-2xl border-zinc-100 dark:border-zinc-900 p-0 bg-white dark:bg-zinc-950 overflow-hidden" 
+  align="center" 
+  sideOffset={10}
+>
+  <div className="px-6 py-4 border-b border-zinc-50 dark:border-zinc-800 flex items-center justify-between">
+    <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Activity</h3>
+    {notifications.length > 0 && (
+      <button onClick={clearNotifications} className="text-[9px] font-bold uppercase tracking-tighter hover:underline">
+        Clear
+      </button>
+    )}
+  </div>
+  
+  <div className="overflow-y-auto h-full pb-10">
+    <NotificationList />
+  </div>
+</DropdownMenuContent>
           </DropdownMenu>
   
           {/* Profile */}
