@@ -4,7 +4,7 @@ import { useAuthStore } from "../../store/authStore";
 import { ArrowLeft, Loader, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import brand from "../../assets/brand.png";
-import Codefront from "../../components/Codefront";
+import Codefront from "../../components/codefront";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
