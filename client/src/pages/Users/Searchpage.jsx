@@ -83,6 +83,7 @@ const Searchpage = () => {
               type="text"
               placeholder="SEARCH..."
               onChange={handleSearchChange}
+              autoFocus
               value={searchQuery}
               className="w-full pl-9 pr-4 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-900 border-none focus:ring-1 ring-zinc-200 dark:ring-zinc-800 outline-none text-[10px] font-bold tracking-widest transition-all"
             /></div>
