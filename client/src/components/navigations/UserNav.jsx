@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Search, Bell, Settings, LogOut, Menu, X, MessageSquare, CarFront, ChevronRight } from "lucide-react";
+import { Search, Bell, Settings, LogOut, Menu, X, MessageSquare, CarFront, ChevronRight, TextAlignEnd } from "lucide-react";
 import brand from "../../assets/brand.png";
 import { useAuthStore } from "../../store/authStore";
 import { useCarStore } from "../../store/CarStore";
@@ -208,7 +208,7 @@ const UserNav = () => {
               mobileOpen ? 'bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-white' : 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
             }`}
           >
-            {mobileOpen ? <X size={16} /> : <Menu size={16} />}
+            {mobileOpen ? <X size={16} /> : <TextAlignEnd  size={16} />}
           </button>
         </div>
       </div>
