@@ -132,6 +132,13 @@ const UserNav = () => {
               className="w-full pl-9 pr-4 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-900 border-none focus:ring-1 ring-zinc-200 dark:ring-zinc-800 outline-none text-[10px] font-bold tracking-widest transition-all"
             />
           </div>
+         
+        
+              <button className="relative flex lg:hidden md:hidden w-9 h-9  items-center justify-center rounded-full border border-zinc-100 dark:border-zinc-900 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all">
+                <Search size={16} onClick={handleSearchChange} />
+               
+              </button>
+        
   
           {/* Notifications */}
           <DropdownMenu>
@@ -157,7 +164,7 @@ const UserNav = () => {
           {/* Profile */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 p-1 pr-3 rounded-full border border-zinc-100 dark:border-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all">
+            <button className="hidden sm:hidden  lg:flex items-center gap-2 p-1 pr-3 rounded-full border border-zinc-100 dark:border-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all">
                 <div className="w-7 h-7 rounded-full bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 flex items-center justify-center font-bold text-[10px] uppercase">
                   {user?.name?.charAt(0)}
                 </div>

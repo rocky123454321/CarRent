@@ -35,7 +35,7 @@ const Hero = () => {
       {/* Nav */}
       <nav className="flex items-center justify-between px-8 py-5 border-b border-zinc-100 dark:border-zinc-900">
         <span className="text-sm font-bold tracking-tight text-zinc-900 dark:text-white">
-          drivo.
+         supernova.
         </span>
         <div className="hidden sm:flex items-center gap-8">
           {["Fleet", "Locations", "Pricing"].map((l) => (

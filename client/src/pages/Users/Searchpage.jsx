@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCarStore } from '../../store/CarStore';
 import Cards from '../../components/user/Cards';
 import CarDetailView from './CarDetailView';
-import { SlidersHorizontal, RotateCcw, Image as ImageIcon, ServerCrash } from 'lucide-react';
+import { SlidersHorizontal, RotateCcw, Image as ImageIcon, ServerCrash, Search } from 'lucide-react';
 
 // --- SKELETON COMPONENT ---
 const CardSkeleton = () => (
@@ -36,6 +36,7 @@ const PRICE_OPTIONS = [
 ];
 
 const Searchpage = () => {
+  
   const navigate = useNavigate();
   const { searchQuery, setSearchQuery, cars, getCars, isLoading, error } = useCarStore();
 
@@ -44,6 +45,10 @@ const Searchpage = () => {
   const [filterTrans,  setFilterTrans]  = useState('All');
   const [filterPrice,  setFilterPrice]  = useState('all');
   const [showFilters,  setShowFilters]  = useState(false);
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+   
+  };
 
   useEffect(() => { getCars(); }, [getCars]);
 
@@ -76,12 +81,21 @@ const Searchpage = () => {
             }
           </p>
         </div>
-
+       
         {/* Action Bar */}
         <div className="flex items-center gap-3">
+       <div className='flex lg:hidden relative'> 
+       <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <input
+              type="text"
+              placeholder="SEARCH..."
+              onChange={handleSearchChange}
+              value={searchQuery}
+              className="w-full pl-9 pr-4 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-900 border-none focus:ring-1 ring-zinc-200 dark:ring-zinc-800 outline-none text-[10px] font-bold tracking-widest transition-all"
+            /></div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`p-3.5 rounded-2xl border transition-all duration-500 ${
+            className={`p-3.5 rounded-2xl transition-all duration-500 ${
               showFilters
                 ? 'bg-zinc-900 border-zinc-900 text-white shadow-xl shadow-zinc-200 dark:shadow-none'
                 : 'bg-white dark:bg-zinc-950 border-zinc-100 dark:border-zinc-900 text-zinc-400 hover:border-zinc-900 dark:hover:border-white'

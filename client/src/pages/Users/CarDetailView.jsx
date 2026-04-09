@@ -154,7 +154,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
                   { icon: Fuel,    label: "Fuel", value: car.fuelType },
                   { icon: Cog,     label: "Transmission", value: car.transmission },
                   { icon: MapPin,  label: "Odometer", value: `${car.mileage} km` },
-                  { icon: Shield,  label: "Registration", value: car.licensePlate },
+                  { icon: Shield,  label: "COLOR", value: car.color },
                 ].map((item) => (
                   <div key={item.label} className="bg-zinc-50/50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800/50 rounded-2xl px-5 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
                     <p className="text-[9px] font-bold text-zinc-400 mb-1 flex items-center gap-2 uppercase tracking-widest">

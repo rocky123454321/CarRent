@@ -8,8 +8,6 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
   const navigate = useNavigate();
   const { cars = [], searchQuery } = useCarStore();
 
-  // NO useEffect here — parent (Searchpage) handles fetching
-
   const handleSelect = (car) => {
     if (onSelect) {
       onSelect(car);
@@ -52,7 +50,7 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
       {displayCars.map((car) => (
         <div
           key={car._id}
@@ -60,12 +58,12 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
           className="group relative bg-white dark:bg-zinc-900/40 border border-zinc-100 dark:border-zinc-800/50 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-zinc-200/20 dark:hover:shadow-none transition-all duration-500 cursor-pointer"
         >
           {/* Header Info */}
-          <div className="p-5 pb-0 flex justify-between items-start">
+          <div className="p-5 lg:p-7 pb-0 flex justify-between items-start">
             <div>
-              <h3 className="font-bold text-zinc-900 dark:text-white text-base tracking-tight truncate w-40">
+              <h3 className="font-bold text-zinc-900 dark:text-white text-base lg:text-xl tracking-tight truncate w-40 lg:w-64">
                 {car.brand} {car.model}
               </h3>
-              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.15em] mt-1">
+              <p className="text-[10px] lg:text-sm font-bold text-zinc-400 uppercase tracking-[0.15em] mt-1">
                 {car.year} • {car.color}
               </p>
             </div>
@@ -73,12 +71,12 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
               className="text-zinc-300 dark:text-zinc-700 hover:text-red-500 transition-colors duration-300"
               onClick={(e) => e.stopPropagation()}
             >
-              <Heart size={18} />
+              <Heart size={18} className="lg:w-6 lg:h-6" />
             </button>
           </div>
 
           {/* Image Section */}
-          <div className="relative h-40 flex items-center justify-center p-6">
+          <div className="relative h-40 lg:h-64 flex items-center justify-center p-6 lg:p-10">
             <div className="absolute inset-x-6 inset-y-10 bg-zinc-50 dark:bg-zinc-800/30 rounded-[2rem] -rotate-2 group-hover:rotate-0 transition-transform duration-700" />
             <img
               src={car.image || carImage}
@@ -88,34 +86,34 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
           </div>
 
           {/* Specs Bar */}
-          <div className="flex justify-between px-5 py-4 border-t border-zinc-50 dark:border-zinc-800/50">
-            <div className="flex flex-col items-center gap-1">
-              <Fuel size={14} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors" />
-              <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">{car.fuelType}</span>
+          <div className="flex justify-between px-5 lg:px-8 py-4 lg:py-5 border-t border-zinc-50 dark:border-zinc-800/50">
+            <div className="flex flex-col items-center gap-1 lg:gap-2">
+              <Fuel size={14} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors lg:w-5 lg:h-5" />
+              <span className="text-[9px] lg:text-xs font-bold text-zinc-400 uppercase tracking-tighter">{car.fuelType}</span>
             </div>
-            <div className="flex flex-col items-center gap-1">
-              <Cog size={14} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors" />
-              <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">{car.transmission}</span>
+            <div className="flex flex-col items-center gap-1 lg:gap-2">
+              <Cog size={14} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors lg:w-5 lg:h-5" />
+              <span className="text-[9px] lg:text-xs font-bold text-zinc-400 uppercase tracking-tighter">{car.transmission}</span>
             </div>
-            <div className="flex flex-col items-center gap-1">
-              <Users size={14} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors" />
-              <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">{car.mileage} km</span>
+            <div className="flex flex-col items-center gap-1 lg:gap-2">
+              <Users size={14} className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors lg:w-5 lg:h-5" />
+              <span className="text-[9px] lg:text-xs font-bold text-zinc-400 uppercase tracking-tighter">{car.mileage} km</span>
             </div>
           </div>
 
           {/* Footer - Price & CTA */}
-          <div className="bg-zinc-50 dark:bg-zinc-800/20 px-5 py-4 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800">
+          <div className="bg-zinc-50 dark:bg-zinc-800/20 px-5 lg:px-8 py-4 lg:py-6 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800">
             <div>
-              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest leading-none mb-1">Daily Rate</p>
-              <p className="text-lg font-black text-zinc-900 dark:text-white leading-none">
+              <p className="text-[10px] lg:text-xs font-bold text-zinc-400 uppercase tracking-widest leading-none mb-1">Daily Rate</p>
+              <p className="text-lg lg:text-3xl font-black text-zinc-900 dark:text-white leading-none">
                 ₱{car.pricePerDay.toLocaleString()}
               </p>
             </div>
             <button
-              className="h-10 w-10 flex items-center justify-center rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 group-hover:scale-110 transition-all duration-300 shadow-lg shadow-zinc-900/10"
+              className="h-10 w-10 lg:h-14 lg:w-14 flex items-center justify-center rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 group-hover:scale-110 transition-all duration-300 shadow-lg shadow-zinc-900/10"
               onClick={(e) => { e.stopPropagation(); handleSelect(car); }}
             >
-              <ArrowRight size={18} />
+              <ArrowRight size={18} className="lg:w-6 lg:h-6" />
             </button>
           </div>
         </div>

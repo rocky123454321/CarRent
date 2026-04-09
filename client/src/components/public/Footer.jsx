@@ -62,7 +62,7 @@ const Footer = () => (
       {/* Bottom */}
       <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-zinc-100 dark:border-zinc-900 pt-8 sm:flex-row">
         <p className="text-[10px] font-medium text-zinc-300 dark:text-zinc-700">
-          © 2024 drivo. All rights reserved.
+          © 2024supernova. All rights reserved.
         </p>
         <p className="text-[10px] font-medium text-zinc-300 dark:text-zinc-700">
           Built with care.
