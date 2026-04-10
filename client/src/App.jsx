@@ -41,7 +41,7 @@ import { useThemeStore } from "./store/themeStore";
 
 const PublicLayout = () => (
   <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center transition-colors duration-300">
-    <div className="w-full px-6 py-8">
+    <div className="w-full px-6 ">
       <Outlet />
     </div>
   </div>
@@ -50,7 +50,7 @@ const PublicLayout = () => (
 const DashboardLayout = () => (
   <div className="min-h-screen bg-white dark:bg-black transition-colors duration-300">
     <Navigation />
-    <div className="pt-20 max-w-7xl mx-auto px-6 py-12">
+    <div className="pt-20 max-w-9/10 mx-auto">
       <Outlet />
     </div>
   </div>

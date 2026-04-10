@@ -146,7 +146,7 @@ const HomePage = () => {
   }
 
   return (
-    <div className="max-w-6xl space-y-12 pb-20 pt-4">
+    <div className=" space-y-12 pb-20 pt-4">
 
       {/* ── 1. Header ── */}
       <header className="flex flex-col gap-1 px-1">

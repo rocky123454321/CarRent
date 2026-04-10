@@ -338,7 +338,7 @@ const ChatPage = () => {
     <div className="flex flex-col gap-6 animate-in fade-in duration-700 md:p-8 " style={font}>
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition w-fit italic"
+        className="flex lg:hidden md:hidden items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition w-fit italic"
       >
         <ArrowLeft size={14} /> Back to Dashboard
       </button>
