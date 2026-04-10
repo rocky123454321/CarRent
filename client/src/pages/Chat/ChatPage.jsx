@@ -8,7 +8,7 @@ const Skeleton = ({ className }) => (
   <div className={`bg-zinc-100 dark:bg-zinc-900 animate-pulse rounded-xl ${className}`} />
 );
 
-// ── Sidebar Component ──
+
 const Sidebar = ({
   font, searchQuery, setSearchQuery, isConnected,
   filteredConversations, loading, onlineUsers,
@@ -347,12 +347,12 @@ const ChatPage = () => {
         className="flex overflow-hidden lg:rounded-[2rem] lg:border border-zinc-100 dark:border-zinc-900 shadow-2xl shadow-zinc-200/50 dark:shadow-none bg-white dark:bg-zinc-950 transition-all duration-500"
         style={{ height: 'calc(100vh - 160px)' }}
       >
-        {/* Sidebar Desktop */}
+      
         <div className="hidden md:flex w-80 border-r border-zinc-100 dark:border-zinc-900 shrink-0 flex-col">
           <Sidebar {...sharedProps} searchQuery={searchQuery} setSearchQuery={setSearchQuery} filteredConversations={filteredConversations} />
         </div>
 
-        {/* Mobile Views */}
+       
         <div className="flex md:hidden flex-1 min-w-0 overflow-hidden">
           {mobileView === 'sidebar'
             ? <Sidebar {...sharedProps} searchQuery={searchQuery} setSearchQuery={setSearchQuery} filteredConversations={filteredConversations} />
@@ -360,7 +360,7 @@ const ChatPage = () => {
           }
         </div>
 
-        {/* Chat Desktop */}
+      
         <div className="hidden md:flex flex-1 min-w-0 flex-col overflow-hidden">
           <Chat {...sharedProps} />
         </div>

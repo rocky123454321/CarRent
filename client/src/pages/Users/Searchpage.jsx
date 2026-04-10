@@ -11,17 +11,7 @@ const CardSkeleton = () => (
     <div className="w-full aspect-[16/10] bg-zinc-100 dark:bg-zinc-900 rounded-[2rem] flex items-center justify-center">
       <ImageIcon className="text-zinc-200 dark:text-zinc-800" size={40} />
     </div>
-    <div className="space-y-3 px-2">
-      <div className="flex justify-between items-center">
-        <div className="h-4 bg-zinc-100 dark:bg-zinc-900 rounded-md w-1/2" />
-        <div className="h-4 bg-zinc-100 dark:bg-zinc-900 rounded-md w-1/4" />
-      </div>
-      <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded-md w-1/3" />
-      <div className="pt-4 flex gap-2">
-        <div className="h-10 flex-1 bg-zinc-100 dark:bg-zinc-900 rounded-xl" />
-        <div className="h-10 w-12 bg-zinc-100 dark:bg-zinc-900 rounded-xl" />
-      </div>
-    </div>
+    <div className="h-4 bg-zinc-100 dark:bg-zinc-900 rounded-md w-1/2 mx-auto" />
   </div>
 );
 
@@ -36,187 +26,119 @@ const PRICE_OPTIONS = [
 ];
 
 const Searchpage = () => {
-  
-  const navigate = useNavigate();
-  const { searchQuery, setSearchQuery, cars, getCars, isLoading, error } = useCarStore();
-
-  const [selectedCar,  setSelectedCar]  = useState(null);
-  const [filterFuel,   setFilterFuel]   = useState('all');
-  const [filterTrans,  setFilterTrans]  = useState('All');
-  const [filterPrice,  setFilterPrice]  = useState('all');
-  const [showFilters,  setShowFilters]  = useState(false);
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-   
-  };
+  const { searchQuery, setSearchQuery, getCars, isLoading, error } = useCarStore();
+  const [selectedCar, setSelectedCar] = useState(null);
+  const [filterFuel, setFilterFuel] = useState('all');
+  const [filterTrans, setFilterTrans] = useState('All');
+  const [filterPrice, setFilterPrice] = useState('all');
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => { getCars(); }, [getCars]);
 
-  const hasActiveFilters =
-    filterFuel !== 'all' || filterTrans !== 'All' || filterPrice !== 'all' || searchQuery;
+  const hasActiveFilters = filterFuel !== 'all' || filterTrans !== 'All' || filterPrice !== 'all' || searchQuery;
 
   const resetFilters = () => {
-    setFilterFuel('all');
-    setFilterTrans('All');
-    setFilterPrice('all');
-    setSearchQuery('');
+    setFilterFuel('all'); setFilterTrans('All'); setFilterPrice('all'); setSearchQuery('');
   };
-
-  const fontStyle = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
   if (selectedCar) {
     return <CarDetailView car={selectedCar} onBack={() => setSelectedCar(null)} />;
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 pb-10" style={fontStyle}>
+    <div className="space-y-6 animate-in fade-in duration-700 pb-10 relative" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
 
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-      
-       
-        {/* Action Bar */}
-        <div className="flex items-center gap-3">
-       <div className='flex lg:hidden relative'> 
-       <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-            <input
-              type="text"
-              placeholder="SEARCH..."
-              onChange={handleSearchChange}
-              autoFocus
-              value={searchQuery}
-              className="w-full pl-9 pr-4 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-900 border-none focus:ring-1 ring-zinc-200 dark:ring-zinc-800 outline-none text-[10px] font-bold tracking-widest transition-all"
-            /></div>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`p-3.5 rounded-2xl transition-all duration-500 ${
-              showFilters
-                ? 'bg-zinc-900 border-zinc-900 text-white shadow-xl shadow-zinc-200 dark:shadow-none'
-                : 'bg-white dark:bg-zinc-950 border-zinc-100 dark:border-zinc-900 text-zinc-400 hover:border-zinc-900 dark:hover:border-white'
-            }`}
-          >
-            <SlidersHorizontal size={18} />
-          </button>
+      <div className="flex items-center justify-between gap-3 max-w-md mx-auto lg:max-w-none lg:justify-end">
+        <div className='flex lg:hidden relative w-full max-w-[240px]'> 
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+          <input
+            type="text"
+            placeholder="SEARCH..."
+            autoFocus
+            onChange={(e) => setSearchQuery(e.target.value)}
+            value={searchQuery}
+            className="w-full pl-9 pr-4 py-2 rounded-full bg-zinc-100 dark:bg-zinc-900 border-none focus:ring-1 ring-zinc-200 dark:ring-zinc-800 outline-none text-[10px] font-bold tracking-widest transition-all"
+          />
         </div>
+
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className={`p-3 rounded-2xl transition-all duration-500 border z-[60] ${
+            showFilters
+              ? 'bg-zinc-900 border-zinc-900 text-white shadow-lg'
+              : 'bg-white dark:bg-zinc-950 border-zinc-100 dark:border-zinc-900 text-zinc-400'
+          }`}
+        >
+          <SlidersHorizontal size={18} />
+        </button>
       </div>
 
-      {/* Filter Panel */}
-      {showFilters && !isLoading && (
-        <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-[2rem] p-8 shadow-2xl shadow-zinc-100 dark:shadow-none animate-in slide-in-from-top-4 duration-500">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-
-            {/* Fuel Type */}
-            <div className="space-y-4">
-              <label className="text-[10px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-[0.3em] block italic">Engine Config</label>
-              <div className="flex flex-wrap gap-2">
-                {FUEL_OPTIONS.map(f => (
-                  <button
-                    key={f}
-                    onClick={() => setFilterFuel(f)}
-                    className={`px-5 py-2.5 rounded-xl text-[10px] font-bold tracking-widest transition-all border uppercase ${
-                      filterFuel === f
-                        ? 'bg-zinc-900 border-zinc-900 text-white dark:bg-white dark:text-zinc-950'
-                        : 'bg-transparent border-zinc-100 dark:border-zinc-900 text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700'
-                    }`}
-                  >
-                    {f === 'all' ? 'All' : f}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Transmission */}
-            <div className="space-y-4">
-              <label className="text-[10px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-[0.3em] block italic">Drivetrain</label>
-              <div className="flex flex-wrap gap-2">
-                {TRANS_OPTIONS.map(t => (
-                  <button
-                    key={t}
-                    onClick={() => setFilterTrans(t)}
-                    className={`px-5 py-2.5 rounded-xl text-[10px] font-bold tracking-widest transition-all border uppercase ${
-                      filterTrans === t
-                        ? 'bg-zinc-900 border-zinc-900 text-white dark:bg-white dark:text-zinc-950'
-                        : 'bg-transparent border-zinc-100 dark:border-zinc-900 text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700'
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Price Range */}
-            <div className="space-y-4">
-              <label className="text-[10px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-[0.3em] block italic">Rate Bracket</label>
-              <div className="flex flex-wrap gap-2">
-                {PRICE_OPTIONS.map(p => (
-                  <button
-                    key={p.value}
-                    onClick={() => setFilterPrice(p.value)}
-                    className={`px-5 py-2.5 rounded-xl text-[10px] font-bold tracking-widest transition-all border uppercase ${
-                      filterPrice === p.value
-                        ? 'bg-zinc-900 border-zinc-900 text-white dark:bg-white dark:text-zinc-950'
-                        : 'bg-transparent border-zinc-100 dark:border-zinc-900 text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700'
-                    }`}
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {hasActiveFilters && (
-            <div className="mt-10 pt-6 border-t border-zinc-50 dark:border-zinc-900 flex justify-between items-center">
-              <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest italic opacity-50">Filter overrides active</span>
-              <button
-                onClick={resetFilters}
-                className="flex items-center gap-2 text-[10px] font-black text-red-500 hover:text-red-600 uppercase tracking-[0.2em] transition-all group"
-              >
-                <RotateCcw size={12} className="group-hover:rotate-[-45deg] transition-transform" /> Reset Parameters
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Grid Display */}
-      <div className="relative min-h-[400px]">
-
-        {/* Loading Skeletons */}
-        {isLoading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => <CardSkeleton key={i} />)}
-          </div>
-        )}
-
-        {/* Error State */}
-        {!isLoading && error && (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <ServerCrash className="w-12 h-12 text-zinc-200 dark:text-zinc-800" />
-            <p className="text-xs font-black text-zinc-400 uppercase tracking-[0.3em]">Failed to load fleet</p>
-            <p className="text-[10px] text-rose-400 font-mono">{error}</p>
-            <button
-              onClick={() => getCars()}
-              className="mt-2 px-6 py-3 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-black uppercase tracking-widest hover:opacity-80 transition-all"
-            >
-              Retry
-            </button>
-          </div>
-        )}
-
-        {/* Cards */}
-        {!isLoading && !error && (
-          <Cards
-            filterFuel={filterFuel}
-            filterTransmission={filterTrans}
-            filterPrice={filterPrice}
-            onSelect={(car) => setSelectedCar(car)}
+      <div className="relative">
+        {/* --- CLICK OUTSIDE OVERLAY --- */}
+        {showFilters && (
+          <div 
+            className="fixed inset-0 z-40 bg-black/5 dark:bg-black/20" 
+            onClick={() => setShowFilters(false)}
           />
         )}
 
-      </div>
+        {/* Floating Filter Panel */}
+        {showFilters && !isLoading && (
+          <div className="absolute top-0 left-0 w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border border-zinc-100 dark:border-zinc-900 rounded-[2.5rem] p-6 lg:p-8 shadow-2xl animate-in slide-in-from-top-4 duration-500">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-widest italic">Engine</label>
+                <div className="flex flex-wrap gap-2">
+                  {FUEL_OPTIONS.map(f => (
+                    <button key={f} onClick={() => setFilterFuel(f)} className={`px-4 py-2 rounded-xl text-[9px] font-bold border uppercase transition-all ${filterFuel === f ? 'bg-zinc-900 border-zinc-900 text-white' : 'bg-white/50 dark:bg-zinc-900/50 border-zinc-100 text-zinc-400'}`}>{f}</button>
+                  ))}
+                </div>
+              </div>
 
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-widest italic">Drivetrain</label>
+                <div className="flex flex-wrap gap-2">
+                  {TRANS_OPTIONS.map(t => (
+                    <button key={t} onClick={() => setFilterTrans(t)} className={`px-4 py-2 rounded-xl text-[9px] font-bold border uppercase transition-all ${filterTrans === t ? 'bg-zinc-900 border-zinc-900 text-white' : 'bg-white/50 dark:bg-zinc-900/50 border-zinc-100 text-zinc-400'}`}>{t}</button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-widest italic">Rate</label>
+                <div className="flex flex-wrap gap-2">
+                  {PRICE_OPTIONS.map(p => (
+                    <button key={p.value} onClick={() => setFilterPrice(p.value)} className={`px-4 py-2 rounded-xl text-[9px] font-bold border uppercase transition-all ${filterPrice === p.value ? 'bg-zinc-900 border-zinc-900 text-white' : 'bg-white/50 dark:bg-zinc-900/50 border-zinc-100 text-zinc-400'}`}>{p.label}</button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {hasActiveFilters && (
+              <div className="mt-8 pt-4 border-t border-zinc-100 dark:border-zinc-900 flex justify-end">
+                <button onClick={resetFilters} className="flex items-center gap-2 text-[10px] font-black text-rose-500 uppercase tracking-widest"><RotateCcw size={12} /> Reset</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Grid Display */}
+        <div className="relative pt-2">
+          {isLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+              {[...Array(6)].map((_, i) => <CardSkeleton key={i} />)}
+            </div>
+          ) : (
+            <Cards
+              filterFuel={filterFuel}
+              filterTransmission={filterTrans}
+              filterPrice={filterPrice}
+              onSelect={(car) => setSelectedCar(car)}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 };
