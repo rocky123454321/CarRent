@@ -14,7 +14,7 @@ const CardSkeleton = () => (
     <div className="h-4 bg-zinc-100 dark:bg-zinc-900 rounded-md w-1/2 mx-auto" />
   </div>
 );
-
+//
 const FUEL_OPTIONS  = ['all', 'Gasoline', 'Diesel', 'Electric', 'Hybrid'];
 const TRANS_OPTIONS = ['All', 'Automatic', 'Manual'];
 const PRICE_OPTIONS = [
