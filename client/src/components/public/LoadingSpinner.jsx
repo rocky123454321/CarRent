@@ -2,44 +2,45 @@ import { motion } from "framer-motion";
 
 const LoadingSpinner = () => {
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-black">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-zinc-950 transition-colors duration-500">
             
-            {/* Minimalist Spinner */}
+            {/* Minimalist Spinner Container */}
             <div className="relative flex items-center justify-center">
-                {/* Outer static ring - very faint */}
-                <div className="w-12 h-12 rounded-full border-[1.5px] border-white/5" />
                 
-                {/* Active spinning arc */}
+                {/* Outer static ring - subtle hint of the track */}
+                <div className="w-10 h-10 rounded-full border-[1.2px] border-zinc-100 dark:border-zinc-900" />
+                
+                {/* Active spinning arc - Pure Black in Light, Pure White in Dark */}
                 <motion.div
-                    className="absolute w-12 h-12 rounded-full border-[1.5px] border-t-blue-500 border-r-transparent border-b-transparent border-l-transparent"
+                    className="absolute w-10 h-10 rounded-full border-[1.2px] border-t-zinc-900 dark:border-t-white border-r-transparent border-b-transparent border-l-transparent"
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+                    transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
                 />
             </div>
 
-            {/* Typography */}
+            {/* Typography Section */}
             <motion.div 
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="mt-6 flex flex-col items-center gap-1"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="mt-8 flex flex-col items-center gap-3"
             >
-                <p className="text-white font-black text-[10px] uppercase tracking-[0.3em]">
-                    Loading
+                <p className="text-zinc-900 dark:text-zinc-100 font-bold text-[9px] uppercase tracking-[0.4em] antialiased">
+                    Processing
                 </p>
-                <div className="flex gap-1">
-                    {[0, 1, 2].map((i) => (
-                        <motion.div
-                            key={i}
-                            className="w-1 h-1 bg-blue-500 rounded-full"
-                            animate={{ opacity: [0, 1, 0] }}
-                            transition={{ 
-                                duration: 1, 
-                                repeat: Infinity, 
-                                delay: i * 0.2 
-                            }}
-                        />
-                    ))}
+                
+                {/* Minimalist Progress Line instead of dots */}
+                <div className="h-[1px] w-8 bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                    <motion.div 
+                        className="h-full bg-zinc-900 dark:bg-white w-full"
+                        initial={{ x: "-100%" }}
+                        animate={{ x: "100%" }}
+                        transition={{ 
+                            duration: 1.5, 
+                            repeat: Infinity, 
+                            ease: "easeInOut" 
+                        }}
+                    />
                 </div>
             </motion.div>
         </div>
