@@ -98,8 +98,8 @@ const CarDetailView = ({ car: carProp, onBack }) => {
         Return to Fleet
       </button>
 
-      {/* ── Main View ── */}
-      <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] md:rounded-[2.5rem] shadow-sm overflow-hidden mx-1 md:mx-0">
+      {/* ── Main View ── (Border/Shadow Removed) */}
+      <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] md:rounded-[2.5rem] mx-1 md:mx-0">
         <div className="flex flex-col lg:flex-row">
 
           {/* Image Section */}
@@ -204,8 +204,8 @@ const CarDetailView = ({ car: carProp, onBack }) => {
         </div>
       </div>
 
-      {/* Experiences Section */}
-      <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 mx-1 md:mx-0 shadow-sm">
+      {/* Experiences Section (Border/Shadow Removed) */}
+      <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 mx-1 md:mx-0">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8 md:mb-12">
           <div>
             <h3 className="text-xl md:text-2xl font-black text-zinc-900 dark:text-white tracking-tighter uppercase">Experiences</h3>
