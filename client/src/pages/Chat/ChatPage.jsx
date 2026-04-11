@@ -333,7 +333,7 @@ const ChatPage = () => {
     handleTyping, handleSend, setMobileView,
     activeName, isActiveOnline, carName,
   };
-
+//
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-700 md:p-8 " style={font}>
       <button
