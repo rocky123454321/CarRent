@@ -11,7 +11,7 @@ const FlashDealPage = () => {
 
   // 10% discount logic preview
   const discountedCars = cars.filter(c => c.isAvailable).slice(0, 6);
-
+//
   useEffect(() => {
     const tick = () => {
       const d = new Date();
