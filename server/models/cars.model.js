@@ -20,15 +20,37 @@ const CarsSchema = new mongoose.Schema({
   
 
   // ✅ PROMO FIELDS
-  isPromo:     { type: Boolean, default: false },
-  promoPrice:  { type: Number, default: null },       // discounted price per day
-  promoLabel:  { type: String, default: null },        // e.g. "20% OFF", "Summer Deal"
-  promoSeason: {
-    type: String,
-    enum: ["summer", "christmas", "valentines", "halloween", "new_year", "payday", "sale"],
-    default: null,
-  },
-  promoExpiry: { type: Date, default: null },          // auto-expire promo
+// ✅ MAS MATALINONG PROMO FIELDS
+isPromo: { 
+  type: Boolean, 
+  default: false 
+},
+promoPrice: { 
+  type: Number, 
+  default: null,
+  // Validation: Siguraduhin na hindi mas mahal ang promo sa original price
+  validate: {
+    validator: function(v) {
+      if (this.isPromo && v >= this.pricePerDay) return false;
+      return true;
+    },
+    message: "Promo price must be lower than the original price per day!"
+  }
+},
+promoLabel: { 
+  type: String, 
+  default: null,
+  trim: true 
+},
+promoSeason: {
+  type: String,
+  enum: ["summer", "christmas", "valentines", "halloween", "new_year", "payday", "sale", null],
+  default: null,
+},
+promoExpiry: { 
+  type: Date, 
+  default: null 
+},         // auto-expire promo
 }, { timestamps: true });
 
 export const Car = mongoose.model("Car", CarsSchema);

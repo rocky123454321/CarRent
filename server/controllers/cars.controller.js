@@ -2,22 +2,22 @@ import { Car } from '../models/cars.model.js';
 import { User } from '../models/user.model.js';
 import { cloudinary } from '../config/cloudinary.js';
 
+// ✅ ADD NEW CAR
 export const addCar = async (req, res) => {
-  console.log("REQ.BODY:", req.body);
-  console.log("REQ.FILE:", req.file);
-
-  const {
-    brand, model, year, color, pricePerDay,
-    uploadedBy, mileage, fuelType, transmission,
-    licensePlate, isAvailable
-  } = req.body;
-
-  // Validate required fields
-  if (!brand || !model || !year || !pricePerDay || !licensePlate || !uploadedBy) {
-    return res.status(400).json({ success: false, message: "Required fields missing" });
-  }
-
   try {
+    const {
+      brand, model, year, color, pricePerDay,
+      uploadedBy, mileage, fuelType, transmission,
+      licensePlate, isAvailable,
+      // Promo Fields from Frontend
+      isPromo, promoPrice, promoLabel, promoSeason, promoExpiry
+    } = req.body;
+
+    // Validate required fields
+    if (!brand || !model || !year || !pricePerDay || !licensePlate || !uploadedBy) {
+      return res.status(400).json({ success: false, message: "Required fields missing" });
+    }
+
     const car = await Car.create({
       brand,
       model,
@@ -30,11 +30,17 @@ export const addCar = async (req, res) => {
       licensePlate,
       uploadedBy,
       isAvailable: isAvailable ?? true,
-      image: req.file?.path || "",    // ✅ Cloudinary URL
-      imageId: req.file?.filename || "", // ✅ Cloudinary public_id
+      image: req.file?.path || "", 
+      imageId: req.file?.filename || "",
       currentRenter: null,
       rentalStartDate: null,
       rentalEndDate: null,
+      // ✅ Integrated Promo Logic
+      isPromo: isPromo === "true" || isPromo === true,
+      promoPrice: promoPrice ? Number(promoPrice) : null,
+      promoLabel: promoLabel || null,
+      promoSeason: (promoSeason === "" || promoSeason === "null") ? null : promoSeason,
+      promoExpiry: promoExpiry || null,
     });
 
     res.status(201).json({ success: true, message: "Car added successfully", car });
@@ -44,6 +50,7 @@ export const addCar = async (req, res) => {
   }
 };
 
+// ✅ UPDATE CAR
 export const updateCar = async (req, res) => {
   try {
     const carId = req.params.id;
@@ -54,22 +61,24 @@ export const updateCar = async (req, res) => {
     const car = await Car.findById(carId);
     if (!car) return res.status(404).json({ success: false, message: "Car not found" });
 
-    // ✅ Delete old image sa Cloudinary kung may bagong image
+    // Handle Image Update
     if (req.file && car.imageId) {
       await cloudinary.uploader.destroy(car.imageId);
     }
 
-    const updated = await Car.findByIdAndUpdate(
-      carId,
-      {
-        ...req.body,
-        ...(req.file && {
-          image:   req.file.path,
-          imageId: req.file.filename,
-        }),
-      },
-      { new: true }
-    );
+    const updateData = { 
+      ...req.body,
+      // Convert specific fields from FormData strings
+      isPromo: req.body.isPromo === "true" || req.body.isPromo === true,
+      promoPrice: req.body.promoPrice ? Number(req.body.promoPrice) : null,
+      promoSeason: req.body.promoSeason === "" ? null : req.body.promoSeason,
+      ...(req.file && {
+        image: req.file.path,
+        imageId: req.file.filename,
+      }),
+    };
+
+    const updated = await Car.findByIdAndUpdate(carId, updateData, { new: true });
 
     res.status(200).json({ success: true, message: "Car updated successfully", car: updated });
   } catch (err) {
@@ -77,12 +86,12 @@ export const updateCar = async (req, res) => {
   }
 };
 
+// ✅ DELETE CAR
 export const deleteCar = async (req, res) => {
   try {
     const car = await Car.findById(req.params.id);
     if (!car) return res.status(404).json({ success: false, message: "Car not found" });
 
-    // ✅ Delete image sa Cloudinary
     if (car.imageId) await cloudinary.uploader.destroy(car.imageId);
 
     await Car.findByIdAndDelete(req.params.id);
@@ -91,10 +100,12 @@ export const deleteCar = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// ✅ GET ALL CARS (Public Explore)
 export const getAllCars = async (req, res) => {
   try {
     const cars = await Car.find()
-      .populate('uploadedBy', 'name email profileImage') // ✅ idagdag ito
+      .populate('uploadedBy', 'name email profileImage')
       .sort({ createdAt: -1 });
     res.json(cars);
   } catch (err) {
@@ -102,10 +113,11 @@ export const getAllCars = async (req, res) => {
   }
 };
 
+// ✅ GET SINGLE CAR
 export const getCarById = async (req, res) => {
   try {
     const car = await Car.findById(req.params.id)
-      .populate('uploadedBy', 'name email profileImage'); // ✅ idagdag ito
+      .populate('uploadedBy', 'name email profileImage');
     if (!car) return res.status(404).json({ message: "Car not found" });
     res.json(car);
   } catch (err) {
@@ -113,6 +125,7 @@ export const getCarById = async (req, res) => {
   }
 };
 
+// ✅ RENT A CAR
 export const rentCar = async (req, res) => {
   try {
     const { userId, rentalStartDate, rentalEndDate } = req.body;
@@ -122,16 +135,16 @@ export const rentCar = async (req, res) => {
 
     const car = await Car.findById(req.params.id);
     if (!car) return res.status(404).json({ message: "Car not found" });
-    if (!car.isAvailable) return res.status(400).json({ message: "Car is not available" });
+    if (!car.isAvailable) return res.status(400).json({ message: "Car is currently not available" });
 
     const start = new Date(rentalStartDate);
-    const end   = new Date(rentalEndDate);
+    const end = new Date(rentalEndDate);
     if (end <= start) return res.status(400).json({ message: "Return date must be after pick-up date" });
 
-    car.isAvailable     = false;
-    car.currentRenter   = userId;
+    car.isAvailable = false;
+    car.currentRenter = userId;
     car.rentalStartDate = start;
-    car.rentalEndDate   = end;
+    car.rentalEndDate = end;
     await car.save();
 
     res.status(200).json({ success: true, message: "Car booked successfully", car });
@@ -140,23 +153,25 @@ export const rentCar = async (req, res) => {
   }
 };
 
+// ✅ RETURN A CAR
 export const returnCar = async (req, res) => {
   try {
     const car = await Car.findById(req.params.id);
-    if (!car || car.isAvailable) return res.status(400).json({ message: "Car is not rented" });
+    if (!car || car.isAvailable) return res.status(400).json({ message: "Car is not currently rented" });
 
-    car.isAvailable     = true;
-    car.currentRenter   = null;
+    car.isAvailable = true;
+    car.currentRenter = null;
     car.rentalStartDate = null;
-    car.rentalEndDate   = null;
+    car.rentalEndDate = null;
     await car.save();
 
-    res.json({ message: "Car returned", car });
+    res.json({ success: true, message: "Car returned successfully", car });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
+// ✅ GET ADMIN'S INVENTORY
 export const getAllCarbyAdmin = async (req, res) => {
   try {
     const cars = await Car.find({ uploadedBy: req.params.adminId });
@@ -166,12 +181,17 @@ export const getAllCarbyAdmin = async (req, res) => {
   }
 };
 
+// ✅ ACCOUNT SETTINGS (DELETE USER)
 export const Settings = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.userId);
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    
+    // Clean up all cars uploaded by this user if needed (optional)
+    // await Car.deleteMany({ uploadedBy: req.userId });
+
     res.clearCookie("token");
-    res.status(200).json({ success: true, message: "User deleted successfully" });
+    res.status(200).json({ success: true, message: "Account deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

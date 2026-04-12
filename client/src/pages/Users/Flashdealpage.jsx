@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Zap, Timer, Star, Car, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, Zap, Star } from 'lucide-react';
 import { useCarStore } from '../../store/CarStore';
 import carImage from "../../assets/1.png";
 
@@ -9,19 +9,56 @@ const FlashDealPage = () => {
   const { cars } = useCarStore();
   const [timeLeft, setTimeLeft] = useState('');
 
-  // 10% discount logic preview
-  const discountedCars = cars.filter(c => c.isAvailable).slice(0, 6);
-//
+  // ─── RANDOM DAILY SELECTION LOGIC ─────────────────────────────────────────
+  const dailyDeals = useMemo(() => {
+    if (!cars || cars.length === 0) return [];
+
+    // 1. Kuhanin ang "seed" base sa petsa ngayon (YYYY-MM-DD)
+    const today = new Date().toISOString().slice(0, 10);
+    
+    // 2. Simple hash function para maging number ang date string
+    let seed = 0;
+    for (let i = 0; i < today.length; i++) {
+      seed += today.charCodeAt(i);
+    }
+
+    // 3. Shuffle function gamit ang seed (deterministic random)
+    const shuffle = (array, seed) => {
+      let m = array.length, t, i;
+      while (m) {
+        i = Math.floor(Math.abs(Math.sin(seed++)) * m--);
+        t = array[m];
+        array[m] = array[i];
+        array[i] = t;
+      }
+      return array;
+    };
+
+    // 4. I-filter ang available cars at i-shuffle
+    const availableCars = cars.filter(c => c.isAvailable);
+    const shuffled = shuffle([...availableCars], seed);
+
+    // 5. Pumili ng random number between 5 to 10 cards
+    // Ginagamitan din ng seed para consistent ang bilang buong araw
+    const countSeed = Math.floor(Math.abs(Math.cos(seed)) * 6) + 5; // Result: 5 to 10
+    
+    return shuffled.slice(0, countSeed);
+  }, [cars]);
+
+  // ─── TIMER LOGIC ──────────────────────────────────────────────────────────
   useEffect(() => {
     const tick = () => {
       const d = new Date();
-      d.setHours(24, 0, 0, 0);
-      const diff = d - new Date();
+      const tomorrow = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+      const diff = tomorrow - d;
+      
       const h = Math.floor(diff / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
       const s = Math.floor((diff % 60000) / 1000);
+      
       setTimeLeft(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`);
     };
+
     tick();
     const t = setInterval(tick, 1000);
     return () => clearInterval(t);
@@ -34,7 +71,7 @@ const FlashDealPage = () => {
         <button onClick={() => navigate(-1)} className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-full transition">
           <ChevronLeft size={20} className="text-zinc-900 dark:text-white" />
         </button>
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center text-center">
           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-500">Limited Time</span>
           <h1 className="text-sm font-bold text-zinc-900 dark:text-white">Flash Deals</h1>
         </div>
@@ -50,7 +87,7 @@ const FlashDealPage = () => {
               <span className="text-[10px] font-black uppercase tracking-widest">Active Now</span>
             </div>
             <h2 className="text-4xl font-black tracking-tighter mb-2">10% OFF EVERYTHING</h2>
-            <p className="text-white/80 text-xs font-medium max-w-[200px] mb-6">Drive your dream car today at a fraction of the cost.</p>
+            <p className="text-white/80 text-xs font-medium max-w-[200px] mb-6">Resetting daily at midnight.</p>
             
             <div className="flex gap-4">
               {timeLeft.split(':').map((unit, i) => (
@@ -65,30 +102,45 @@ const FlashDealPage = () => {
               ))}
             </div>
           </div>
-          {/* Decorative Circles */}
           <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
         </div>
       </div>
 
       {/* Car Grid */}
       <div className="px-4 space-y-4">
-        <h3 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white px-1">Available for Flash Deal</h3>
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white">Daily Picks</h3>
+          <span className="text-[10px] font-bold bg-zinc-100 dark:bg-zinc-900 px-3 py-1 rounded-full text-zinc-500">
+            {dailyDeals.length} units
+          </span>
+        </div>
+        
         <div className="grid grid-cols-1 gap-4">
-          {discountedCars.map((car) => (
-            <div key={car._id} className="group relative bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-5 flex items-center gap-5 transition-all hover:border-amber-500/50">
-              <div className="w-32 h-20 bg-white dark:bg-zinc-900 rounded-2xl flex items-center justify-center p-2">
-                <img src={car.image || carImage} alt={car.model} className="max-h-full object-contain group-hover:scale-110 transition-transform duration-500" />
+          {dailyDeals.map((car) => (
+            <div 
+              key={car._id} 
+              onClick={() => navigate(`/car/${car._id}`)}
+              className="group relative bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-5 flex items-center gap-5 transition-all hover:border-amber-500/50 cursor-pointer"
+            >
+              <div className="w-32 h-20 bg-white dark:bg-zinc-950 rounded-2xl flex items-center justify-center p-2 shadow-sm">
+                <img 
+                  src={car.image || carImage} 
+                  alt={car.model} 
+                  className="max-h-full object-contain group-hover:scale-110 transition-transform duration-500" 
+                />
               </div>
               <div className="flex-1">
-                <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">Save ₱{(car.pricePerDay * 0.1).toLocaleString()}</p>
+                <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">
+                  Save ₱{(car.pricePerDay * 0.1).toLocaleString()}
+                </p>
                 <h4 className="font-bold text-zinc-900 dark:text-white tracking-tight">{car.brand} {car.model}</h4>
                 <div className="flex items-center gap-2 mt-2">
                    <span className="text-sm font-black text-zinc-900 dark:text-white">₱{(car.pricePerDay * 0.9).toLocaleString()}</span>
-                   <span className="text-[10px] text-zinc-400 line-through">₱{car.pricePerDay.toLocaleString()}</span>
+                   <span className="text-[10px] text-zinc-400 line-through font-bold">₱{car.pricePerDay.toLocaleString()}</span>
                 </div>
               </div>
-              <button className="h-10 w-10 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center">
-                <Zap size={16} />
+              <button className="h-10 w-10 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center shadow-lg transition-transform active:scale-90">
+                <Zap size={16} fill="currentColor" />
               </button>
             </div>
           ))}

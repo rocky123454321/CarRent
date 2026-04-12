@@ -22,7 +22,7 @@ import CarDetailView from "./pages/Users/CarDetailView";
 import ChatPage from "./pages/Chat/ChatPage";
 import MyRentals from "./pages/Users/MyRentals";
 import Settings from "./pages/Users/Settings";
-
+import ExploreNow from "./pages/Users/exploreNow";
 // Admin Pages
 import AdminPage from "./pages/admin/adminPage";
 import AdminDashboard from "./components/admin/AdminDashboard";
@@ -36,6 +36,7 @@ import Popular from "./pages/Users/Recomended";
 import Recomended from "./pages/Users/Recomended";
 
 import { useThemeStore } from "./store/themeStore";
+import FlashDealPage from "./pages/Users/Flashdealpage";
 
 // --- LAYOUTS ---
 
@@ -145,6 +146,8 @@ function App() {
           <Route path="my-rentals" element={<MyRentals />} />
           <Route path="chat" element={<ChatPage />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="explore" element={<ExploreNow />}/>
+          <Route path="flash-deals" element={<FlashDealPage />}/>
         </Route>
 
         {/* 🛠 ADMIN ROUTES */}    

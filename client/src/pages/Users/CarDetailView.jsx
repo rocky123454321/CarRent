@@ -5,7 +5,7 @@ import carImage from "../../assets/carpichero.png";
 
 import {
   Fuel, Cog, ArrowLeft, Star, MapPin,
-  Shield, Calendar, MessageSquare, X
+  Shield, Calendar, MessageSquare, X, Tag // Nagdagdag ng Tag icon
 } from "lucide-react";
 import { toast } from 'sonner';
 import { useAuthStore } from '../../store/authStore.js';
@@ -98,15 +98,26 @@ const CarDetailView = ({ car: carProp, onBack }) => {
         Return to Fleet
       </button>
 
-      {/* ── Main View ── (Border/Shadow Removed) */}
+      {/* ── Main View ── */}
       <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] md:rounded-[2.5rem] mx-1 md:mx-0">
         <div className="flex flex-col lg:flex-row">
 
           {/* Image Section */}
           <div className="lg:w-[55%] p-4 md:p-8 space-y-4 md:space-y-6">
             <div className="bg-zinc-50 dark:bg-zinc-900 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center h-56 md:h-72 lg:h-[480px] overflow-hidden group relative">
+              {/* // PROMO UPDATE: Floating Promo Badge on Image */}
+              {car.isPromo && (
+                <div className="absolute top-6 left-6 z-10 bg-rose-600 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg animate-bounce">
+                  <Tag size={12} className="fill-white" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">
+                    {car.promoLabel || "Special Offer"}
+                  </span>
+                </div>
+              )}
+              
               <img src={mainImage} alt={`${car.brand} ${car.model}`} className="h-full object-contain p-4 md:p-8 transition-transform duration-1000 group-hover:scale-110" />
             </div>
+            {/* Gallery placeholder */}
             <div className="grid grid-cols-3 gap-3 md:gap-4">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="bg-zinc-50 dark:bg-zinc-900 rounded-xl md:rounded-2xl flex items-center justify-center h-20 md:h-24 overflow-hidden cursor-pointer transition-all group">
@@ -146,6 +157,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
                 The {car.brand} {car.model} offers an unparalleled driving experience. Pristine condition and ready for your next journey.
               </p>
 
+              {/* Specs Grid */}
               <div className="grid grid-cols-2 gap-3 md:gap-4 mb-8 md:mb-10">
                 {[
                   { icon: Fuel,    label: "Fuel", value: car.fuelType },
@@ -183,10 +195,27 @@ const CarDetailView = ({ car: carProp, onBack }) => {
               )}
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4">
+                {/* // PROMO UPDATE: Price Display with Original Price Strike-through */}
                 <div>
                   <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-[0.2em] mb-0.5">Daily Rate</p>
-                  <p className="text-2xl md:text-3xl font-black text-zinc-900 dark:text-white tracking-tighter">₱{car.pricePerDay?.toLocaleString()}</p>
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-2xl md:text-3xl font-black text-zinc-900 dark:text-white tracking-tighter">
+                      ₱{(car.isPromo ? car.promoPrice : car.pricePerDay)?.toLocaleString()}
+                    </p>
+                    {car.isPromo && (
+                      <p className="text-sm md:text-base font-bold text-zinc-400 line-through decoration-rose-500/50">
+                        ₱{car.pricePerDay?.toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                  {/* Promo Season Label */}
+                  {car.isPromo && car.promoSeason && (
+                    <p className="text-[8px] font-black text-rose-500 uppercase tracking-widest mt-1">
+                      {car.promoSeason} Limited Offer
+                    </p>
+                  )}
                 </div>
+
                 <button
                   onClick={() => {
                     if (!isAuthenticated) { toast.error('Please login to book'); return; }
@@ -204,7 +233,9 @@ const CarDetailView = ({ car: carProp, onBack }) => {
         </div>
       </div>
 
-      {/* Experiences Section (Border/Shadow Removed) */}
+      {/* ... Experiences Section and Booking Overlay remain the same ... */}
+      
+      {/* Experiences Section */}
       <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 mx-1 md:mx-0">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8 md:mb-12">
           <div>

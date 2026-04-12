@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { ArrowRight, X, MapPin, Calendar, Clock, User, Phone, Home } from "lucide-react";
+import { ArrowRight, X, MapPin, Calendar, Clock, User, Phone, Home, Tag } from "lucide-react"; // Added Tag icon
 import { toast } from "sonner";
 import { useAuthStore } from '../../store/authStore.js';
 import { differenceInDays } from 'date-fns';
@@ -24,7 +24,6 @@ const schema = yup.object({
   address:         yup.string().required('Address required'),
 });
 
-// Refactored Field Component with Landing Page Typography
 const Field = ({ label, error, children, icon: Icon }) => (
   <div className="flex flex-col gap-2">
     <div className="flex items-center gap-2 ml-1">
@@ -36,7 +35,6 @@ const Field = ({ label, error, children, icon: Icon }) => (
   </div>
 );
 
-// High-end Input Classes
 const inputCls = "w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl px-5 py-4 text-[13px] text-zinc-900 dark:text-white font-bold placeholder:text-zinc-300 dark:placeholder:text-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-white transition-all appearance-none";
 
 const BookingForm = ({ car, onSuccess }) => {
@@ -56,7 +54,10 @@ const BookingForm = ({ car, onSuccess }) => {
   const days = (pickupDate && dropoffDate)
     ? Math.max(1, differenceInDays(new Date(dropoffDate), new Date(pickupDate)) + 1)
     : 0;
-  const totalPrice = days * (car?.pricePerDay || 0);
+
+  // ✅ PROMO UPDATE: Calculate price based on promo status
+  const activePrice = car?.isPromo ? car?.promoPrice : car?.pricePerDay;
+  const totalPrice = days * (activePrice || 0);
 
   const onSubmit = (data) => {
     if (!isAuthenticated) return toast.error('Please login to book');
@@ -99,9 +100,29 @@ const BookingForm = ({ car, onSuccess }) => {
           <h3 className="text-3xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter leading-none italic">
             SECURE YOUR <span className="text-zinc-300 dark:text-zinc-700">RIDE.</span>
           </h3>
-          <p className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 mt-3 flex items-center gap-2">
-             {car?.brand} {car?.model} <span className="opacity-30">|</span> ₱{car?.pricePerDay?.toLocaleString()} / DAY
-          </p>
+          
+          {/* ✅ PROMO UPDATE: Header price display */}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <p className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-tight">
+              {car?.brand} {car?.model} <span className="opacity-30 mx-1">|</span>
+            </p>
+            <div className="flex items-center gap-2">
+               {car?.isPromo ? (
+                 <>
+                   <span className="text-rose-500 font-black text-[11px] flex items-center gap-1 bg-rose-50 dark:bg-rose-500/10 px-2 py-0.5 rounded-md">
+                     <Tag size={10} /> ₱{car?.promoPrice?.toLocaleString()}
+                   </span>
+                   <span className="text-zinc-300 dark:text-zinc-600 line-through text-[10px] font-bold">
+                     ₱{car?.pricePerDay?.toLocaleString()}
+                   </span>
+                 </>
+               ) : (
+                 <span className="text-zinc-900 dark:text-white font-black text-[11px]">
+                   ₱{car?.pricePerDay?.toLocaleString()} / DAY
+                 </span>
+               )}
+            </div>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
@@ -180,7 +201,7 @@ const BookingForm = ({ car, onSuccess }) => {
             </div>
           </div>
 
-          {/* Price Summary Panel - Pure Premium Style */}
+          {/* Price Summary Panel */}
           {days > 0 && (
             <div className="bg-zinc-900 dark:bg-white rounded-[2rem] p-8 flex items-center justify-between shadow-2xl transition-all animate-in slide-in-from-bottom-4">
               <div className="space-y-1">
@@ -189,7 +210,13 @@ const BookingForm = ({ car, onSuccess }) => {
               </div>
               <div className="text-right space-y-1">
                 <p className="text-[9px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.3em]">TOTAL SETTLEMENT</p>
-                <p className="text-white dark:text-zinc-950 font-black text-3xl tracking-tighter">₱{totalPrice.toLocaleString()}</p>
+                <div className="flex flex-col items-end">
+                   {/* ✅ PROMO UPDATE: Total Price Display */}
+                   <p className="text-white dark:text-zinc-950 font-black text-3xl tracking-tighter">₱{totalPrice.toLocaleString()}</p>
+                   {car?.isPromo && (
+                     <p className="text-[8px] text-rose-500 font-black tracking-widest uppercase">PROMO RATE APPLIED</p>
+                   )}
+                </div>
               </div>
             </div>
           )}
@@ -226,7 +253,10 @@ const BookingForm = ({ car, onSuccess }) => {
             <div className="max-h-[90vh] overflow-y-auto scrollbar-hide">
               <div className="p-10 pt-16">
                 <PaymentDemo
-                  car={car}
+                  car={{
+                    ...car,
+                    pricePerDay: activePrice // ✅ PROMO UPDATE: Ensure payment demo shows the promo price
+                  }}
                   rentalDetails={{
                     days,
                     pickup:  pendingData?.pickupLocation,

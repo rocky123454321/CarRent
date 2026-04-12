@@ -21,7 +21,7 @@ const STATUS_STYLE = {
 const LeftBanner = () => {
   const ANNOUNCEMENTS = getSeasonalAnnouncements();
   const [current, setCurrent] = useState(0);
-
+  const navigate = useNavigate()
   useEffect(() => {
     const t = setInterval(() => setCurrent(p => (p + 1) % ANNOUNCEMENTS.length), 5000);
     return () => clearInterval(t);
@@ -60,7 +60,7 @@ const LeftBanner = () => {
           </p>
         </div>
 
-        <button className={`self-start inline-flex items-center dark:bg-black gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white shadow-md transition-all hover:scale-105 active:scale-95 ${ann.color.replace('bg-', 'text-')}`}>
+        <button onClick={() => navigate('/explore')} className={`self-start inline-flex items-center dark:bg-black gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white shadow-md transition-all hover:scale-105 active:scale-95 ${ann.color.replace('bg-', 'text-')}`}>
           Explore Now
           <ChevronRight size={12} className="transition-transform group-hover:translate-x-1" />
         </button>
@@ -274,7 +274,7 @@ const FlashDealCard = () => {
   };
 
   const [timeLeft, setTimeLeft] = useState('');
-
+const navigate = useNavigate()
   useEffect(() => {
     const tick = () => {
       const diff = getNextMidnight() - new Date();
@@ -289,7 +289,7 @@ const FlashDealCard = () => {
   }, []);
 
   return (
-    <div className="group relative rounded-2xl overflow-hidden bg-gradient-to-br from-amber-500 to-orange-600 p-4 flex flex-col justify-between cursor-pointer hover:shadow-lg transition-all duration-300">
+    <div onClick={()=>navigate('flash-deals')} className="group relative rounded-2xl overflow-hidden bg-gradient-to-br from-amber-500 to-orange-600 p-4 flex flex-col justify-between cursor-pointer hover:shadow-lg transition-all duration-300">
       <div className="flex items-center justify-between">
         <span className="text-[8px] font-black uppercase tracking-widest text-white/70">Flash Deal</span>
         <Zap size={12} className="text-white/70" />
@@ -355,6 +355,7 @@ const CardSkeleton = () => (
 );
 
 /* ─── SCROLLABLE CARDS ─── */
+/* ─── SCROLLABLE CARDS UPDATED ─── */
 const ScrollableCards = ({ limit, onSelect, isLoading }) => {
   const { cars = [], searchQuery } = useCarStore();
   const scrollRef = useRef(null);
@@ -396,6 +397,7 @@ const ScrollableCards = ({ limit, onSelect, isLoading }) => {
 
   return (
     <div className="relative group/scroll px-1">
+      {/* Scroll Buttons */}
       <button
         onClick={() => scroll('left')}
         className="absolute left-0 top-1/2 -translate-y-1/2 z-30 h-10 w-10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-full items-center justify-center shadow-lg border border-zinc-200 dark:border-zinc-800 hidden md:group-hover/scroll:flex transition-all hover:scale-110"
@@ -415,71 +417,65 @@ const ScrollableCards = ({ limit, onSelect, isLoading }) => {
             <div
               key={car._id}
               onClick={() => onSelect && onSelect(car)}
-              className="group flex-shrink-0 w-[200px] bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-3xl overflow-hidden hover:shadow-xl hover:shadow-zinc-500/5 transition-all duration-300 cursor-pointer"
+              className="group flex-shrink-0 w-[220px] bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-[2rem] overflow-hidden hover:shadow-xl hover:shadow-zinc-500/5 transition-all duration-300 cursor-pointer relative"
             >
+              {/* ✅ PROMO BADGE */}
+              {car.isPromo && (
+                <div className="absolute top-3 left-3 z-10 bg-rose-500 text-white text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-md">
+                  {car.promoLabel || "Promo"}
+                </div>
+              )}
+
+              {/* Header */}
               <div className="flex items-start justify-between p-4 pb-0">
                 <div className="truncate pr-2">
-                  <h3 className="font-bold text-sm text-zinc-900 dark:text-white tracking-tighter truncate">
+                  <h3 className="font-bold text-xs text-zinc-900 dark:text-white tracking-tighter truncate">
                     {car.brand} {car.model}
                   </h3>
-                  <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.18em] mt-0.5">
+                  <p className="text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-0.5">
                     {car.year} · {car.color}
                   </p>
                 </div>
-                <button
-                  className="text-zinc-300 dark:text-zinc-700 hover:text-red-500 transition-colors flex-shrink-0"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                  </svg>
-                </button>
+                <Gift size={12} className={car.isPromo ? "text-rose-500" : "text-zinc-300 dark:text-zinc-700"} />
               </div>
 
-              <div className="mx-4 my-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl flex justify-center items-center p-4 h-28">
+              {/* Image Area */}
+              <div className="mx-3 my-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl flex justify-center items-center p-4 h-28">
                 <img
                   src={car.image || carImage}
-                  alt={`${car.brand} ${car.model}`}
+                  alt={car.model}
                   className="max-h-full w-auto object-contain transition-all duration-500 group-hover:scale-110 group-hover:-rotate-2"
                 />
               </div>
 
-              <div className="flex justify-between px-4 py-2 border-t border-zinc-50 dark:border-zinc-900">
-                <div className="flex flex-col items-center gap-1">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400">
-                    <path d="M3 22V10l9-8 9 8v12" /><line x1="12" y1="22" x2="12" y2="12" />
-                  </svg>
-                  <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase">{car.fuelType}</span>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400">
-                    <circle cx="12" cy="12" r="3" /><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
-                  </svg>
-                  <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase">{car.transmission}</span>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
-                  <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase">{car.mileage}km</span>
-                </div>
-              </div>
-
+              {/* Price & Action Footer */}
               <div className="flex items-center justify-between border-t border-zinc-50 dark:border-zinc-900 px-4 py-3 bg-zinc-50/50 dark:bg-zinc-900/20">
                 <div className="flex flex-col">
-                  <span className="text-[8px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest">Daily Rate</span>
-                  <div className="flex items-baseline gap-0.5">
-                    <span className="text-base font-bold text-zinc-900 dark:text-white leading-none">
-                      ₱{car.pricePerDay.toLocaleString()}
-                    </span>
-                    <span className="text-[8px] text-zinc-400 dark:text-zinc-500 font-medium">/day</span>
+                  <span className="text-[7px] text-zinc-400 font-bold uppercase tracking-widest leading-none mb-1">Rate</span>
+                  
+                  {/* ✅ DYNAMIC PRICING */}
+                  <div className="flex flex-col">
+                    {car.isPromo && (
+                      <span className="text-[8px] text-zinc-300 dark:text-zinc-600 line-through font-bold leading-none">
+                        ₱{car.pricePerDay.toLocaleString()}
+                      </span>
+                    )}
+                    <div className="flex items-baseline gap-0.5">
+                      <span className={`text-sm font-black leading-none ${car.isPromo ? 'text-rose-500' : 'text-zinc-900 dark:text-white'}`}>
+                        ₱{(car.isPromo ? car.promoPrice : car.pricePerDay).toLocaleString()}
+                      </span>
+                      <span className="text-[8px] text-zinc-400 font-medium">/day</span>
+                    </div>
                   </div>
                 </div>
+
                 <button
-                  className="h-8 w-8 flex items-center justify-center rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 group-hover:scale-110 transition-all duration-300"
+                  className={`h-7 w-7 flex items-center justify-center rounded-full transition-all duration-300 ${
+                    car.isPromo ? 'bg-rose-500 text-white' : 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950'
+                  }`}
                   onClick={(e) => { e.stopPropagation(); onSelect && onSelect(car); }}
                 >
-                  <ChevronRight size={14} />
+                  <ChevronRight size={12} />
                 </button>
               </div>
             </div>
@@ -621,7 +617,7 @@ const HomePage = () => {
         isLoadingRentals={isLoadingRentals}
       />
 
-      <PromoSection onSelect={(car) => setSelectedCar(car)} />
+  
 
       {/* ── 3. My Rentals Strip (connected to MyRentals data + chat) ── */}
       <MyRentalsStrip userRentals={userRentals || []} navigate={navigate} />
