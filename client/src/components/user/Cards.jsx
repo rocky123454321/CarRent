@@ -1,6 +1,6 @@
 import React from "react";
 import carImage from "../../assets/carpichero.png";
-import { Fuel, Cog, Users, Heart, ArrowRight } from "lucide-react";
+import { Fuel, Cog, Users, ArrowRight } from "lucide-react";
 import { useCarStore } from "../../store/CarStore";
 import { useNavigate } from "react-router-dom";
 
@@ -76,12 +76,7 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect })
                 {car.year} · {car.color}
               </p>
             </div>
-            <button
-              className="text-zinc-300 dark:text-zinc-700 hover:text-red-500 dark:hover:text-red-500 transition-colors flex-shrink-0"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Heart size={14} />
-            </button>
+          
           </div>
 
           {/* Image */}

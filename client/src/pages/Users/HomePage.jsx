@@ -11,11 +11,10 @@ import carImage from "../../assets/1.png";
 
 /* ─── STATUS STYLES ─── */
 const STATUS_STYLE = {
-  pending:   { bg: 'bg-amber-50 dark:bg-amber-900/10',  text: 'text-amber-600 dark:text-amber-500', label: 'Pending'   },
-  active:    { bg: 'bg-zinc-900 dark:bg-white',         text: 'text-white dark:text-zinc-900',      label: 'Active'    },
-  approved:  { bg: 'bg-blue-50 dark:bg-blue-900/10',    text: 'text-blue-600 dark:text-blue-400',   label: 'Approved'  },
-  completed: { bg: 'bg-zinc-100 dark:bg-zinc-800',      text: 'text-zinc-500 dark:text-zinc-400',   label: 'Completed' },
-  cancelled: { bg: 'bg-red-50 dark:bg-red-900/10',      text: 'text-red-600 dark:text-red-400',     label: 'Cancelled' },
+  pending:   { bg: 'bg-amber-50 dark:bg-amber-900/10',   text: 'text-amber-600 dark:text-amber-500',  label: 'Pending'   },
+  confirmed: { bg: 'bg-blue-50 dark:bg-blue-900/10',     text: 'text-blue-600 dark:text-blue-400',    label: 'Confirmed' },
+  completed: { bg: 'bg-zinc-100 dark:bg-zinc-800',       text: 'text-zinc-500 dark:text-zinc-400',    label: 'Completed' },
+  cancelled: { bg: 'bg-red-50 dark:bg-red-900/10',       text: 'text-red-600 dark:text-red-400',      label: 'Cancelled' },
 };
 
 /* ─── LEFT: SINGLE CYCLING BANNER ─── */
@@ -37,7 +36,6 @@ const LeftBanner = () => {
       <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-40 h-40 bg-black/10 blur-[50px] rounded-full pointer-events-none" />
 
       <div className="relative z-10 w-full flex flex-col justify-between gap-4 px-6 py-7">
-        {/* Badge */}
         <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/20 backdrop-blur-md self-start ${ann.tagBg}`}>
           <span className="h-1.5 w-1.5 rounded-full animate-pulse bg-white" />
           <p className="text-[9px] font-black uppercase tracking-widest text-white">
@@ -45,7 +43,6 @@ const LeftBanner = () => {
           </p>
         </div>
 
-        {/* Image */}
         <div className="flex justify-center items-center h-28">
           <img
             src={displayImage}
@@ -54,7 +51,6 @@ const LeftBanner = () => {
           />
         </div>
 
-        {/* Text */}
         <div className="space-y-1">
           <h3 className={`text-lg md:text-xl font-black tracking-tighter leading-tight ${ann.textColor}`}>
             {ann.title}
@@ -64,14 +60,12 @@ const LeftBanner = () => {
           </p>
         </div>
 
-        {/* CTA */}
-        <button className={`self-start inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white shadow-md transition-all hover:scale-105 active:scale-95 ${ann.color.replace('bg-', 'text-')}`}>
+        <button className={`self-start inline-flex items-center dark:bg-black gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white shadow-md transition-all hover:scale-105 active:scale-95 ${ann.color.replace('bg-', 'text-')}`}>
           Explore Now
           <ChevronRight size={12} className="transition-transform group-hover:translate-x-1" />
         </button>
       </div>
 
-      {/* Pagination dots */}
       <div className="absolute bottom-3 inset-x-0 flex justify-center gap-1.5 z-20">
         {ANNOUNCEMENTS.map((_, i) => (
           <button
@@ -88,11 +82,15 @@ const LeftBanner = () => {
 };
 
 /* ─── RIGHT: 4 QUICK ACTION CARDS ─── */
-const RightPanel = ({ cars, userRentals, onSelect, navigate }) => {
-  const activeRental = userRentals.find(r => r.status === 'active' || r.status === 'approved');
+const RightPanel = ({ cars, userRentals, onSelect, navigate, isLoadingRentals }) => {
+  // ── CONNECTION 1: find active/approved rental from MyRentals data ──
+  // case-insensitive match in case DB returns 'Active', 'APPROVED', etc.
+  const activeRental = userRentals.find(r => {
+    const s = (r.status || '').toLowerCase();
+    return s === 'confirmed' || s === 'pending';
+  });
   const featuredCar  = cars.filter(c => c.isAvailable).slice(0, 1)[0];
 
-  /* countdown to return date */
   const [countdown, setCountdown] = useState('');
   useEffect(() => {
     if (!activeRental) return;
@@ -107,6 +105,20 @@ const RightPanel = ({ cars, userRentals, onSelect, navigate }) => {
     const t = setInterval(tick, 60000);
     return () => clearInterval(t);
   }, [activeRental]);
+
+  // ── CONNECTION 2: chat support handler — goes to AdminChatPage with rental context ──
+  const handleChatSupport = () => {
+    if (!activeRental) return;
+    const adminId = activeRental.car?.uploadedBy?._id || activeRental.car?.uploadedBy;
+    navigate('/chat', {
+      state: {
+        userId: adminId,
+        context: 'rental',
+        rentalId: activeRental._id,
+        renterName: `${activeRental.car?.brand} ${activeRental.car?.model}`,
+      },
+    });
+  };
 
   return (
     <div className="flex-1 min-w-0 grid grid-cols-2 grid-rows-2 gap-3 min-h-[320px]">
@@ -151,14 +163,16 @@ const RightPanel = ({ cars, userRentals, onSelect, navigate }) => {
         </div>
       </div>
 
-      {/* 2 — Active Rental / Book Now */}
+      {/* 2 — Active Rental / Book Now — CONNECTION 1 + 2 */}
       <div
-        onClick={() => navigate(activeRental ? '/my-rentals' : '/cars')}
+        onClick={() =>
+          !isLoadingRentals && navigate(activeRental ? '/my-rentals' : '/cars')
+        }
         className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg flex flex-col justify-between p-4 bg-zinc-900 dark:bg-white"
       >
         <div className="flex items-center justify-between">
           <span className="text-[8px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-            {activeRental ? 'Active Rental' : 'Quick Book'}
+            {isLoadingRentals ? 'Loading...' : activeRental ? 'Active Rental' : 'Quick Book'}
           </span>
           <Car size={14} className="text-zinc-500 dark:text-zinc-400" />
         </div>
@@ -172,17 +186,50 @@ const RightPanel = ({ cars, userRentals, onSelect, navigate }) => {
               <p className="text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mt-0.5">
                 {activeRental.car?.color} · {activeRental.car?.year}
               </p>
+              {/* status badge */}
+              {(() => {
+                const s = STATUS_STYLE[activeRental.status];
+                return s ? (
+                  <span className={`inline-flex items-center gap-1 mt-1.5 text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${s.bg} ${s.text}`}>
+                    {s.label}
+                  </span>
+                ) : null;
+              })()}
             </div>
             <div className="flex items-center justify-between mt-3">
-              <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">{countdown}</span>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">{countdown}</span>
+                <span className="text-[8px] font-bold text-zinc-500 dark:text-zinc-500">{userRentals.length} rental{userRentals.length > 1 ? 's' : ''} total</span>
+              </div>
               <ChevronRight size={14} className="text-zinc-500 dark:text-zinc-400 group-hover:translate-x-1 transition-transform" />
             </div>
+            {/* Chat support shortcut */}
+            <button
+              onClick={(e) => { e.stopPropagation(); handleChatSupport(); }}
+              className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/10 dark:bg-zinc-900/10 text-white dark:text-zinc-900 text-[8px] font-black uppercase tracking-widest hover:bg-white/20 dark:hover:bg-zinc-900/20 transition-all"
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              Contact Support
+            </button>
           </>
+        ) : isLoadingRentals ? (
+          <div className="flex flex-col gap-2 mt-2 animate-pulse">
+            <div className="h-3 bg-white/10 dark:bg-zinc-800 rounded w-3/4" />
+            <div className="h-2 bg-white/10 dark:bg-zinc-800 rounded w-1/2" />
+            <div className="h-2 bg-white/10 dark:bg-zinc-800 rounded w-1/3 mt-2" />
+          </div>
         ) : (
           <>
             <p className="text-xs font-bold text-white dark:text-zinc-900 mt-2 leading-snug">
               No active rental yet
             </p>
+            {userRentals.length > 0 && (
+              <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 mt-1">
+                {userRentals.length} total rental{userRentals.length > 1 ? 's' : ''} on record
+              </p>
+            )}
             <div className="flex items-center gap-1 mt-3">
               <span className="text-[9px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Browse cars</span>
               <ChevronRight size={12} className="text-zinc-500 group-hover:translate-x-1 transition-transform" />
@@ -198,30 +245,19 @@ const RightPanel = ({ cars, userRentals, onSelect, navigate }) => {
       <div className="rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-900 p-4 flex flex-col justify-between">
         <span className="text-[8px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Why Us</span>
         <div className="flex flex-col gap-2 mt-2">
-          <div className="flex items-center gap-2">
-            <div className="h-5 w-5 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
-              <Shield size={10} className="text-emerald-600 dark:text-emerald-400" />
+          {[
+            { icon: Shield, color: 'emerald', label: 'Full Insurance Coverage' },
+            { icon: Clock,  color: 'blue',    label: '24/7 Roadside Support'   },
+            { icon: Gift,   color: 'amber',   label: 'Loyalty Points Earned'   },
+            { icon: Zap,    color: 'violet',  label: 'Instant Confirmation'    },
+          ].map(({ icon: Icon, color, label }) => (
+            <div key={label} className="flex items-center gap-2">
+              <div className={`h-5 w-5 rounded-lg bg-${color}-50 dark:bg-${color}-900/30 flex items-center justify-center flex-shrink-0`}>
+                <Icon size={10} className={`text-${color}-600 dark:text-${color}-400`} />
+              </div>
+              <span className="text-[9px] font-bold text-zinc-700 dark:text-zinc-300 leading-tight">{label}</span>
             </div>
-            <span className="text-[9px] font-bold text-zinc-700 dark:text-zinc-300 leading-tight">Full Insurance Coverage</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-5 w-5 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-              <Clock size={10} className="text-blue-600 dark:text-blue-400" />
-            </div>
-            <span className="text-[9px] font-bold text-zinc-700 dark:text-zinc-300 leading-tight">24/7 Roadside Support</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-5 w-5 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
-              <Gift size={10} className="text-amber-600 dark:text-amber-400" />
-            </div>
-            <span className="text-[9px] font-bold text-zinc-700 dark:text-zinc-300 leading-tight">Loyalty Points Earned</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-5 w-5 rounded-lg bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0">
-              <Zap size={10} className="text-violet-600 dark:text-violet-400" />
-            </div>
-            <span className="text-[9px] font-bold text-zinc-700 dark:text-zinc-300 leading-tight">Instant Confirmation</span>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -229,7 +265,7 @@ const RightPanel = ({ cars, userRentals, onSelect, navigate }) => {
   );
 };
 
-/* ─── FLASH DEAL CARD WITH COUNTDOWN ─── */
+/* ─── FLASH DEAL CARD ─── */
 const FlashDealCard = () => {
   const getNextMidnight = () => {
     const d = new Date();
@@ -270,8 +306,8 @@ const FlashDealCard = () => {
   );
 };
 
-/* ─── DUAL SECTION: LEFT BANNER + RIGHT 4-GRID ─── */
-const HeroBannerSection = ({ cars, userRentals, onSelect, navigate }) => (
+/* ─── HERO BANNER SECTION ─── */
+const HeroBannerSection = ({ cars, userRentals, onSelect, navigate, isLoadingRentals }) => (
   <>
     <style>{`
       @keyframes float {
@@ -289,6 +325,7 @@ const HeroBannerSection = ({ cars, userRentals, onSelect, navigate }) => (
         userRentals={userRentals}
         onSelect={onSelect}
         navigate={navigate}
+        isLoadingRentals={isLoadingRentals}
       />
     </div>
   </>
@@ -453,12 +490,101 @@ const ScrollableCards = ({ limit, onSelect, isLoading }) => {
   );
 };
 
+/* ─── MY RENTALS PREVIEW STRIP ─── */
+// CONNECTION 3: Shows recent rentals from MyRentals data directly on HomePage
+const MyRentalsStrip = ({ userRentals, navigate }) => {
+  const recent = userRentals.slice(0, 3);
+  if (recent.length === 0) return null;
+
+  return (
+    <section className="px-1">
+      <div className="flex justify-between items-end mb-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">My Rentals</h2>
+          <p className="text-sm text-zinc-500">Your recent booking history</p>
+        </div>
+        <button
+          onClick={() => navigate('/my-rentals')}
+          className="group flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition"
+        >
+          See All <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+        </button>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        {recent.map((rental) => {
+          const s = STATUS_STYLE[rental.status] || STATUS_STYLE.pending;
+          const adminId = rental.car?.uploadedBy?._id || rental.car?.uploadedBy;
+
+          return (
+            <div
+              key={rental._id}
+              onClick={() => navigate('/my-rentals')}
+              className="group flex items-center gap-4 bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-2xl px-5 py-4 cursor-pointer hover:shadow-lg hover:shadow-zinc-500/5 transition-all duration-300"
+            >
+              {/* Car icon */}
+              <div className="w-11 h-11 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 flex items-center justify-center shrink-0 group-hover:border-zinc-900 dark:group-hover:border-zinc-500 transition-colors">
+                <Car size={18} className="text-zinc-900 dark:text-white" />
+              </div>
+
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-tight truncate">
+                  {rental.car?.brand} {rental.car?.model}
+                </p>
+                <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">
+                  {new Date(rental.rentalStartDate).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })}
+                  {' → '}
+                  {new Date(rental.rentalEndDate).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+              </div>
+
+              {/* Status + price */}
+              <div className="flex flex-col items-end gap-1.5 shrink-0">
+                <span className={`text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${s.bg} ${s.text}`}>
+                  {s.label}
+                </span>
+                <p className="text-[10px] font-black text-zinc-900 dark:text-white">
+                  ₱{rental.totalPrice?.toLocaleString()}
+                </p>
+              </div>
+
+              {/* Chat shortcut — only for active/approved */}
+              {(rental.status === 'confirmed' || rental.status === 'pending') && adminId && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate('/chat', {
+                      state: {
+                        userId: adminId,
+                        context: 'rental',
+                        rentalId: rental._id,
+                        renterName: `${rental.car?.brand} ${rental.car?.model}`,
+                      },
+                    });
+                  }}
+                  className="ml-1 h-9 w-9 flex items-center justify-center rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 hover:scale-110 transition-all duration-200 shrink-0"
+                  title="Contact support"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+};
+
 /* ─── HOME PAGE ─── */
 const HomePage = () => {
   const [selectedCar, setSelectedCar] = useState(null);
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { userRentals, fetchUserRentals } = useRentalStore();
+  const { userRentals, fetchUserRentals, isLoading: isLoadingRentals } = useRentalStore();
   const { cars, getCars, isLoading } = useCarStore();
 
   useEffect(() => {
@@ -492,11 +618,15 @@ const HomePage = () => {
         userRentals={userRentals || []}
         onSelect={(car) => setSelectedCar(car)}
         navigate={navigate}
+        isLoadingRentals={isLoadingRentals}
       />
 
       <PromoSection onSelect={(car) => setSelectedCar(car)} />
 
-      {/* ── 3. Premium Fleet ── */}
+      {/* ── 3. My Rentals Strip (connected to MyRentals data + chat) ── */}
+      <MyRentalsStrip userRentals={userRentals || []} navigate={navigate} />
+
+      {/* ── 4. Premium Fleet ── */}
       <section className="px-1">
         <div className="flex justify-between items-end mb-6">
           <div>
@@ -513,7 +643,7 @@ const HomePage = () => {
         <ScrollableCards limit={10} onSelect={(car) => setSelectedCar(car)} isLoading={isLoading} />
       </section>
 
-      {/* ── 4. Recommended ── */}
+      {/* ── 5. Recommended ── */}
       <section className="pt-4 px-1">
         <div className="flex justify-between items-end mb-6">
           <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Recommended Rides</h2>

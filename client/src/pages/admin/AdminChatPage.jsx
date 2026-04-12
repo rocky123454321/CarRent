@@ -321,7 +321,7 @@ const AdminChatPage = () => {
 
   // ── UI Return: Fixed for Full Width ──
   return (
-    <div className="flex flex-col w-full h-screen mt-15 bg-white dark:bg-zinc-950 overflow-hidden animate-in fade-in duration-700" style={font}>
+    <div className="flex flex-col w-full h-[90vh] mt-13 bg-white dark:bg-zinc-950 overflow-hidden animate-in fade-in duration-700" style={font}>
       <div className="flex flex-1 overflow-hidden">
         
         {/* Desktop Sidebar */}
