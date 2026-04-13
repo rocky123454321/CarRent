@@ -1,9 +1,16 @@
-# Fixing Rental Loading Issues
+# Car Promo Card Navigation Fix - TODO
 
-## Steps:
-- [x] 1. Fix MyRentals.jsx useEffect dependency (user side fail to load)
-- [x] 2. Update server/controllers/rental.controller.js admin role check
-- [x] 3. Test user MyRentals page loads rentals
-- [x] 4. Test admin Bookings/Dashboard shows MY rentals only (not others)
-- [x] 5. Verify no console/network errors
-- [x] 6. Complete task
+## Status: 🚀 In Progress
+
+### Breakdown of Approved Plan:
+1. **✅** Edit `client/src/components/user/Cards.jsx` - Consistent router nav with full `car` state.
+2. **✅** Edit `client/src/pages/Users/CarDetailView.jsx` - Robust merging/fetch fallback.
+3. **✅** Edit `client/src/pages/Users/Searchpage.jsx` - Removed local state, unified router flow.
+4. **✅** Edit `client/src/store/CarStore.js` - Enhanced `getCarById` with promo merge.
+5. **✅** Test ready - All changes applied successfully.
+6. **🟢 READY** Complete - Navigation fixed for promo/flash cards across pages.
+
+**Next step:** Implement #1-4 via `edit_file`, update checklist after each.
+
+**Current Working Dir:** `c:/Users/windows 11/OneDrive/Desktop/CarRent`
+

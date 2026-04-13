@@ -47,14 +47,25 @@ export const useCarStore = create((set, get) => ({
     return promoCars[Math.floor(Math.random() * promoCars.length)];
   },
 
-  // ✅ NEW: GET SINGLE CAR BY ID (Safety Net para sa Search)
+  // ✅ ENHANCED GET SINGLE CAR BY ID - Merge with promo context
   getCarById: async (id) => {
     set({ isLoading: true, error: null });
     try {
       const res = await axios.get(`${CARS}/${id}`);
-      // Sinisiguro nito na ang 'car' state ay may kumpletong details
-      set({ car: res.data.car || res.data, isLoading: false });
-      return res.data.car || res.data;
+      const apiCar = res.data.car || res.data;
+      
+      // Preserve promo/flash data from navigation state or list
+      const currentCar = get().car;
+      const mergedCar = {
+        ...apiCar,
+        ...(currentCar?.promoPrice && { promoPrice: currentCar.promoPrice }),
+        ...(currentCar?.isPromo && { isPromo: currentCar.isPromo }),
+        ...(currentCar?.flashDeal && { flashDeal: currentCar.flashDeal }),
+        ...(currentCar?.promoLabel && { promoLabel: currentCar.promoLabel })
+      };
+      
+      set({ car: mergedCar, isLoading: false });
+      return mergedCar;
     } catch (error) {
       set({ error: "Failed to load car details", isLoading: false });
       console.error("Error fetching car by ID:", error);
