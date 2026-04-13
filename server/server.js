@@ -4,13 +4,15 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import { connectDb } from './db/connectDb.js';  // ✅ lowercase d, named export       // ✅ your actual path
+import { connectDb } from './db/connectDb.js';
 import { initSocket } from './socket.js';
 
-import authRoutes from './routes/auth.route.js';         // ✅ your actual path
+import authRoutes from './routes/auth.route.js';
 import carRoutes from './routes/car.routes.js';
 import rentalRoutes from './routes/rental.routes.js';
 import ratingRoutes from './routes/ratingRoutes.js';
+
+import { startPromoExpiryCron } from './cron/promoExpiry.cron.js'; // ✅ NEW
 
 dotenv.config();
 
@@ -46,6 +48,7 @@ initSocket(io);
 const PORT = process.env.PORT || 5000;
 
 connectDb().then(() => {
+  startPromoExpiryCron(); // ✅ Start promo auto-expiry after DB connects
   httpServer.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });

@@ -9,33 +9,22 @@ export const addCar = async (req, res) => {
       brand, model, year, color, pricePerDay,
       uploadedBy, mileage, fuelType, transmission,
       licensePlate, isAvailable,
-      // Promo Fields from Frontend
       isPromo, promoPrice, promoLabel, promoSeason, promoExpiry
     } = req.body;
 
-    // Validate required fields
     if (!brand || !model || !year || !pricePerDay || !licensePlate || !uploadedBy) {
       return res.status(400).json({ success: false, message: "Required fields missing" });
     }
 
     const car = await Car.create({
-      brand,
-      model,
-      year,
-      color,
-      pricePerDay,
-      mileage,
-      fuelType,
-      transmission,
-      licensePlate,
-      uploadedBy,
+      brand, model, year, color, pricePerDay, mileage, fuelType, transmission,
+      licensePlate, uploadedBy,
       isAvailable: isAvailable ?? true,
-      image: req.file?.path || "", 
+      image: req.file?.path || "",
       imageId: req.file?.filename || "",
       currentRenter: null,
       rentalStartDate: null,
       rentalEndDate: null,
-      // ✅ Integrated Promo Logic
       isPromo: isPromo === "true" || isPromo === true,
       promoPrice: promoPrice ? Number(promoPrice) : null,
       promoLabel: promoLabel || null,
@@ -61,17 +50,16 @@ export const updateCar = async (req, res) => {
     const car = await Car.findById(carId);
     if (!car) return res.status(404).json({ success: false, message: "Car not found" });
 
-    // Handle Image Update
     if (req.file && car.imageId) {
       await cloudinary.uploader.destroy(car.imageId);
     }
 
-    const updateData = { 
+    const updateData = {
       ...req.body,
-      // Convert specific fields from FormData strings
       isPromo: req.body.isPromo === "true" || req.body.isPromo === true,
       promoPrice: req.body.promoPrice ? Number(req.body.promoPrice) : null,
       promoSeason: req.body.promoSeason === "" ? null : req.body.promoSeason,
+      promoExpiry: req.body.promoExpiry || null,
       ...(req.file && {
         image: req.file.path,
         imageId: req.file.filename,
@@ -79,7 +67,6 @@ export const updateCar = async (req, res) => {
     };
 
     const updated = await Car.findByIdAndUpdate(carId, updateData, { new: true });
-
     res.status(200).json({ success: true, message: "Car updated successfully", car: updated });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -181,18 +168,41 @@ export const getAllCarbyAdmin = async (req, res) => {
   }
 };
 
-// ✅ ACCOUNT SETTINGS (DELETE USER)
+// ✅ DELETE USER ACCOUNT
 export const Settings = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.userId);
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
-    
-    // Clean up all cars uploaded by this user if needed (optional)
-    // await Car.deleteMany({ uploadedBy: req.userId });
 
     res.clearCookie("token");
     res.status(200).json({ success: true, message: "Account deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ✅ EXPIRE PROMO (manual force-expire by admin)
+export const expirePromo = async (req, res) => {
+  try {
+    const car = await Car.findById(req.params.id);
+    if (!car) return res.status(404).json({ success: false, message: "Car not found" });
+
+    if (!car.isPromo) {
+      return res.status(400).json({ success: false, message: "This car has no active promo." });
+    }
+
+    await Car.findByIdAndUpdate(req.params.id, {
+      $set: {
+        isPromo: false,
+        promoPrice: null,
+        promoLabel: null,
+        promoSeason: null,
+        promoExpiry: null,
+      },
+    });
+
+    res.status(200).json({ success: true, message: "Promo expired. Car reset to normal listing." });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };

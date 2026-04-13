@@ -1,7 +1,8 @@
 import express from 'express';
 import {
   addCar, updateCar, deleteCar, getAllCarbyAdmin,
-  Settings, getAllCars, getCarById, rentCar, returnCar
+  Settings, getAllCars, getCarById, rentCar, returnCar,
+  expirePromo // ✅ NEW
 } from '../controllers/cars.controller.js';
 import { verifyToken } from '../middleware/verifyToken.js';
 import { upload } from '../config/cloudinary.js';
@@ -14,13 +15,15 @@ router.post('/:id/rent',    verifyToken, rentCar);
 router.post('/:id/return',  verifyToken, returnCar);
 
 // ── ADMIN ROUTES ─────────────────────────────────
-router.post('/',    verifyToken, upload.single('image'), addCar);    // ✅ may upload
-router.put('/:id',  verifyToken, upload.single('image'), updateCar); // ✅ may upload
+router.post('/',    verifyToken, upload.single('image'), addCar);
+router.put('/:id',  verifyToken, upload.single('image'), updateCar);
 router.delete('/:id', verifyToken, deleteCar);
 router.delete('/delete/:id', verifyToken, Settings);
 
 // !! specific paths BEFORE wildcard /:id !!
 router.get('/admin/:adminId', verifyToken, getAllCarbyAdmin);
 router.get('/:id', getCarById);
+
+router.patch('/:id/expire-promo', verifyToken, expirePromo); // ✅ NEW - must be after /:id GET
 
 export default router;

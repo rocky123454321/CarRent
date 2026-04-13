@@ -1,64 +1,45 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Zap, Star } from 'lucide-react';
+import { ChevronLeft, Zap } from 'lucide-react';
 import { useCarStore } from '../../store/CarStore';
 import carImage from "../../assets/1.png";
 
 const FlashDealPage = () => {
   const navigate = useNavigate();
-  const { cars } = useCarStore();
+  const { cars, getCars } = useCarStore();
   const [timeLeft, setTimeLeft] = useState('');
 
-  // ─── RANDOM DAILY SELECTION LOGIC ─────────────────────────────────────────
+  useEffect(() => { getCars(); }, [getCars]);
+
   const dailyDeals = useMemo(() => {
     if (!cars || cars.length === 0) return [];
-
-    // 1. Kuhanin ang "seed" base sa petsa ngayon (YYYY-MM-DD)
     const today = new Date().toISOString().slice(0, 10);
-    
-    // 2. Simple hash function para maging number ang date string
     let seed = 0;
-    for (let i = 0; i < today.length; i++) {
-      seed += today.charCodeAt(i);
-    }
+    for (let i = 0; i < today.length; i++) seed += today.charCodeAt(i);
 
-    // 3. Shuffle function gamit ang seed (deterministic random)
-    const shuffle = (array, seed) => {
-      let m = array.length, t, i;
-      while (m) {
-        i = Math.floor(Math.abs(Math.sin(seed++)) * m--);
-        t = array[m];
-        array[m] = array[i];
-        array[i] = t;
-      }
-      return array;
+    const shuffle = (array, s) => {
+      const arr = [...array];
+      let m = arr.length, t, idx;
+      while (m) { idx = Math.floor(Math.abs(Math.sin(s++)) * m--); t = arr[m]; arr[m] = arr[idx]; arr[idx] = t; }
+      return arr;
     };
 
-    // 4. I-filter ang available cars at i-shuffle
     const availableCars = cars.filter(c => c.isAvailable);
-    const shuffled = shuffle([...availableCars], seed);
-
-    // 5. Pumili ng random number between 5 to 10 cards
-    // Ginagamitan din ng seed para consistent ang bilang buong araw
-    const countSeed = Math.floor(Math.abs(Math.cos(seed)) * 6) + 5; // Result: 5 to 10
-    
-    return shuffled.slice(0, countSeed);
+    const shuffled = shuffle(availableCars, seed);
+    const count = Math.floor(Math.abs(Math.cos(seed)) * 6) + 3; // 3 to 8
+    return shuffled.slice(0, count);
   }, [cars]);
 
-  // ─── TIMER LOGIC ──────────────────────────────────────────────────────────
   useEffect(() => {
     const tick = () => {
       const d = new Date();
       const tomorrow = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
       const diff = tomorrow - d;
-      
       const h = Math.floor(diff / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
       const s = Math.floor((diff % 60000) / 1000);
-      
       setTimeLeft(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`);
     };
-
     tick();
     const t = setInterval(tick, 1000);
     return () => clearInterval(t);
@@ -78,7 +59,7 @@ const FlashDealPage = () => {
         <div className="w-10" />
       </div>
 
-      {/* Hero Timer Section */}
+      {/* Hero Timer */}
       <div className="px-4 py-8">
         <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-amber-500 to-orange-600 p-8 text-white shadow-2xl shadow-orange-500/20">
           <div className="relative z-10 flex flex-col items-center text-center">
@@ -87,17 +68,14 @@ const FlashDealPage = () => {
               <span className="text-[10px] font-black uppercase tracking-widest">Active Now</span>
             </div>
             <h2 className="text-4xl font-black tracking-tighter mb-2">10% OFF EVERYTHING</h2>
-            <p className="text-white/80 text-xs font-medium max-w-[200px] mb-6">Resetting daily at midnight.</p>
-            
+            <p className="text-white/80 text-xs font-medium max-w-[200px] mb-6">
+              System picks {dailyDeals.length} vehicles daily. Resets at midnight.
+            </p>
             <div className="flex gap-4">
               {timeLeft.split(':').map((unit, i) => (
                 <div key={i} className="flex flex-col items-center">
-                  <div className="bg-black/20 backdrop-blur-md w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-mono font-black">
-                    {unit}
-                  </div>
-                  <span className="text-[8px] font-bold uppercase mt-2 opacity-60">
-                    {i === 0 ? 'Hrs' : i === 1 ? 'Min' : 'Sec'}
-                  </span>
+                  <div className="bg-black/20 backdrop-blur-md w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-mono font-black">{unit}</div>
+                  <span className="text-[8px] font-bold uppercase mt-2 opacity-60">{i === 0 ? 'Hrs' : i === 1 ? 'Min' : 'Sec'}</span>
                 </div>
               ))}
             </div>
@@ -109,42 +87,53 @@ const FlashDealPage = () => {
       {/* Car Grid */}
       <div className="px-4 space-y-4">
         <div className="flex items-center justify-between px-1">
-          <h3 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white">Daily Picks</h3>
-          <span className="text-[10px] font-bold bg-zinc-100 dark:bg-zinc-900 px-3 py-1 rounded-full text-zinc-500">
+          <div>
+            <h3 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white">Daily Picks</h3>
+            <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">System-selected · Resets daily</p>
+          </div>
+          <span className="text-[10px] font-bold bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 px-3 py-1 rounded-full">
             {dailyDeals.length} units
           </span>
         </div>
-        
-        <div className="grid grid-cols-1 gap-4">
-          {dailyDeals.map((car) => (
-            <div 
-              key={car._id} 
-              onClick={() => navigate(`/car/${car._id}`)}
-              className="group relative bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-5 flex items-center gap-5 transition-all hover:border-amber-500/50 cursor-pointer"
-            >
-              <div className="w-32 h-20 bg-white dark:bg-zinc-950 rounded-2xl flex items-center justify-center p-2 shadow-sm">
-                <img 
-                  src={car.image || carImage} 
-                  alt={car.model} 
-                  className="max-h-full object-contain group-hover:scale-110 transition-transform duration-500" 
-                />
-              </div>
-              <div className="flex-1">
-                <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">
-                  Save ₱{(car.pricePerDay * 0.1).toLocaleString()}
-                </p>
-                <h4 className="font-bold text-zinc-900 dark:text-white tracking-tight">{car.brand} {car.model}</h4>
-                <div className="flex items-center gap-2 mt-2">
-                   <span className="text-sm font-black text-zinc-900 dark:text-white">₱{(car.pricePerDay * 0.9).toLocaleString()}</span>
-                   <span className="text-[10px] text-zinc-400 line-through font-bold">₱{car.pricePerDay.toLocaleString()}</span>
+
+        {dailyDeals.length === 0 ? (
+          <div className="text-center py-16"><p className="text-zinc-400 text-sm font-medium">No available cars right now.</p></div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4">
+            {dailyDeals.map((car) => {
+              const flashPrice = Math.round(car.pricePerDay * 0.9);
+              const savings    = car.pricePerDay - flashPrice;
+              return (
+                <div
+                  key={car._id}
+                  // ✅ THE FIX: pass car object as route state
+                  onClick={() => navigate(`/car/${car._id}`, { state: { car } })}
+                  className="group relative bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-5 flex items-center gap-5 transition-all hover:border-amber-500/50 cursor-pointer"
+                >
+                  <div className="absolute top-3 right-3 bg-amber-500 text-white text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest flex items-center gap-1">
+                    <Zap size={7} fill="currentColor" /> Flash
+                  </div>
+                  <div className="w-32 h-20 bg-white dark:bg-zinc-950 rounded-2xl flex items-center justify-center p-2 shadow-sm shrink-0">
+                    <img src={car.image || carImage} alt={car.model} className="max-h-full object-contain group-hover:scale-110 transition-transform duration-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Save ₱{savings.toLocaleString()} today</p>
+                    <h4 className="font-bold text-zinc-900 dark:text-white tracking-tight truncate">{car.brand} {car.model}</h4>
+                    <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-wider mt-0.5">{car.year} · {car.color} · {car.fuelType}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-sm font-black text-zinc-900 dark:text-white">₱{flashPrice.toLocaleString()}</span>
+                      <span className="text-[10px] text-zinc-400 line-through font-bold">₱{car.pricePerDay.toLocaleString()}</span>
+                      <span className="text-[8px] font-bold text-zinc-400">/day</span>
+                    </div>
+                  </div>
+                  <button className="h-10 w-10 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center shadow-lg transition-transform active:scale-90 shrink-0">
+                    <Zap size={16} fill="currentColor" />
+                  </button>
                 </div>
-              </div>
-              <button className="h-10 w-10 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center shadow-lg transition-transform active:scale-90">
-                <Zap size={16} fill="currentColor" />
-              </button>
-            </div>
-          ))}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
