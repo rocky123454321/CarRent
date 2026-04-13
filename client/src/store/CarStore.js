@@ -7,7 +7,7 @@ const CARS = `${API_URL}/api/cars`;
 
 axios.defaults.withCredentials = true;
 
-// Helper: detect current season (matches seasonalAnnouncements.js logic)
+// Helper: detect current season
 const getCurrentSeason = () => {
   const month = new Date().getMonth() + 1;
   const day   = new Date().getDate();
@@ -18,11 +18,10 @@ const getCurrentSeason = () => {
   if (day >= 28 || day <= 2)                       return "payday";
   return "sale";
 };
-//////
 
 export const useCarStore = create((set, get) => ({
   cars: [],
-  car: null,
+  car: null, // Ito ang lalagyan ng single car data para sa Details view
   isLoading: false,
   error: null,
   message: null,
@@ -30,7 +29,6 @@ export const useCarStore = create((set, get) => ({
   setSearchQuery: (query) => set({ searchQuery: query }),
 
   // ✅ PROMO GETTERS
-  // Returns all promo cars that match current season (or any active promo)
   getPromoCars: () => {
     const { cars } = get();
     const season = getCurrentSeason();
@@ -43,11 +41,24 @@ export const useCarStore = create((set, get) => ({
     );
   },
 
-  // Returns 1 random promo car for the current season
   getRandomPromoCar: () => {
     const promoCars = get().getPromoCars();
     if (!promoCars.length) return null;
     return promoCars[Math.floor(Math.random() * promoCars.length)];
+  },
+
+  // ✅ NEW: GET SINGLE CAR BY ID (Safety Net para sa Search)
+  getCarById: async (id) => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await axios.get(`${CARS}/${id}`);
+      // Sinisiguro nito na ang 'car' state ay may kumpletong details
+      set({ car: res.data.car || res.data, isLoading: false });
+      return res.data.car || res.data;
+    } catch (error) {
+      set({ error: "Failed to load car details", isLoading: false });
+      console.error("Error fetching car by ID:", error);
+    }
   },
 
   // GET /api/cars
@@ -55,7 +66,9 @@ export const useCarStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const res = await axios.get(CARS);
-      set({ cars: res.data, isLoading: false });
+      // Kung ang API mo ay may structure na { cars: [...] } o [...] lang
+      const data = Array.isArray(res.data) ? res.data : (res.data.cars || []);
+      set({ cars: data, isLoading: false });
     } catch (error) {
       set({ error: error.response?.data?.message || "Error fetching cars", isLoading: false });
     }
@@ -73,13 +86,10 @@ export const useCarStore = create((set, get) => ({
   },
 
   // POST /api/cars
-  createCar: async (brand, model, year, color, pricePerDay, fuelType, transmission, licensePlate, isAvailable, uploadedBy) => {
+  createCar: async (carData) => { // In-simplify para tumanggap ng object
     set({ isLoading: true, error: null });
     try {
-      const res = await axios.post(CARS, {
-        brand, model, year, color, pricePerDay,
-        fuelType, transmission, licensePlate, isAvailable, uploadedBy,
-      });
+      const res = await axios.post(CARS, carData);
       set((state) => ({
         cars: [...state.cars, res.data.car],
         isLoading: false,

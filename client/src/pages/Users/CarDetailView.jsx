@@ -5,37 +5,59 @@ import carImage from "../../assets/carpichero.png";
 
 import {
   Fuel, Cog, ArrowLeft, Star, MapPin,
-  Shield, Calendar, MessageSquare, X, Tag // Nagdagdag ng Tag icon
+  Shield, Calendar, MessageSquare, X, Tag,
+  Zap 
 } from "lucide-react";
 import { toast } from 'sonner';
 import { useAuthStore } from '../../store/authStore.js';
 import { useRatingStore } from '../../store/RatingStore';
+import { useCarStore } from "../../store/carStore"; // Import car store
 import { format } from 'date-fns';
 
 const CarDetailView = ({ car: carProp, onBack }) => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const car = carProp || state?.car;
   const { user, isAuthenticated } = useAuthStore();
+  
+  // Zustand Store logic for safety fetch
+  const { getCarById, car: storeCar, isLoading: isFetchingCar } = useCarStore();
+  
+  // Combine sources: Prop > Navigation State > Store (Fetched by ID)
+  const car = carProp || state?.car || storeCar;
+
+  // Flash Deal Logic
+  const isFlashDeal = state?.isFlashDeal || (car?.flashDeal && car?.flashDeal.isActive);
+  const flashPrice = car?.flashDeal?.discountedPrice || car?.promoPrice;
 
   const ratings          = useRatingStore((s) => s.ratings);
   const averageRating    = useRatingStore((s) => s.averageRating);
-  const loading          = useRatingStore((s) => s.isLoading);
+  const loadingRatings   = useRatingStore((s) => s.isLoading);
   const submittingReview = useRatingStore((s) => s.submitting);
   const fetchRatings     = useRatingStore((s) => s.fetchRatings);
   const submitReviewFn   = useRatingStore((s) => s.submitReview);
-  const reset            = useRatingStore((s) => s.reset);
+  const resetRatings     = useRatingStore((s) => s.reset);
 
   const [showReviewForm, setShowReviewForm]   = useState(false);
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [reviewRating, setReviewRating]       = useState(0);
   const [reviewText, setReviewText]           = useState('');
 
+  // 1. SAFETY FETCH: Kung ang car data ay incomplete (galing sa Search)
+  useEffect(() => {
+    const carId = carProp?._id || state?.car?._id;
+    // Kung may ID pero walang 'fuelType' (indicator ng incomplete data), i-fetch ang buo
+    if (carId && (!car?.fuelType || !car?.transmission)) {
+      getCarById(carId);
+    }
+  }, [carProp?._id, state?.car?._id]);
+
+  // 2. FETCH RATINGS
   useEffect(() => {
     if (car?._id) fetchRatings(car._id);
-    return () => reset();
-  }, [car?._id, fetchRatings, reset]);
+    return () => resetRatings();
+  }, [car?._id, fetchRatings, resetRatings]);
 
+  // 3. BODY SCROLL LOCK
   useEffect(() => {
     document.body.style.overflow = showBookingForm ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -70,16 +92,12 @@ const CarDetailView = ({ car: carProp, onBack }) => {
     });
   };
 
-  if (!car) {
+  // ── LOADING / EMPTY STATE ──
+  if (isFetchingCar || (!car && !isFetchingCar)) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <p className="text-zinc-400 dark:text-zinc-500 text-sm font-medium">No car selected.</p>
-        <button
-          onClick={() => onBack ? onBack() : navigate("/cars")}
-          className="mt-4 text-zinc-900 dark:text-white text-sm font-black hover:underline tracking-tighter"
-        >
-          Back to listings
-        </button>
+      <div className="flex flex-col items-center justify-center py-40 text-center space-y-4">
+        <div className="w-12 h-12 border-4 border-zinc-200 border-t-zinc-900 dark:border-zinc-800 dark:border-t-zinc-100 rounded-full animate-spin" />
+        <p className="text-zinc-400 dark:text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">Synchronizing Vehicle Data...</p>
       </div>
     );
   }
@@ -99,28 +117,34 @@ const CarDetailView = ({ car: carProp, onBack }) => {
       </button>
 
       {/* ── Main View ── */}
-      <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] md:rounded-[2.5rem] mx-1 md:mx-0">
+      <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] md:rounded-[2.5rem] mx-1 md:mx-0 shadow-sm border border-zinc-100 dark:border-white/5">
         <div className="flex flex-col lg:flex-row">
 
           {/* Image Section */}
           <div className="lg:w-[55%] p-4 md:p-8 space-y-4 md:space-y-6">
             <div className="bg-zinc-50 dark:bg-zinc-900 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center h-56 md:h-72 lg:h-[480px] overflow-hidden group relative">
-              {/* // PROMO UPDATE: Floating Promo Badge on Image */}
-              {car.isPromo && (
+              
+              {/* FLASH DEAL OR PROMO BADGE */}
+              {isFlashDeal ? (
+                <div className="absolute top-6 left-6 z-10 bg-amber-500 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg animate-pulse">
+                  <Zap size={14} className="fill-white" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Flash Deal Active</span>
+                </div>
+              ) : car.isPromo ? (
                 <div className="absolute top-6 left-6 z-10 bg-rose-600 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg animate-bounce">
                   <Tag size={12} className="fill-white" />
                   <span className="text-[10px] font-black uppercase tracking-widest">
                     {car.promoLabel || "Special Offer"}
                   </span>
                 </div>
-              )}
+              ) : null}
               
               <img src={mainImage} alt={`${car.brand} ${car.model}`} className="h-full object-contain p-4 md:p-8 transition-transform duration-1000 group-hover:scale-110" />
             </div>
-            {/* Gallery placeholder */}
+            
             <div className="grid grid-cols-3 gap-3 md:gap-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-zinc-50 dark:bg-zinc-900 rounded-xl md:rounded-2xl flex items-center justify-center h-20 md:h-24 overflow-hidden cursor-pointer transition-all group">
+                <div key={i} className="bg-zinc-50 dark:bg-zinc-900 rounded-xl md:rounded-2xl flex items-center justify-center h-20 md:h-24 overflow-hidden cursor-pointer transition-all group border border-transparent hover:border-zinc-200 dark:hover:border-white/10">
                   <img src={mainImage} alt={`view ${i}`} className="h-[60%] object-contain opacity-40 group-hover:opacity-100 transition-opacity" />
                 </div>
               ))}
@@ -133,7 +157,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
               <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
                 <div className="flex-1 min-w-[150px]">
                   <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-[0.25em] mb-1">{car.year} Release</p>
-                  <h2 className="text-2xl md:text-4xl font-black text-zinc-900 dark:text-white tracking-tighter leading-tight">{car.brand} {car.model}</h2>
+                  <h2 className="text-2xl md:text-4xl font-black text-zinc-900 dark:text-white tracking-tighter leading-tight uppercase">{car.brand} {car.model}</h2>
                 </div>
                 <span className={`text-[8px] md:text-[9px] font-black uppercase tracking-[0.15em] px-3 py-1.5 md:px-4 md:py-2 rounded-full shrink-0 shadow-sm transition-colors ${
                   car.isAvailable 
@@ -153,23 +177,22 @@ const CarDetailView = ({ car: carProp, onBack }) => {
                 <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest ml-1">{averageRating} ({ratings.length})</span>
               </div>
 
-              <p className="text-xs md:text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed mb-8 md:mb-10 font-medium max-w-sm">
+              <p className="text-xs md:text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed mb-8 md:mb-10 font-medium max-w-sm italic">
                 The {car.brand} {car.model} offers an unparalleled driving experience. Pristine condition and ready for your next journey.
               </p>
 
-              {/* Specs Grid */}
               <div className="grid grid-cols-2 gap-3 md:gap-4 mb-8 md:mb-10">
                 {[
-                  { icon: Fuel,    label: "Fuel", value: car.fuelType },
-                  { icon: Cog,     label: "Trans", value: car.transmission },
-                  { icon: MapPin,  label: "Odo", value: `${car.mileage} km` },
-                  { icon: Shield,  label: "Color", value: car.color },
+                  { icon: Fuel,    label: "Fuel", value: car.fuelType || "---" },
+                  { icon: Cog,     label: "Trans", value: car.transmission || "---" },
+                  { icon: MapPin,  label: "Odo", value: car.mileage ? `${car.mileage} km` : "---" },
+                  { icon: Shield,  label: "Color", value: car.color || "---" },
                 ].map((item) => (
-                  <div key={item.label} className="bg-zinc-50 dark:bg-zinc-800/40 rounded-xl md:rounded-2xl p-3 md:px-5 md:py-4 transition-colors">
+                  <div key={item.label} className="bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-100 dark:border-white/5 rounded-xl md:rounded-2xl p-3 md:px-5 md:py-4 transition-colors">
                     <p className="text-[8px] font-bold text-zinc-400 mb-0.5 flex items-center gap-1.5 uppercase tracking-widest truncate">
                       <item.icon size={10} className="text-zinc-900 dark:text-white" /> {item.label}
                     </p>
-                    <p className="text-[10px] md:text-xs font-black text-zinc-900 dark:text-white truncate">{item.value}</p>
+                    <p className="text-[10px] md:text-xs font-black text-zinc-900 dark:text-white truncate uppercase">{item.value}</p>
                   </div>
                 ))}
               </div>
@@ -177,41 +200,45 @@ const CarDetailView = ({ car: carProp, onBack }) => {
 
             <div className="space-y-4 md:space-y-6">
               {car.uploadedBy && (
-                <div className="flex items-center gap-3 md:gap-4 bg-zinc-50 dark:bg-zinc-800/40 rounded-2xl md:rounded-3xl px-4 py-3 md:px-5 md:py-4 transition-all">
+                <div className="flex items-center gap-3 md:gap-4 bg-zinc-50 dark:bg-zinc-800/40 rounded-2xl md:rounded-3xl px-4 py-3 md:px-5 md:py-4 border border-zinc-100 dark:border-white/5 transition-all">
                   <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center shrink-0 shadow-lg border-2 border-white dark:border-zinc-800 overflow-hidden">
-                    <span className="text-white dark:text-zinc-900 font-black text-xs uppercase">{car.uploadedBy?.name?.charAt(0) || 'A'}</span>
+                    <span className="text-white dark:text-zinc-900 font-black text-xs uppercase">
+                      {typeof car.uploadedBy === 'string' ? 'A' : (car.uploadedBy?.name?.charAt(0) || 'A')}
+                    </span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-widest">Host</p>
-                    <p className="text-xs md:text-sm font-black text-zinc-900 dark:text-white truncate">{car.uploadedBy?.name || 'Authorized Admin'}</p>
+                    <p className="text-xs md:text-sm font-black text-zinc-900 dark:text-white truncate">
+                      {car.uploadedBy?.name || 'Authorized Admin'}
+                    </p>
                   </div>
                   <button
                     onClick={handleChatWithAdmin}
-                    className="h-9 w-9 md:h-10 md:w-10 flex items-center justify-center rounded-full bg-white dark:bg-zinc-800 hover:bg-zinc-900 dark:hover:bg-white hover:text-white dark:hover:text-zinc-900 transition-all active:scale-90 shadow-sm"
+                    className="h-9 w-9 md:h-10 md:w-10 flex items-center justify-center rounded-full bg-white dark:bg-zinc-800 hover:bg-zinc-900 dark:hover:bg-white hover:text-white dark:hover:text-zinc-900 transition-all active:scale-90 shadow-sm border border-zinc-100 dark:border-white/10"
                   >
                     <MessageSquare size={14} />
                   </button>
                 </div>
               )}
 
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4">
-                {/* // PROMO UPDATE: Price Display with Original Price Strike-through */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
                 <div>
-                  <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-[0.2em] mb-0.5">Daily Rate</p>
+                  <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-[0.2em] mb-0.5">
+                    {isFlashDeal ? "Flash Deal Price" : "Daily Rate"}
+                  </p>
                   <div className="flex items-baseline gap-2">
-                    <p className="text-2xl md:text-3xl font-black text-zinc-900 dark:text-white tracking-tighter">
-                      ₱{(car.isPromo ? car.promoPrice : car.pricePerDay)?.toLocaleString()}
+                    <p className={`text-2xl md:text-3xl font-black tracking-tighter ${isFlashDeal ? 'text-amber-500' : 'text-zinc-900 dark:text-white'}`}>
+                      ₱{(isFlashDeal ? flashPrice : (car.isPromo ? car.promoPrice : car.pricePerDay))?.toLocaleString()}
                     </p>
-                    {car.isPromo && (
+                    {(car.isPromo || isFlashDeal) && (
                       <p className="text-sm md:text-base font-bold text-zinc-400 line-through decoration-rose-500/50">
                         ₱{car.pricePerDay?.toLocaleString()}
                       </p>
                     )}
                   </div>
-                  {/* Promo Season Label */}
-                  {car.isPromo && car.promoSeason && (
-                    <p className="text-[8px] font-black text-rose-500 uppercase tracking-widest mt-1">
-                      {car.promoSeason} Limited Offer
+                  {isFlashDeal && (
+                    <p className="text-[8px] font-black text-amber-500 uppercase tracking-widest mt-1 flex items-center gap-1">
+                      <Zap size={10} fill="currentColor" /> Limited Time Flash Sale
                     </p>
                   )}
                 </div>
@@ -223,7 +250,9 @@ const CarDetailView = ({ car: carProp, onBack }) => {
                     setShowBookingForm(true);
                   }}
                   disabled={!car.isAvailable}
-                  className="w-full sm:flex-1 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 h-14 md:h-16 rounded-xl md:rounded-2xl text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] transition-all hover:opacity-90 disabled:opacity-20 shadow-xl active:scale-[0.98]"
+                  className={`w-full sm:flex-1 h-14 md:h-16 rounded-xl md:rounded-2xl text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] transition-all hover:opacity-90 disabled:opacity-20 shadow-xl active:scale-[0.98] ${
+                    isFlashDeal ? 'bg-amber-500 text-white' : 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
+                  }`}
                 >
                   Book Vehicle
                 </button>
@@ -233,10 +262,8 @@ const CarDetailView = ({ car: carProp, onBack }) => {
         </div>
       </div>
 
-      {/* ... Experiences Section and Booking Overlay remain the same ... */}
-      
-      {/* Experiences Section */}
-      <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 mx-1 md:mx-0">
+      {/* ── Experiences Section ── */}
+      <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 mx-1 md:mx-0 shadow-sm border border-zinc-100 dark:border-white/5">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8 md:mb-12">
           <div>
             <h3 className="text-xl md:text-2xl font-black text-zinc-900 dark:text-white tracking-tighter uppercase">Experiences</h3>
@@ -255,7 +282,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
         </div>
 
         {showReviewForm && (
-          <div className="bg-zinc-50 dark:bg-zinc-800/40 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] mb-10">
+          <div className="bg-zinc-50 dark:bg-zinc-800/40 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] mb-10 border border-zinc-100 dark:border-white/5">
             <form onSubmit={submitReview} className="space-y-4 md:space-y-6">
               <div className="flex items-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -267,7 +294,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
               <textarea
                 value={reviewText}
                 onChange={(e) => setReviewText(e.target.value)}
-                className="w-full p-4 md:p-6 bg-white dark:bg-zinc-950 rounded-xl md:rounded-2xl focus:outline-none text-xs md:text-sm min-h-[120px] shadow-sm"
+                className="w-full p-4 md:p-6 bg-white dark:bg-zinc-950 rounded-xl md:rounded-2xl focus:outline-none text-xs md:text-sm min-h-[120px] shadow-sm border border-zinc-100 dark:border-white/5"
                 placeholder="How was your rental experience?"
               />
               <button
@@ -282,7 +309,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
         )}
 
         <div className="space-y-4">
-          {loading ? (
+          {loadingRatings ? (
             <p className="text-[9px] text-zinc-400 text-center py-10 uppercase tracking-widest animate-pulse">Fetching records...</p>
           ) : ratings.length === 0 ? (
             <div className="text-center py-10 md:py-16 bg-zinc-50/50 dark:bg-zinc-900/20 rounded-[1.5rem] md:rounded-[2rem]">
@@ -291,10 +318,10 @@ const CarDetailView = ({ car: carProp, onBack }) => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {ratings.slice(0, 6).map((review) => (
-                <div key={review._id} className="p-6 md:p-8 bg-zinc-50/40 dark:bg-zinc-900/20 rounded-[1.5rem] md:rounded-[2rem] transition-all shadow-sm">
+                <div key={review._id} className="p-6 md:p-8 bg-zinc-50/40 dark:bg-zinc-900/20 rounded-[1.5rem] md:rounded-[2rem] transition-all shadow-sm border border-zinc-100 dark:border-white/5">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2 md:gap-3">
-                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center font-black text-[9px] shadow-sm">
+                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center font-black text-[9px] shadow-sm border border-zinc-100 dark:border-white/10">
                         {review.user?.name?.charAt(0) || 'U'}
                       </div>
                       <div>
@@ -327,7 +354,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
               <X size={18} />
             </button>
             <div className="p-4 md:p-2">
-              <BookingForm car={car} onSuccess={handleRentalSuccess} />
+              <BookingForm car={{...car, isFlashDeal, flashPrice}} onSuccess={handleRentalSuccess} />
             </div>
           </div>
         </div>

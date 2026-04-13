@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { ArrowRight, X, MapPin, Calendar, Clock, User, Phone, Home, Tag } from "lucide-react"; // Added Tag icon
+import { ArrowRight, X, MapPin, Calendar, Clock, User, Phone, Home, Tag, Zap } from "lucide-react"; // Added Zap icon
 import { toast } from "sonner";
 import { useAuthStore } from '../../store/authStore.js';
 import { differenceInDays } from 'date-fns';
@@ -55,8 +55,12 @@ const BookingForm = ({ car, onSuccess }) => {
     ? Math.max(1, differenceInDays(new Date(dropoffDate), new Date(pickupDate)) + 1)
     : 0;
 
-  // ✅ PROMO UPDATE: Calculate price based on promo status
-  const activePrice = car?.isPromo ? car?.promoPrice : car?.pricePerDay;
+  // ✅ FLASH DEAL & PROMO LOGIC: Priority order: Flash Price > Promo Price > Regular Price
+  const isFlashActive = car?.flashDeal?.isActive || car?.isFlashDeal; 
+  const activePrice = isFlashActive 
+    ? (car?.flashDeal?.discountedPrice || car?.promoPrice) 
+    : (car?.isPromo ? car?.promoPrice : car?.pricePerDay);
+    
   const totalPrice = days * (activePrice || 0);
 
   const onSubmit = (data) => {
@@ -101,13 +105,21 @@ const BookingForm = ({ car, onSuccess }) => {
             SECURE YOUR <span className="text-zinc-300 dark:text-zinc-700">RIDE.</span>
           </h3>
           
-          {/* ✅ PROMO UPDATE: Header price display */}
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <p className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-tight">
               {car?.brand} {car?.model} <span className="opacity-30 mx-1">|</span>
             </p>
             <div className="flex items-center gap-2">
-               {car?.isPromo ? (
+               {isFlashActive ? (
+                 <>
+                   <span className="text-amber-500 font-black text-[11px] flex items-center gap-1 bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded-md animate-pulse">
+                     <Zap size={10} fill="currentColor" /> ₱{activePrice?.toLocaleString()}
+                   </span>
+                   <span className="text-zinc-300 dark:text-zinc-600 line-through text-[10px] font-bold">
+                     ₱{car?.pricePerDay?.toLocaleString()}
+                   </span>
+                 </>
+               ) : car?.isPromo ? (
                  <>
                    <span className="text-rose-500 font-black text-[11px] flex items-center gap-1 bg-rose-50 dark:bg-rose-500/10 px-2 py-0.5 rounded-md">
                      <Tag size={10} /> ₱{car?.promoPrice?.toLocaleString()}
@@ -126,7 +138,6 @@ const BookingForm = ({ car, onSuccess }) => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-
           {/* Section: Pick-up */}
           <div className="bg-white dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-900 rounded-[2.5rem] p-8 space-y-6 shadow-sm">
             <div className="flex items-center justify-between border-b border-zinc-50 dark:border-zinc-900 pb-4">
@@ -203,18 +214,21 @@ const BookingForm = ({ car, onSuccess }) => {
 
           {/* Price Summary Panel */}
           {days > 0 && (
-            <div className="bg-zinc-900 dark:bg-white rounded-[2rem] p-8 flex items-center justify-between shadow-2xl transition-all animate-in slide-in-from-bottom-4">
+            <div className={`${isFlashActive ? 'bg-amber-500' : 'bg-zinc-900 dark:bg-white'} rounded-[2rem] p-8 flex items-center justify-between shadow-2xl transition-all animate-in slide-in-from-bottom-4`}>
               <div className="space-y-1">
-                <p className="text-[9px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.3em]">RENTAL PERIOD</p>
-                <p className="text-white dark:text-zinc-950 font-black text-xl italic">{days} {days === 1 ? 'UNIT DAY' : 'UNIT DAYS'}</p>
+                <p className={`text-[9px] font-black uppercase tracking-[0.3em] ${isFlashActive ? 'text-amber-900/50' : 'text-zinc-500 dark:text-zinc-400'}`}>RENTAL PERIOD</p>
+                <p className={`font-black text-xl italic ${isFlashActive ? 'text-white' : 'text-white dark:text-zinc-950'}`}>{days} {days === 1 ? 'UNIT DAY' : 'UNIT DAYS'}</p>
               </div>
               <div className="text-right space-y-1">
-                <p className="text-[9px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.3em]">TOTAL SETTLEMENT</p>
+                <p className={`text-[9px] font-black uppercase tracking-[0.3em] ${isFlashActive ? 'text-amber-900/50' : 'text-zinc-500 dark:text-zinc-400'}`}>TOTAL SETTLEMENT</p>
                 <div className="flex flex-col items-end">
-                   {/* ✅ PROMO UPDATE: Total Price Display */}
-                   <p className="text-white dark:text-zinc-950 font-black text-3xl tracking-tighter">₱{totalPrice.toLocaleString()}</p>
-                   {car?.isPromo && (
-                     <p className="text-[8px] text-rose-500 font-black tracking-widest uppercase">PROMO RATE APPLIED</p>
+                   <p className={`font-black text-3xl tracking-tighter ${isFlashActive ? 'text-white' : 'text-white dark:text-zinc-950'}`}>₱{totalPrice.toLocaleString()}</p>
+                   {isFlashActive ? (
+                      <p className="text-[8px] text-amber-900 font-black tracking-widest uppercase flex items-center gap-1">
+                        <Zap size={8} fill="currentColor" /> Flash Deal Applied
+                      </p>
+                   ) : car?.isPromo && (
+                      <p className="text-[8px] text-rose-500 font-black tracking-widest uppercase">PROMO RATE APPLIED</p>
                    )}
                 </div>
               </div>
@@ -225,7 +239,11 @@ const BookingForm = ({ car, onSuccess }) => {
           <button
             type="submit"
             disabled={isSubmitting || !car?.isAvailable}
-            className="w-full bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 disabled:bg-zinc-100 dark:disabled:bg-zinc-900 disabled:text-zinc-300 text-white dark:text-zinc-950 font-black py-5 rounded-[1.5rem] shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-4 text-xs uppercase tracking-[0.3em]"
+            className={`w-full font-black py-5 rounded-[1.5rem] shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-4 text-xs uppercase tracking-[0.3em] ${
+              isFlashActive 
+                ? 'bg-amber-500 hover:bg-amber-600 text-white' 
+                : 'bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200'
+            } disabled:bg-zinc-100 dark:disabled:bg-zinc-900 disabled:text-zinc-300 text-white dark:text-zinc-950`}
           >
             {isSubmitting ? (
               <span className="animate-pulse">SYNCHRONIZING...</span>
@@ -236,7 +254,6 @@ const BookingForm = ({ car, onSuccess }) => {
               </>
             )}
           </button>
-
         </form>
       </div>
 
@@ -255,7 +272,7 @@ const BookingForm = ({ car, onSuccess }) => {
                 <PaymentDemo
                   car={{
                     ...car,
-                    pricePerDay: activePrice // ✅ PROMO UPDATE: Ensure payment demo shows the promo price
+                    pricePerDay: activePrice 
                   }}
                   rentalDetails={{
                     days,

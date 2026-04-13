@@ -91,15 +91,29 @@ export const deleteCar = async (req, res) => {
 // ✅ GET ALL CARS (Public Explore)
 export const getAllCars = async (req, res) => {
   try {
+    const today = new Date();
+
     const cars = await Car.find()
       .populate('uploadedBy', 'name email profileImage')
       .sort({ createdAt: -1 });
-    res.json(cars);
+
+    // I-map ang results para i-check ang expiry on the fly
+    const updatedCars = cars.map(car => {
+      const carObj = car.toObject();
+      
+      // Kung ang promo ay expired na, i-force natin ang isPromo sa false sa response
+      if (carObj.isPromo && carObj.promoExpiry && new Date(carObj.promoExpiry) < today) {
+        carObj.isPromo = false;
+      }
+      
+      return carObj;
+    });
+
+    res.json(updatedCars);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
-
 // ✅ GET SINGLE CAR
 export const getCarById = async (req, res) => {
   try {

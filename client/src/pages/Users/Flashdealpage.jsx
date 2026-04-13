@@ -9,27 +9,17 @@ const FlashDealPage = () => {
   const { cars, getCars } = useCarStore();
   const [timeLeft, setTimeLeft] = useState('');
 
-  useEffect(() => { getCars(); }, [getCars]);
+  useEffect(() => { 
+    getCars(); 
+  }, [getCars]);
 
+  // ✅ SIMPLIFIED: Filter cars na may isActive: true sa flashDeal galing sa DB
   const dailyDeals = useMemo(() => {
-    if (!cars || cars.length === 0) return [];
-    const today = new Date().toISOString().slice(0, 10);
-    let seed = 0;
-    for (let i = 0; i < today.length; i++) seed += today.charCodeAt(i);
-
-    const shuffle = (array, s) => {
-      const arr = [...array];
-      let m = arr.length, t, idx;
-      while (m) { idx = Math.floor(Math.abs(Math.sin(s++)) * m--); t = arr[m]; arr[m] = arr[idx]; arr[idx] = t; }
-      return arr;
-    };
-
-    const availableCars = cars.filter(c => c.isAvailable);
-    const shuffled = shuffle(availableCars, seed);
-    const count = Math.floor(Math.abs(Math.cos(seed)) * 6) + 3; // 3 to 8
-    return shuffled.slice(0, count);
+    if (!cars) return [];
+    return cars.filter(car => car.flashDeal?.isActive === true);
   }, [cars]);
 
+  // Timer logic (Resets at Midnight)
   useEffect(() => {
     const tick = () => {
       const d = new Date();
@@ -100,38 +90,71 @@ const FlashDealPage = () => {
           <div className="text-center py-16"><p className="text-zinc-400 text-sm font-medium">No available cars right now.</p></div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {dailyDeals.map((car) => {
-              const flashPrice = Math.round(car.pricePerDay * 0.9);
-              const savings    = car.pricePerDay - flashPrice;
-              return (
-                <div
-                  key={car._id}
-                  // ✅ THE FIX: pass car object as route state
-                  onClick={() => navigate(`/car/${car._id}`, { state: { car } })}
-                  className="group relative bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-5 flex items-center gap-5 transition-all hover:border-amber-500/50 cursor-pointer"
-                >
-                  <div className="absolute top-3 right-3 bg-amber-500 text-white text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest flex items-center gap-1">
-                    <Zap size={7} fill="currentColor" /> Flash
-                  </div>
-                  <div className="w-32 h-20 bg-white dark:bg-zinc-950 rounded-2xl flex items-center justify-center p-2 shadow-sm shrink-0">
-                    <img src={car.image || carImage} alt={car.model} className="max-h-full object-contain group-hover:scale-110 transition-transform duration-500" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Save ₱{savings.toLocaleString()} today</p>
-                    <h4 className="font-bold text-zinc-900 dark:text-white tracking-tight truncate">{car.brand} {car.model}</h4>
-                    <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-wider mt-0.5">{car.year} · {car.color} · {car.fuelType}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-sm font-black text-zinc-900 dark:text-white">₱{flashPrice.toLocaleString()}</span>
-                      <span className="text-[10px] text-zinc-400 line-through font-bold">₱{car.pricePerDay.toLocaleString()}</span>
-                      <span className="text-[8px] font-bold text-zinc-400">/day</span>
-                    </div>
-                  </div>
-                  <button className="h-10 w-10 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center shadow-lg transition-transform active:scale-90 shrink-0">
-                    <Zap size={16} fill="currentColor" />
-                  </button>
-                </div>
-              );
-            })}
+         {dailyDeals.map((car) => {
+  // ✅ Gamitin ang effectivePrice galing sa Virtuals
+  // Siguraduhin na may fallback value (|| 0) para iwas crash sa calculation
+  const flashPrice = car.effectivePrice || (car.pricePerDay * 0.9); 
+  const savings = (car.pricePerDay || 0) - flashPrice;
+
+  return (
+    <div
+      key={car._id}
+      // ✅ FIX: Ipinapasa na natin ang 'car: car' sa loob ng state
+      onClick={() =>
+        navigate(`/car/${car._id}`, {
+          state: { 
+            car: car,           // Mahalaga: Para may data ang DetailView
+            isFlashDeal: true   // Flag para sa UI logic
+          },
+        })
+      }
+      className="group relative bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-5 flex items-center gap-5 transition-all hover:border-amber-500/50 cursor-pointer"
+    >
+      {/* Flash Badge */}
+      <div className="absolute top-3 right-3 bg-amber-500 text-white text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest flex items-center gap-1">
+        <Zap size={7} fill="currentColor" /> Flash
+      </div>
+
+      {/* Car Image Container */}
+      <div className="w-32 h-20 bg-white dark:bg-zinc-950 rounded-2xl flex items-center justify-center p-2 shadow-sm shrink-0">
+        <img
+          src={car.image || carImage}
+          alt={car.model}
+          className="max-h-full object-contain group-hover:scale-110 transition-transform duration-500"
+        />
+      </div>
+
+      {/* Car Info */}
+      <div className="flex-1 min-w-0">
+        <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest">
+          Save ₱{savings.toLocaleString()} today
+        </p>
+        <h4 className="font-bold text-zinc-900 dark:text-white tracking-tight truncate">
+          {car.brand} {car.model}
+        </h4>
+        <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-wider mt-0.5">
+          {car.year} · {car.fuelType}
+        </p>
+
+        {/* Pricing Area */}
+        <div className="flex items-center gap-2 mt-2">
+          <span className="text-sm font-black text-zinc-900 dark:text-white">
+            ₱{flashPrice.toLocaleString()}
+          </span>
+          <span className="text-[10px] text-zinc-400 line-through font-bold">
+            ₱{(car.pricePerDay || 0).toLocaleString()}
+          </span>
+          <span className="text-[8px] font-bold text-zinc-400">/day</span>
+        </div>
+      </div>
+
+      {/* Action Button */}
+      <button className="h-10 w-10 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center shadow-lg transition-transform active:scale-90 shrink-0">
+        <Zap size={16} fill="currentColor" />
+      </button>
+    </div>
+  );
+})}
           </div>
         )}
       </div>
