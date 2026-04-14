@@ -4,21 +4,26 @@ import { Fuel, Cog, Users, ArrowRight, Tag, Zap } from "lucide-react";
 import { useCarStore } from "../../store/CarStore";
 import { useNavigate } from "react-router-dom";
 
+// ✅ Import from single source of truth
+import { getFlashDealData, getFlashPrice } from '../../utils/flashDeal.js';
+
 const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect, onlyPromo }) => {
   const navigate = useNavigate();
   const { cars = [], searchQuery } = useCarStore();
 
+  // ✅ Get today's flash deal data once — same discount % for all cards
+  const { discountPercent } = getFlashDealData(cars);
+
   const handleSelect = (car) => {
     if (onSelect) {
-      // Pass full car object to parent (e.g. HomePage)
       onSelect(car);
     } else {
-      // ✅ CONSISTENT ROUTE: always /car/:id (no 's'), pass car + flash flag
       const isFlash = car.isFlashDeal || car.flashDeal?.isActive;
       navigate(`/car/${car._id}`, {
         state: {
           car,
           isFlashDeal: isFlash || false,
+          discountPercent, // ✅ Pass today's discount to CarDetailView
         },
       });
     }
@@ -33,7 +38,8 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect, o
     const transMatch = !filterTransmission || filterTransmission === "All" || car.transmission === filterTransmission;
     const priceMatch = (() => {
       let p = car.pricePerDay;
-      if (isFlash) p = car.flashDeal?.discountedPrice || car.promoPrice || car.pricePerDay * 0.9;
+      // ✅ Use utility for consistent price calculation
+      if (isFlash) p = getFlashPrice(car.pricePerDay, discountPercent);
       else if (car.isPromo) p = car.promoPrice;
       if (!filterPrice || filterPrice === "all") return true;
       if (filterPrice === "under1000")  return p < 1000;
@@ -65,9 +71,10 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect, o
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-5">
       {displayCars.map((car) => {
         const isFlash = car.isFlashDeal || car.flashDeal?.isActive;
-        const flashPrice = car.flashDeal?.discountedPrice || Math.round(car.pricePerDay * 0.9);
+
+        // ✅ Always use utility — consistent with FlashDealPage and CarDetailView
         const currentPrice = isFlash
-          ? flashPrice
+          ? getFlashPrice(car.pricePerDay, discountPercent)
           : (car.isPromo ? car.promoPrice : car.pricePerDay);
 
         return (
@@ -79,7 +86,7 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect, o
             {/* Badge */}
             {isFlash ? (
               <div className="absolute top-3 left-3 z-10 bg-amber-500 text-white text-[8px] font-black px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg uppercase tracking-widest animate-pulse">
-                <Zap size={8} className="fill-white" /> Flash Deal
+                <Zap size={8} className="fill-white" /> -{discountPercent}%
               </div>
             ) : car.isPromo ? (
               <div className="absolute top-3 left-3 z-10 bg-rose-500 text-white text-[8px] font-black px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg uppercase tracking-widest">

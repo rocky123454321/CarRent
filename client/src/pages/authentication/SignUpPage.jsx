@@ -24,7 +24,7 @@ const SignUpPage = () => {
       console.log(error);
     }
   };
-  console.log(role)
+  
   return (
     
     <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center transition-colors duration-300">

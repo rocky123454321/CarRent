@@ -60,7 +60,7 @@ export const initSocket = (io) => {
     };
 
     onlineUsers.set(userId, socket.id);
-    console.log(`Connected: ${userId} → ${socket.id}`);
+    
 
     // Broadcast updated online list
     io.emit('online-users', Array.from(onlineUsers.keys()));
@@ -246,7 +246,7 @@ export const initSocket = (io) => {
     socket.on('disconnect', () => {
       onlineUsers.delete(userId);
       io.emit('online-users', Array.from(onlineUsers.keys()));
-      console.log(`Disconnected: ${userId}`);
+     
     });
   });
 };

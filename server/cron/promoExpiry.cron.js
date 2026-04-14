@@ -22,9 +22,6 @@ export const startPromoExpiryCron = () => {
         }
       );
 
-      if (result.modifiedCount > 0) {
-        console.log(`[Promo Cron] ✅ Expired ${result.modifiedCount} regular promos.`);
-      }
     } catch (err) {
       console.error("[Promo Cron] ❌ Error:", err.message);
     }
@@ -34,8 +31,7 @@ export const startPromoExpiryCron = () => {
   // Dito mangyayari yung rotation ng "Top 7 Selected Cars" every midnight
   cron.schedule("0 0 * * *", async () => {
     try {
-      console.log("[Flash Deal] 🔄 Rotating 24-hour daily picks...");
-      
+     
       // Step A: I-reset lahat ng Flash Deals (Para malinis ang slate bago pumili ng bago)
       await Car.updateMany({}, { 
         $set: { 
@@ -63,12 +59,12 @@ export const startPromoExpiryCron = () => {
         });
 
         await Promise.all(updatePromises);
-        console.log(`[Flash Deal] ✅ Success! 7 new cars selected for the next 24 hours.`);
+   
       }
     } catch (err) {
       console.error("[Flash Deal Error]:", err.message);
     }
   });
 
-  console.log("[Cron Job] 🕐 Scheduler Live: Rotating deals every 24h (Midnight).");
+ 
 };

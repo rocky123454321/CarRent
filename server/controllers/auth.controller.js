@@ -100,7 +100,7 @@ export const verifyEmail = async (req, res) => {
 			try {
 				await new Promise((resolve) => setTimeout(resolve, 1500));
 				await sendWelcomeEmail({ email: user.email, name: user.name });
-				console.log("Welcome email sent to:", user.email);
+				
 			} catch (err) {
 				console.error("Failed to send welcome email:", err);
 			}
@@ -115,7 +115,6 @@ export const verifyEmail = async (req, res) => {
 			},
 		});
 	} catch (error) {
-		console.log("error in verifyEmail ", error);
 		res.status(500).json({ success: false, message: "Server error" });
 	}
 };
@@ -145,7 +144,7 @@ export const login = async (req, res) => {
 			},
 		});
 	} catch (error) {
-		console.log("Error in login ", error);
+		
 		res.status(400).json({ success: false, message: error.message });
 	}
 };
@@ -187,7 +186,6 @@ export const forgotPassword = async (req, res) => {
       devResetURL, // null if email OK, URL if email failed
     });
   } catch (error) {
-    console.log("Error in forgotPassword ", error);
     res.status(400).json({ success: false, message: error.message });
   }
 };
@@ -215,7 +213,6 @@ export const resetPassword = async (req, res) => {
 
 		res.status(200).json({ success: true, message: "Password reset successful" });
 	} catch (error) {
-		console.log("Error in resetPassword ", error);
 		res.status(400).json({ success: false, message: error.message });
 	}
 };
@@ -228,7 +225,6 @@ export const checkAuth = async (req, res) => {
 		}
 		res.status(200).json({ success: true, user });
 	} catch (error) {
-		console.log("Error in checkAuth ", error);
 		res.status(400).json({ success: false, message: error.message });
 	}
 };
@@ -243,7 +239,6 @@ export const Delete = async (req, res) => {
 		res.clearCookie("token");
 		res.status(200).json({ success: true, message: "User deleted successfully" });
 	} catch (error) {
-		console.log("Error in deleteUser:", error);
 		res.status(500).json({ success: false, message: error.message });
 	}
 };
@@ -292,7 +287,7 @@ export const resendVerificationEmail = async (req, res) => {
 			devToken, // null if email OK, token if email failed
 		});
 	} catch (error) {
-		console.log("Error in resendVerificationEmail:", error);
+	
 		res.status(500).json({ success: false, message: error.message });
 	}
 };

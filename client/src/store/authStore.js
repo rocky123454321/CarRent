@@ -36,7 +36,7 @@ export const useAuthStore = create((set) => ({
       set({ isAuthenticated: true, user: response.data.user, error: null, isLoading: false });
     
     } catch (error) {
-      set({ error: error.response?.data?.message || "Error logging in", isLoading: false });
+      set({ error: error.response?.data?.message || "Check your connection", isLoading: false });
       throw error;
     }
   },
