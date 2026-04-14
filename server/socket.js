@@ -4,7 +4,12 @@ import mongoose from 'mongoose';
 
 const onlineUsers = new Map(); // userId -> socketId
 
+export const getIO = () => _io;
+let _io = null;
+
 export const initSocket = (io) => {
+  _io = io;
+
   io.on('connection', async (socket) => {
     const userId = socket.handshake.auth?.userId;
     if (!userId) return;
@@ -60,12 +65,10 @@ export const initSocket = (io) => {
     };
 
     onlineUsers.set(userId, socket.id);
-    
 
     // Broadcast updated online list
     io.emit('online-users', Array.from(onlineUsers.keys()));
 
-    // Small delay to ensure socket is fully ready before emitting
     setTimeout(async () => {
       await emitConversationUsers();
     }, 100);
@@ -108,7 +111,6 @@ export const initSocket = (io) => {
           }))
         );
 
-        // Mark them read now that user is online
         await Message.updateMany(
           { toUserId: currentUserObjectId, read: false },
           { read: true }
@@ -148,17 +150,14 @@ export const initSocket = (io) => {
           toUserName:   toUser?.name || 'User',
         };
 
-        // Send to recipient if online
         const targetSocketId = onlineUsers.get(toUserId);
         if (targetSocketId) {
           io.to(targetSocketId).emit('private-message', msgData);
           io.to(targetSocketId).emit('conversation-users-refresh');
-          // Mark read immediately since recipient is online
           saved.read = true;
           await saved.save();
         }
 
-        // Echo back to sender
         socket.emit('private-message', msgData);
         socket.emit('conversation-users-refresh');
       } catch (err) {
@@ -204,7 +203,6 @@ export const initSocket = (io) => {
           return acc;
         }, {});
 
-        // Mark incoming messages as read
         await Message.updateMany(
           { fromUserId: withUserObjectId, toUserId: currentUserObjectId, read: false },
           { read: true }
@@ -246,7 +244,34 @@ export const initSocket = (io) => {
     socket.on('disconnect', () => {
       onlineUsers.delete(userId);
       io.emit('online-users', Array.from(onlineUsers.keys()));
-     
     });
   });
+};
+
+// ── Helper: emit booking notification to all admin/renter sockets ──
+export const emitToAdmins = async (event, data) => {
+  if (!_io) return;
+  try {
+    const admins = await User.find({ role: { $in: ['admin', 'renter'] } })
+      .select('_id')
+      .lean();
+
+    admins.forEach((admin) => {
+      const socketId = onlineUsers.get(admin._id.toString());
+      if (socketId) {
+        _io.to(socketId).emit(event, data);
+      }
+    });
+  } catch (err) {
+    console.error('emitToAdmins error:', err);
+  }
+};
+
+// ── Helper: emit booking notification to a specific user ──
+export const emitToUser = (userId, event, data) => {
+  if (!_io) return;
+  const socketId = onlineUsers.get(userId.toString());
+  if (socketId) {
+    _io.to(socketId).emit(event, data);
+  }
 };

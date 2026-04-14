@@ -1,7 +1,10 @@
 import { create } from 'zustand';
 import { io } from 'socket.io-client';
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+// Notification types
+// { id, type: 'chat' | 'new-booking' | 'booking-status', ... }
 
 export const useChatStore = create((set, get) => ({
   socket: null,
@@ -12,7 +15,13 @@ export const useChatStore = create((set, get) => ({
   activeConversation: null,
   userProfiles: {},
   unreadCounts: {},
-  notifications: [], // { id, userId, senderName, unreadCount, message, time }
+
+  // Unified notification list
+  // Each item shape:
+  //   chat:           { id, type:'chat', userId, senderName, message, time, read:false }
+  //   new-booking:    { id, type:'new-booking', rentalId, userName, userId, carBrand, carModel, totalPrice, timestamp, read:false }
+  //   booking-status: { id, type:'booking-status', rentalId, status, carBrand, carModel, timestamp, read:false }
+  notifications: [],
 
   initializeSocket: (userId) => {
     if (get().socket?.connected) return;
@@ -40,36 +49,41 @@ export const useChatStore = create((set, get) => ({
       set((state) => ({ userProfiles: { ...state.userProfiles, ...profiles } }));
     });
 
+    // ── Chat message notification ──
     socket.on('private-message', (data) => {
       const { fromUserId, toUserId, message, timestamp, _id, fromUserName, toUserName } = data;
       const otherUserId = fromUserId === userId ? toUserId : fromUserId;
       const isIncoming  = fromUserId !== userId;
 
       set((state) => {
-        const isActive      = state.activeConversation === otherUserId;
-        const prev          = state.conversations[otherUserId] || [];
+        const isActive = state.activeConversation === otherUserId;
+        const prev     = state.conversations[otherUserId] || [];
         if (_id && prev.some((m) => m._id === _id)) return state;
 
         let nextNotifications = state.notifications;
         let nextUnread        = state.unreadCounts;
 
-        // Only notify for incoming messages when that chat isn't open
         if (isIncoming && !isActive) {
           const senderName = fromUserName || state.userProfiles[fromUserId] || 'User';
-          const existing   = state.notifications.find((n) => n.userId === otherUserId);
-          const newCount   = (existing?.unreadCount || 0) + 1;
+          const existingIdx = state.notifications.findIndex(
+            (n) => n.type === 'chat' && n.userId === otherUserId
+          );
+          const prevCount = existingIdx >= 0 ? (state.notifications[existingIdx].unreadCount || 1) : 0;
+          const newCount  = prevCount + 1;
 
           const newNotif = {
-            id: `notif-${otherUserId}`,
-            userId: otherUserId,
-            senderName,                  // ✅ stored cleanly
+            id:          `chat-${otherUserId}`,
+            type:        'chat',
+            userId:      otherUserId,
+            senderName,
             unreadCount: newCount,
             message,
-            time: timestamp,
+            time:        timestamp,
+            read:        false,
           };
 
-          nextNotifications = existing
-            ? [newNotif, ...state.notifications.filter((n) => n.userId !== otherUserId)]
+          nextNotifications = existingIdx >= 0
+            ? [newNotif, ...state.notifications.filter((n) => !(n.type === 'chat' && n.userId === otherUserId))]
             : [newNotif, ...state.notifications];
 
           nextUnread = { ...state.unreadCounts, [otherUserId]: newCount };
@@ -89,6 +103,54 @@ export const useChatStore = create((set, get) => ({
           notifications: nextNotifications,
         };
       });
+    });
+
+    // ── New booking notification (admin receives) ──
+    socket.on('new-booking', (data) => {
+      set((state) => ({
+        notifications: [
+          {
+            id:        `new-booking-${data.rentalId}`,
+            type:      'new-booking',
+            rentalId:  data.rentalId,
+            userId:    data.userId,
+            userName:  data.userName,
+            userEmail: data.userEmail,
+            carBrand:  data.carBrand,
+            carModel:  data.carModel,
+            licensePlate: data.licensePlate,
+            totalPrice: data.totalPrice,
+            rentalStartDate: data.rentalStartDate,
+            rentalEndDate:   data.rentalEndDate,
+            message:   `New booking: ${data.carBrand} ${data.carModel}`,
+            time:      data.timestamp,
+            read:      false,
+          },
+          ...state.notifications,
+        ],
+      }));
+    });
+
+    // ── Booking status update notification (user receives; admin also gets live update) ──
+    socket.on('booking-status-update', (data) => {
+      set((state) => ({
+        notifications: [
+          {
+            id:       `status-${data.rentalId}-${Date.now()}`,
+            type:     'booking-status',
+            rentalId: data.rentalId,
+            status:   data.status,
+            userId:   data.userId || null,
+            userName: data.userName || null,
+            carBrand: data.carBrand,
+            carModel: data.carModel,
+            message:  `Booking ${data.status}: ${data.carBrand} ${data.carModel}`,
+            time:     data.timestamp,
+            read:     false,
+          },
+          ...state.notifications,
+        ],
+      }));
     });
 
     socket.on('pending-messages', (pending = []) => {
@@ -154,9 +216,29 @@ export const useChatStore = create((set, get) => ({
     set((state) => ({
       activeConversation: userId,
       unreadCounts:  { ...state.unreadCounts,  [userId]: 0 },
-      notifications: state.notifications.filter((n) => n.userId !== userId),
+      // Mark chat notifications for this user as read
+      notifications: state.notifications.map((n) =>
+        n.type === 'chat' && n.userId === userId ? { ...n, read: true } : n
+      ),
     }));
     get().loadHistory(userId);
+  },
+
+  // Mark a single notification as read by id
+  markNotificationRead: (notifId) => {
+    set((state) => ({
+      notifications: state.notifications.map((n) =>
+        n.id === notifId ? { ...n, read: true } : n
+      ),
+    }));
+  },
+
+  // Mark ALL notifications as read
+  markAllRead: () => {
+    set((state) => ({
+      notifications: state.notifications.map((n) => ({ ...n, read: true })),
+      unreadCounts: {},
+    }));
   },
 
   clearNotifications: () => set({ notifications: [], unreadCounts: {} }),

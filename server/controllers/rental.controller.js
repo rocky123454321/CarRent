@@ -1,6 +1,7 @@
 import { Rental } from '../models/rental.model.js';
 import { Car } from '../models/cars.model.js';
 import { User } from '../models/user.model.js';
+import { emitToAdmins, emitToUser } from '../socket.js';
 
 export const rentCar = async (req, res) => {
   try {
@@ -24,11 +25,8 @@ export const rentCar = async (req, res) => {
       return res.status(400).json({ message: 'Car not available' });
     }
 
-    // BACKEND CALCULATION (Safety Check)
     const diffTime = Math.abs(end - start);
     const days = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
-    
-    // Use the price from the frontend or recalculate if missing
     const finalPrice = clientPrice || (days * car.pricePerDay);
 
     const rental = new Rental({
@@ -39,10 +37,9 @@ export const rentCar = async (req, res) => {
       personalDetails,
       totalPrice: finalPrice,
     });
-    
+
     await rental.save();
 
-    // Update car status
     car.isAvailable = false;
     car.currentRenter = userId;
     car.rentalStartDate = start;
@@ -50,6 +47,26 @@ export const rentCar = async (req, res) => {
     await car.save();
 
     await rental.populate('car', 'brand model pricePerDay licensePlate');
+
+    // Fetch renter info for notification
+    const renter = await User.findById(userId).select('name email').lean();
+
+    // ── Emit new-booking notification to all admins ──
+    emitToAdmins('new-booking', {
+      rentalId:        rental._id.toString(),
+      userId:          userId.toString(),
+      userName:        renter?.name || 'Unknown',
+      userEmail:       renter?.email || '',
+      carBrand:        rental.car?.brand,
+      carModel:        rental.car?.model,
+      licensePlate:    rental.car?.licensePlate,
+      totalPrice:      finalPrice,
+      rentalStartDate: start.toISOString(),
+      rentalEndDate:   end.toISOString(),
+      status:          'pending',
+      timestamp:       new Date().toISOString(),
+    });
+
     res.json({ success: true, rental });
   } catch (err) {
     console.error('Rent error:', err);
@@ -57,10 +74,9 @@ export const rentCar = async (req, res) => {
   }
 };
 
-
 export const getUserRentals = async (req, res) => {
   try {
-    const userId = req.userId; // ✅ set by verifyToken middleware
+    const userId = req.userId;
     const rentals = await Rental.find({ user: userId })
       .populate('car', 'brand model pricePerDay licensePlate uploadedBy')
       .populate('user', 'name email')
@@ -91,71 +107,79 @@ export const adminGetAllRentals = async (req, res) => {
   }
 };
 
-
 export const updateRentalStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    const userId = req.userId; // Galing sa verifyToken
+    const userId = req.userId;
 
-    const rental = await Rental.findById(id).populate('car');
-    if (!rental) return res.status(404).json({ success: false, message: "Rental not found" });
+    const rental = await Rental.findById(id).populate('car').populate('user', 'name email');
+    if (!rental) return res.status(404).json({ success: false, message: 'Rental not found' });
 
-    // --- SMART SECURITY CHECK ---
-    
-    const isOwner = rental.car.uploadedBy.toString() === userId;
-    const isRenter = rental.user.toString() === userId;
+    const isOwner  = rental.car.uploadedBy.toString() === userId;
+    const isRenter = rental.user._id.toString() === userId;
 
     if (isOwner) {
-      // ADMIN/OWNER LOGIC: Pwedeng mag-approve, reject, o complete
       rental.status = status;
     } else if (isRenter) {
-      // USER LOGIC: Pwedeng mag-cancel lang
       if (status !== 'cancelled') {
-        return res.status(403).json({ success: false, message: "You can only cancel your own rental" });
+        return res.status(403).json({ success: false, message: 'You can only cancel your own rental' });
       }
       rental.status = 'cancelled';
     } else {
-      // STRANGER: Walang kinalaman sa rental
-      return res.status(403).json({ success: false, message: "Unauthorized access" });
+      return res.status(403).json({ success: false, message: 'Unauthorized access' });
     }
 
-    // --- AUTO-UPDATE CAR AVAILABILITY ---
-    // Kung kinansela o natapos na, gawing available ulit ang kotse
     if (['cancelled', 'completed'].includes(status)) {
-      await Car.findByIdAndUpdate(rental.car._id, { 
-        isAvailable: true, 
-        currentRenter: null 
+      await Car.findByIdAndUpdate(rental.car._id, {
+        isAvailable: true,
+        currentRenter: null,
       });
     }
 
     await rental.save();
-    res.status(200).json({ success: true, message: `Status updated to ${status}`, data: rental });
 
+    // ── Emit booking-status-update to the renter (user) ──
+    emitToUser(rental.user._id, 'booking-status-update', {
+      rentalId:  rental._id.toString(),
+      status,
+      carBrand:  rental.car?.brand,
+      carModel:  rental.car?.model,
+      timestamp: new Date().toISOString(),
+    });
+
+    // ── Also emit to admins so their booking list updates live ──
+    emitToAdmins('booking-status-update', {
+      rentalId:  rental._id.toString(),
+      status,
+      userId:    rental.user._id.toString(),
+      userName:  rental.user?.name,
+      carBrand:  rental.car?.brand,
+      carModel:  rental.car?.model,
+      timestamp: new Date().toISOString(),
+    });
+
+    res.status(200).json({ success: true, message: `Status updated to ${status}`, data: rental });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-// controllers/rental.controller.js
 
 export const deleteRental = async (req, res) => {
   try {
-    const { id } = req.params; // Kinukuha ang :id mula sa route
-    
-    // Hanapin at i-delete (Siguraduhin na ang User ID ay tugma para sa security)
+    const { id } = req.params;
     const rental = await Rental.findById(id);
 
     if (!rental) {
-      return res.status(404).json({ success: false, message: "Rental record not found" });
+      return res.status(404).json({ success: false, message: 'Rental record not found' });
     }
 
-    // Security: Only allow delete if status is completed or cancelled
     if (rental.status !== 'completed' && rental.status !== 'cancelled') {
-      return res.status(400).json({ success: false, message: "Cannot delete an active rental" });
+      return res.status(400).json({ success: false, message: 'Cannot delete an active rental' });
     }
 
     await Rental.findByIdAndDelete(id);
-    res.status(200).json({ success: true, message: "Rental deleted successfully" });
+    res.status(200).json({ success: true, message: 'Rental deleted successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
