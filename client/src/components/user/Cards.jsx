@@ -94,7 +94,7 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect, o
               </div>
             ) : null}
 
-            <div className="flex items-start justify-between p-4 pb-0">
+            <div className="flex items-start justify-between p-4 pt-8 pb-0">
               <div className="truncate pr-2">
                 <h3 className="font-bold text-sm text-zinc-900 dark:text-white tracking-tighter truncate">{car.brand} {car.model}</h3>
                 <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.18em] mt-0.5">{car.year} · {car.color}</p>

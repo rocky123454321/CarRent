@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useAuthStore } from "../../../store/authStore";
 import { useAdminCarStore } from "../../../store/AdminCarStore";
 import { Input } from "@/components/ui/input";
@@ -8,20 +8,13 @@ import {
   SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ImagePlus, X, CheckCircle, Sparkles } from "lucide-react";
+import { ImagePlus, X, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+// I-import ang utility function mo (siguraduhin na tama ang path)
+import { getSeasonalAnnouncements } from "../../../utils/seasonalAnnouncements";
 
-const SEASON_OPTIONS = [
-  { value: "summer",    label: "☀️ Summer" },
-  { value: "christmas",  label: "🎄 Christmas" },
-  { value: "valentines", label: "💝 Valentine's" },
-  { value: "halloween",  label: "🎃 Halloween" },
-  { value: "new_year",   label: "🎆 New Year" },
-  { value: "payday",     label: "💸 Payday" },
-  { value: "sale",       label: "🛍️ General Sale" },
-];
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const AddCar = () => {
   const initialState = {
@@ -30,7 +23,8 @@ const AddCar = () => {
     transmission: "Automatic", licensePlate: "",
     isAvailable: true, image: null,
     isPromo: false, promoPrice: "", promoLabel: "",
-    promoSeason: "", promoExpiry: "",
+    promoSeason: "", 
+    promoExpiry: "",
   };
 
   const [form, setForm] = useState(initialState);
@@ -40,6 +34,34 @@ const AddCar = () => {
 
   const { user } = useAuthStore();
   const fetchAdminCars = useAdminCarStore((s) => s.fetchAdminCars);
+
+  // --- AUTOMATIC SEASON SYNC ---
+  useEffect(() => {
+    if (form.isPromo) {
+      // Kunin ang active announcements base sa logic ng SeasonalAnnouncement file
+      const announcements = getSeasonalAnnouncements();
+      
+      // Hanapin ang pinaka-unang 'promo' type announcement (yung may pinakamataas na priority)
+      const currentPromo = announcements.find(a => a.type === 'promo');
+      
+      // Default Expiry: +7 days from today
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + 7);
+      const expiryString = expiryDate.toISOString().split('T')[0];
+
+      setForm(prev => ({
+        ...prev,
+        // Kunin ang ID mula sa announcement (e.g., 'summer-promo' o 'payday-sale')
+        promoSeason: currentPromo ? currentPromo.id : "general-sale",
+        promoExpiry: prev.promoExpiry || expiryString,
+        // Kung walang manually typed label, gamitin yung title mula sa announcement
+        promoLabel: prev.promoLabel || (currentPromo ? currentPromo.title.toUpperCase() : "SPECIAL DEAL")
+      }));
+    } else {
+      // Reset promo fields kapag in-uncheck ang promo
+      setForm(prev => ({ ...prev, promoSeason: "", promoPrice: "", promoLabel: "" }));
+    }
+  }, [form.isPromo]);
 
   const handle = (field) => (e) =>
     setForm(prev => ({ ...prev, [field]: e.target.value }));
@@ -64,7 +86,6 @@ const AddCar = () => {
     e.preventDefault();
     if (!user?._id) { toast.error("Please login first"); return; }
 
-    // Logic Check: Promo Price vs Original Price
     if (form.isPromo && Number(form.promoPrice) >= Number(form.pricePerDay)) {
       return toast.error("Promo price must be lower than daily rate");
     }
@@ -72,25 +93,11 @@ const AddCar = () => {
     setLoading(true);
     try {
       const formData = new FormData();
-      
       Object.keys(form).forEach(key => {
         const value = form[key];
-
         if (key === 'image') {
           if (value) formData.append("image", value);
-        } 
-        else if (key === 'licensePlate') {
-          formData.append(key, value.toUpperCase().trim());
-        }
-        // CLEANUP: Huwag magpasa ng empty string sa Mongoose for non-string fields
-        else if (['promoPrice', 'promoSeason', 'promoExpiry'].includes(key)) {
-          if (form.isPromo && value !== "") {
-            formData.append(key, value);
-          } else {
-            // I-append lang kung kailangan, otherwise hayaan ang backend/DB mag-default to null
-          }
-        }
-        else {
+        } else {
           formData.append(key, value);
         }
       });
@@ -130,7 +137,7 @@ const AddCar = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Image Upload Section */}
+        {/* Image Showcase */}
         <div>
           <label className={labelClass}>Vehicle Showcase</label>
           <div
@@ -202,41 +209,35 @@ const AddCar = () => {
           </div>
         </div>
 
-        {/* Promo Card */}
-        <div className={`rounded-[2rem] border-2 transition-all p-6 ${form.isPromo ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-100'}`}>
+        {/* Promo Section */}
+        <div className={`rounded-[2rem] border-2 transition-all p-6 ${form.isPromo ? 'border-zinc-900 bg-zinc-50 dark:bg-zinc-900/20' : 'border-zinc-100 dark:border-zinc-900'}`}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <Sparkles className={form.isPromo ? "text-zinc-900" : "text-zinc-300"} size={20} />
+              <Sparkles className={form.isPromo ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-300"} size={20} />
               <h4 className="text-sm font-bold uppercase">Promo Settings</h4>
             </div>
             <Checkbox checked={form.isPromo} onCheckedChange={(v) => setForm(p => ({ ...p, isPromo: !!v }))} />
           </div>
 
           {form.isPromo && (
-            <div className="space-y-4 pt-4 border-t border-zinc-200">
+            <div className="space-y-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className={labelClass}>Promo Price</label>
                   <Input className="h-11 rounded-xl text-emerald-600 font-bold" type="number" value={form.promoPrice} onChange={handle("promoPrice")} />
                 </div>
                 <div>
-                  <label className={labelClass}>Label</label>
-                  <Input className="h-11 rounded-xl" placeholder="20% OFF" value={form.promoLabel} onChange={handle("promoLabel")} />
+                  <label className={labelClass}>Promo Label</label>
+                  <Input className="h-11 rounded-xl" placeholder="e.g. 20% OFF" value={form.promoLabel} onChange={handle("promoLabel")} />
                 </div>
-                <div>
-                  <label className={labelClass}>Season</label>
-                  <Select value={form.promoSeason} onValueChange={(v) => setForm(p => ({ ...p, promoSeason: v }))}>
-                    <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select Season" /></SelectTrigger>
-                    <SelectContent>
-                      {SEASON_OPTIONS.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
+                <div className="md:col-span-2">
                   <label className={labelClass}>Expiry Date</label>
                   <Input className="h-11 rounded-xl" type="date" value={form.promoExpiry} onChange={handle("promoExpiry")} />
                 </div>
               </div>
+              <p className="text-[9px] text-zinc-400 italic text-center">
+                *System ID "{form.promoSeason}" will be linked to this promo automatically.
+              </p>
             </div>
           )}
         </div>
@@ -244,7 +245,7 @@ const AddCar = () => {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full h-14 rounded-2xl bg-zinc-900 text-white font-bold uppercase tracking-[0.2em]"
+          className="w-full h-14 rounded-2xl bg-zinc-900 dark:bg-white dark:text-black text-white font-bold uppercase tracking-[0.2em] hover:opacity-90 transition-opacity"
         >
           {loading ? "Deploying..." : "Add to Inventory"}
         </Button>

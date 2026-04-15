@@ -37,7 +37,6 @@ const CarsSchema = new mongoose.Schema({
   promoLabel:  { type: String, default: null, trim: true },
   promoSeason: {
     type: String,
-    enum: ["summer", "christmas", "valentines", "halloween", "new_year", "payday", "sale", null],
     default: null,
   },
   promoExpiry: { type: Date, default: null },

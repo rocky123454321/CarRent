@@ -37,7 +37,7 @@ const AdminSidebarLayout = ({ isOpen, onClose }) => {
       {/* Brand Header */}
       <div className="h-[80px] px-6 flex items-center justify-between border-b border-zinc-50 dark:border-zinc-900/50">
         <Link to="/admin" className="flex items-center gap-2">
-          <img src={img} alt="Car Rent Logo" width={110} className="dark:brightness-125 transition-all" />
+          <img src={img} alt="Car Rent Logo" width={110} className=" dark:brightness-0 transition-all dark:invert opacity-90" />
         </Link>
         <button
           onClick={onClose}

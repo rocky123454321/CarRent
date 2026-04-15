@@ -74,9 +74,7 @@ const FlashDealPage = () => {
                 {discountPercent}%
               </h2>
               <p className="text-white/90 text-sm sm:text-base font-black uppercase tracking-widest mb-1">OFF</p>
-              <p className="text-white/70 text-[10px] sm:text-xs font-medium max-w-[200px] sm:max-w-[260px] mb-6 sm:mb-8">
-                {dailyDeals.length} random vehicle{dailyDeals.length !== 1 ? 's' : ''} today. New discount & picks every midnight.
-              </p>
+              
 
               {/* Timer */}
               <div className="flex gap-3 sm:gap-4">

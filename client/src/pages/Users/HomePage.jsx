@@ -8,7 +8,7 @@ import { useRentalStore } from '../../store/RentalStore';
 import { useCarStore } from '../../store/CarStore';
 import PromoSection from '../../components/user/PromoSection';
 import carImage from "../../assets/1.png";
-
+import Card from "../../components/user/Cards.jsx"
 /* ─── STATUS STYLES ─── */
 const STATUS_STYLE = {
   pending:   { bg: 'bg-amber-50 dark:bg-amber-900/10',   text: 'text-amber-600 dark:text-amber-500',  label: 'Pending'   },
@@ -354,7 +354,6 @@ const CardSkeleton = () => (
   </div>
 );
 
-/* ─── SCROLLABLE CARDS ─── */
 /* ─── SCROLLABLE CARDS UPDATED ─── */
 const ScrollableCards = ({ limit, onSelect, isLoading }) => {
   const { cars = [], searchQuery } = useCarStore();
@@ -397,88 +396,35 @@ const ScrollableCards = ({ limit, onSelect, isLoading }) => {
 
   return (
     <div className="relative group/scroll px-1">
-      {/* Scroll Buttons */}
+      {/* Scroll Buttons - Visible on Hover */}
       <button
         onClick={() => scroll('left')}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-30 h-10 w-10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-full items-center justify-center shadow-lg border border-zinc-200 dark:border-zinc-800 hidden md:group-hover/scroll:flex transition-all hover:scale-110"
+        className="absolute left-[-10px] top-1/2 -translate-y-1/2 z-30 h-10 w-10 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-xl border border-zinc-100 dark:border-zinc-800 opacity-0 group-hover/scroll:opacity-100 transition-all hover:scale-110"
       >
         <ChevronLeft size={20} className="text-zinc-900 dark:text-white" />
       </button>
+      
       <button
         onClick={() => scroll('right')}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-30 h-10 w-10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-full items-center justify-center shadow-lg border border-zinc-200 dark:border-zinc-800 hidden md:group-hover/scroll:flex transition-all hover:scale-110"
+        className="absolute right-[-10px] top-1/2 -translate-y-1/2 z-30 h-10 w-10 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-xl border border-zinc-100 dark:border-zinc-800 opacity-0 group-hover/scroll:opacity-100 transition-all hover:scale-110"
       >
         <ChevronRight size={20} className="text-zinc-900 dark:text-white" />
       </button>
 
-      <div ref={scrollRef} className="overflow-x-auto hide-scrollbar -mx-4 px-4 scroll-smooth">
-        <div className="flex gap-4 w-max pb-4">
+      {/* The Scroll Container */}
+      <div 
+        ref={scrollRef} 
+        className="overflow-x-auto hide-scrollbar -mx-4 px-4 scroll-smooth"
+      >
+        <div className="flex gap-4 w-max pb-6">
           {displayCars.map((car) => (
-            <div
-              key={car._id}
-              onClick={() => onSelect && onSelect(car)}
-              className="group flex-shrink-0 w-[220px] bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-[2rem] overflow-hidden hover:shadow-xl hover:shadow-zinc-500/5 transition-all duration-300 cursor-pointer relative"
-            >
-              {/* ✅ PROMO BADGE */}
-              {car.isPromo && (
-                <div className="absolute top-3 left-3 z-10 bg-rose-500 text-white text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-md">
-                  {car.promoLabel || "Promo"}
-                </div>
-              )}
-
-              {/* Header */}
-              <div className="flex items-start justify-between p-4 pb-0">
-                <div className="truncate pr-2">
-                  <h3 className="font-bold text-xs text-zinc-900 dark:text-white tracking-tighter truncate">
-                    {car.brand} {car.model}
-                  </h3>
-                  <p className="text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-0.5">
-                    {car.year} · {car.color}
-                  </p>
-                </div>
-                <Gift size={12} className={car.isPromo ? "text-rose-500" : "text-zinc-300 dark:text-zinc-700"} />
-              </div>
-
-              {/* Image Area */}
-              <div className="mx-3 my-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl flex justify-center items-center p-4 h-28">
-                <img
-                  src={car.image || carImage}
-                  alt={car.model}
-                  className="max-h-full w-auto object-contain transition-all duration-500 group-hover:scale-110 group-hover:-rotate-2"
-                />
-              </div>
-
-              {/* Price & Action Footer */}
-              <div className="flex items-center justify-between border-t border-zinc-50 dark:border-zinc-900 px-4 py-3 bg-zinc-50/50 dark:bg-zinc-900/20">
-                <div className="flex flex-col">
-                  <span className="text-[7px] text-zinc-400 font-bold uppercase tracking-widest leading-none mb-1">Rate</span>
-                  
-                  {/* ✅ DYNAMIC PRICING */}
-                  <div className="flex flex-col">
-                    {car.isPromo && (
-                      <span className="text-[8px] text-zinc-300 dark:text-zinc-600 line-through font-bold leading-none">
-                        ₱{car.pricePerDay.toLocaleString()}
-                      </span>
-                    )}
-                    <div className="flex items-baseline gap-0.5">
-                      <span className={`text-sm font-black leading-none ${car.isPromo ? 'text-rose-500' : 'text-zinc-900 dark:text-white'}`}>
-                        ₱{(car.isPromo ? car.promoPrice : car.pricePerDay).toLocaleString()}
-                      </span>
-                      <span className="text-[8px] text-zinc-400 font-medium">/day</span>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  className={`h-7 w-7 flex items-center justify-center rounded-full transition-all duration-300 ${
-                    car.isPromo ? 'bg-rose-500 text-white' : 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950'
-                  }`}
-                  onClick={(e) => { e.stopPropagation(); onSelect && onSelect(car); }}
-                >
-                  <ChevronRight size={12} />
-                </button>
-              </div>
-            </div>
+            // Dito tinatawag yung inimport mong Card component
+            <Card 
+              key={car._id} 
+              car={car} 
+              onSelect={onSelect} 
+              carImagePlaceholder={carImage} // I-pass mo yung default image if kailangan
+            />
           ))}
         </div>
       </div>
@@ -619,8 +565,6 @@ const HomePage = () => {
 
   
 
-      {/* ── 3. My Rentals Strip (connected to MyRentals data + chat) ── */}
-      <MyRentalsStrip userRentals={userRentals || []} navigate={navigate} />
 
       {/* ── 4. Premium Fleet ── */}
       <section className="px-1">

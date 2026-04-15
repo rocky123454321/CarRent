@@ -150,10 +150,8 @@ const Chat = ({
     <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 bg-zinc-50/20 dark:bg-black/10 custom-scrollbar">
       {!activeConversation ? (
         <div className="flex flex-col items-center justify-center h-full text-center">
-          <div className="w-20 h-20 bg-zinc-50 dark:bg-zinc-900 rounded-full flex items-center justify-center mb-6 border border-zinc-100 dark:border-zinc-800">
-             <Sparkles size={32} className="text-zinc-200 dark:text-zinc-800" />
-          </div>
-          <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-[0.2em]">Select an Agent</h3>
+
+          <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-[0.2em]">Select Chat</h3>
           <p className="text-xs text-zinc-400 mt-2">Pick a conversation from the sidebar to begin.</p>
         </div>
       ) : loadingMessages ? (
