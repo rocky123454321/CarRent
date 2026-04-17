@@ -192,7 +192,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
                     <span className="text-white dark:text-zinc-900 font-black text-xs uppercase">{car.uploadedBy?.name?.charAt(0) || 'A'}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-widest">Host</p>
+                    <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-widest">RENTER</p>
                     <p className="text-xs md:text-sm font-black text-zinc-900 dark:text-white truncate">{car.uploadedBy?.name || 'Authorized Admin'}</p>
                   </div>
                   <button onClick={handleChatWithAdmin} className="h-9 w-9 md:h-10 md:w-10 flex items-center justify-center rounded-full bg-white dark:bg-zinc-800 hover:bg-zinc-900 dark:hover:bg-white hover:text-white dark:hover:text-zinc-900 transition-all active:scale-90 shadow-sm">

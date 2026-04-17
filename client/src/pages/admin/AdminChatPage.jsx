@@ -2,13 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { useChatStore } from "../../store/chatStore.js";
 import { useAuthStore } from "../../store/authStore.js";
 import { useLocation } from "react-router-dom";
-import { Send, Inbox, Search, Sparkles, ArrowLeft, MoreVertical, ShieldCheck } from "lucide-react";
+import { Send, Inbox, Search, ArrowLeft, MoreVertical, ShieldCheck } from "lucide-react";
 
 const Skeleton = ({ className }) => (
   <div className={`bg-zinc-100 dark:bg-zinc-900 animate-pulse rounded-xl ${className}`} />
 );
 
-// ── Sidebar Component ──
 const Sidebar = ({
   font, searchTerm, setSearchTerm, isConnected,
   conversationUserIds, loadingConversations,
@@ -18,13 +17,10 @@ const Sidebar = ({
   <div className="flex flex-col h-full bg-white dark:bg-zinc-950 w-full border-r border-zinc-100 dark:border-zinc-900 transition-colors duration-300" style={font}>
     <div className="p-6 space-y-4 shrink-0">
       <div className="flex items-center justify-between">
-        <div>
-        
-          <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Messages</h2>
-        </div>
+        <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Messages</h2>
         <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border transition-all
-          ${isConnected 
-            ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
+          ${isConnected
+            ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
             : 'bg-zinc-100 text-zinc-400 border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800'}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-400'}`} />
           {isConnected ? 'LIVE' : 'OFFLINE'}
@@ -69,14 +65,14 @@ const Sidebar = ({
               key={userId}
               onClick={() => selectConversation(userId)}
               className={`w-full flex items-center gap-4 px-4 py-4 rounded-[1.5rem] transition-all duration-300 group
-                ${isActive 
-                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 shadow-xl shadow-zinc-900/10' 
+                ${isActive
+                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 shadow-xl shadow-zinc-900/10'
                   : 'hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-400'}`}
             >
               <div className="relative shrink-0">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-sm transition-all
-                  ${isActive 
-                    ? 'bg-white/10 dark:bg-zinc-900/10 scale-105' 
+                  ${isActive
+                    ? 'bg-white/10 dark:bg-zinc-900/10 scale-105'
                     : 'bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800'}`}>
                   {getDisplayName(userId).charAt(0).toUpperCase()}
                 </div>
@@ -86,12 +82,10 @@ const Sidebar = ({
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-start mb-0.5">
-                  <p className="text-[13px] font-bold truncate leading-none uppercase tracking-tight">
-                    {getDisplayName(userId)}
-                  </p>
-                </div>
-                <p className={`text-[11px] truncate font-medium ${isActive ? 'opacity-70' : 'text-zinc-400'}`}>
+                <p className="text-[13px] font-bold truncate leading-none uppercase tracking-tight">
+                  {getDisplayName(userId)}
+                </p>
+                <p className={`text-[11px] truncate font-medium mt-0.5 ${isActive ? 'opacity-70' : 'text-zinc-400'}`}>
                   {getLastMessage(userId)}
                 </p>
               </div>
@@ -103,7 +97,6 @@ const Sidebar = ({
   </div>
 );
 
-// ── Chat View Component ──
 const Chat = ({
   font, activeConversation, setMobileView,
   onlineUsers, getDisplayName,
@@ -112,13 +105,9 @@ const Chat = ({
   user, message, handleTyping, handleSend, isConnected,
 }) => (
   <div className="flex flex-col h-full w-full bg-white dark:bg-zinc-950 transition-colors duration-300" style={font}>
-    {/* Chat Header */}
     <div className="px-6 py-5 border-b border-zinc-100 dark:border-zinc-900 flex items-center justify-between shrink-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md z-10">
       <div className="flex items-center gap-4 min-w-0">
-        <button
-          onClick={() => setMobileView("sidebar")}
-          className="md:hidden p-2.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-xl transition shrink-0"
-        >
+        <button onClick={() => setMobileView("sidebar")} className="md:hidden p-2.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-xl transition shrink-0">
           <ArrowLeft size={18} />
         </button>
         {activeConversation && (
@@ -128,8 +117,8 @@ const Chat = ({
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                 <p className="font-bold text-zinc-900 dark:text-white text-[15px] leading-tight truncate uppercase tracking-tight">{getDisplayName(activeConversation)}</p>
-                 <ShieldCheck size={14} className="text-emerald-500 shrink-0" />
+                <p className="font-bold text-zinc-900 dark:text-white text-[15px] leading-tight truncate uppercase tracking-tight">{getDisplayName(activeConversation)}</p>
+                <ShieldCheck size={14} className="text-emerald-500 shrink-0" />
               </div>
               <div className="flex items-center gap-1.5">
                 <span className={`w-1.5 h-1.5 rounded-full ${onlineUsers.includes(activeConversation) ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-300 dark:bg-zinc-700'}`} />
@@ -146,11 +135,9 @@ const Chat = ({
       </button>
     </div>
 
-    {/* Message Area */}
     <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 bg-zinc-50/20 dark:bg-black/10 custom-scrollbar">
       {!activeConversation ? (
         <div className="flex flex-col items-center justify-center h-full text-center">
-
           <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-[0.2em]">Select Chat</h3>
           <p className="text-xs text-zinc-400 mt-2">Pick a conversation from the sidebar to begin.</p>
         </div>
@@ -184,13 +171,11 @@ const Chat = ({
           );
         })
       )}
-
       {userIsTyping && (
         <div className="flex justify-start">
           <div className="bg-white dark:bg-zinc-900 rounded-2xl px-4 py-3 border border-zinc-100 dark:border-zinc-800 flex gap-1.5 items-center">
             {[0, 150, 300].map(delay => (
-              <span key={delay} className="w-1.5 h-1.5 bg-zinc-400 dark:bg-zinc-600 rounded-full animate-bounce"
-                style={{ animationDelay: `${delay}ms` }} />
+              <span key={delay} className="w-1.5 h-1.5 bg-zinc-400 dark:bg-zinc-600 rounded-full animate-bounce" style={{ animationDelay: `${delay}ms` }} />
             ))}
           </div>
         </div>
@@ -198,7 +183,6 @@ const Chat = ({
       <div ref={messagesEndRef} className="h-4" />
     </div>
 
-    {/* Input Area */}
     <div className="p-6 bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-900 shrink-0">
       <div className="flex gap-3 items-end max-w-6xl mx-auto">
         <div className="flex-1 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-[2rem] flex items-center px-6 py-1 transition-all">
@@ -207,9 +191,7 @@ const Chat = ({
             rows={1}
             value={message}
             onChange={handleTyping}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-            }}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
             placeholder="Type your secure message..."
             className="flex-1 bg-transparent border-none focus:ring-0 text-xs py-4 resize-none max-h-32 font-medium text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none uppercase tracking-widest"
           />
@@ -227,11 +209,10 @@ const Chat = ({
 );
 
 const AdminChatPage = () => {
-  // ── Logic: Do Not Touch ──
   const { user } = useAuthStore();
   const location = useLocation();
   const {
-    initializeSocket, disconnectSocket,
+    initializeSocket,
     sendPrivateMessage, setActiveConversation,
     setTyping, conversations, typingUsers,
     isConnected, onlineUsers, activeConversation, userProfiles,
@@ -247,24 +228,30 @@ const AdminChatPage = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const font = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const conversationUserIds = Object.keys(conversations)
+  .filter(id => {
+    // 1. I-exclude ang sarili mong ID
+    const isNotMe = id !== user?._id;
 
-  const conversationUserIds = Object.keys(conversations)
-    .filter(id => {
-      const name = userProfiles[id] || id;
-      return name.toLowerCase().includes(searchTerm.toLowerCase());
-    })
-    .sort((a, b) => {
-      const aLast = conversations[a]?.slice(-1)[0]?.timestamp || 0;
-      const bLast = conversations[b]?.slice(-1)[0]?.timestamp || 0;
-      return bLast - aLast;
-    });
+    // 2. I-check kung nag-match sa search term
+    const name = userProfiles[id] || id;
+    const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    // Dapat TRUE pareho para lumabas sa listahan
+    return isNotMe && matchesSearch;
+  })
+  .sort((a, b) => {
+    const aLast = conversations[a]?.slice(-1)[0]?.timestamp || 0;
+    const bLast = conversations[b]?.slice(-1)[0]?.timestamp || 0;
+    return bLast - aLast;
+  });
 
   const activeMessages = conversations[activeConversation] || [];
   const userIsTyping = activeConversation ? typingUsers[activeConversation] : false;
 
+  // ✅ NO disconnectSocket in cleanup — socket stays alive
   useEffect(() => {
     if (user?._id) initializeSocket(user._id);
-    return () => disconnectSocket();
   }, [user?._id]);
 
   useEffect(() => {
@@ -317,24 +304,13 @@ const AdminChatPage = () => {
     handleTyping, handleSend, setMobileView,
   };
 
-  // ── UI Return: Fixed for Full Width ──
   return (
     <div className="flex flex-col w-full h-[90vh] mt-13 bg-white dark:bg-zinc-950 overflow-hidden animate-in fade-in duration-700" style={font}>
       <div className="flex flex-1 overflow-hidden">
-        
-        {/* Desktop Sidebar */}
-        <div className={`
-          ${mobileView === "sidebar" ? "flex" : "hidden"} 
-          md:flex w-full md:w-80 lg:w-96 shrink-0 flex-col
-        `}>
+        <div className={`${mobileView === "sidebar" ? "flex" : "hidden"} md:flex w-full md:w-80 lg:w-96 shrink-0 flex-col`}>
           <Sidebar {...sharedProps} searchTerm={searchTerm} setSearchTerm={setSearchTerm} conversationUserIds={conversationUserIds} loadingConversations={loadingConversations} />
         </div>
-
-        {/* Mobile/Desktop Chat View */}
-        <div className={`
-          ${mobileView === "chat" ? "flex" : "hidden"} 
-          md:flex flex-1 flex-col min-w-0
-        `}>
+        <div className={`${mobileView === "chat" ? "flex" : "hidden"} md:flex flex-1 flex-col min-w-0`}>
           <Chat {...sharedProps} />
         </div>
       </div>
@@ -342,4 +318,4 @@ const AdminChatPage = () => {
   );
 };
 
-export default AdminChatPage;
+export default AdminChatPage;      

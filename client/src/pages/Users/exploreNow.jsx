@@ -311,11 +311,11 @@ const ExploreNow = () => {
   const [date, setDate] = useState(new Date());
   useEffect(() => { getCars(); }, [getCars]);
 
-  const promoCars = (cars || []).filter(car => {
+const promoCars = (cars || []).filter(car => {
     const match = !searchQuery || `${car.brand} ${car.model} ${car.color}`.toLowerCase().includes(searchQuery.toLowerCase());
-    return match && car.isPromo === true && (!car.promoExpiry || new Date(car.promoExpiry) >= new Date());
-  });
-
+    const isOccupied = car.status === 'occupied' || car.isAvailable === false || car.occupied === true;
+    return match && car.isPromo === true && !isOccupied && (!car.promoExpiry || new Date(car.promoExpiry) >= new Date());
+});
   const expiredPromos = (cars || []).filter(car => {
     const match = !searchQuery || `${car.brand} ${car.model} ${car.color}`.toLowerCase().includes(searchQuery.toLowerCase());
     return match && car.isPromo === true && car.promoExpiry && new Date(car.promoExpiry) < new Date();

@@ -268,13 +268,18 @@ const ChatPage = () => {
     return () => clearTimeout(t);
   }, []);
 
-  const conversationUserIds = useMemo(() => {
-    return Object.keys(conversations).sort((a, b) => {
-      const aLast = conversations[a]?.slice(-1)[0]?.timestamp || 0;
-      const bLast = conversations[b]?.slice(-1)[0]?.timestamp || 0;
-      return bLast - aLast;
-    });
-  }, [conversations]);
+ const conversationUserIds = useMemo(() => {
+    return Object.keys(conversations)
+      // 1. DAGDAG NA FILTER: Alisin ang sarili mong ID
+      .filter(id => id !== user?._id)
+      
+      // 2. EXISTING SORT: Panatilihin ang pagkakasunod-sunod base sa oras
+      .sort((a, b) => {
+        const aLast = conversations[a]?.slice(-1)[0]?.timestamp || 0;
+        const bLast = conversations[b]?.slice(-1)[0]?.timestamp || 0;
+        return bLast - aLast;
+      });
+  }, [conversations, user?._id]); // Idagdag ang user?._id sa dependencies
 
   const filteredConversations = useMemo(() => {
     if (!searchQuery) return conversationUserIds;

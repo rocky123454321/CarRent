@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, Mail, ArrowUpRight } from "lucide-react";
 
 const faqs = [
   {
@@ -26,7 +26,24 @@ const faqs = [
 
 const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState(null);
+const handleGmailClick = () => {
+  const email = "rockyjayducusin3@gmail.com";
+  const subject = "Supernova Support Inquiry";
+  const body = "Hi, I have a question about...";
+  
+  // Ito ang direct link para sa Gmail web version
+  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  
+  window.open(gmailUrl, "_blank");
+};
 
+// Gamitin sa button:
+<button 
+  onClick={handleGmailClick}
+  className="inline-flex items-center gap-2 rounded-full bg-zinc-900 dark:bg-white px-8 py-3 text-xs font-semibold text-white dark:text-zinc-900"
+>
+  Contact Support
+</button>
   return (
     <section className="bg-white dark:bg-zinc-950 py-24 px-8">
       <div className="mx-auto max-w-2xl">
@@ -73,15 +90,22 @@ const FAQSection = () => {
           })}
         </div>
 
-        {/* Support CTA */}
+        {/* Simple Email Redirect Card */}
         <div className="mt-14 rounded-2xl border border-zinc-100 dark:border-zinc-900 bg-zinc-50 dark:bg-zinc-900/40 px-8 py-10 text-center">
           <p className="text-sm font-semibold text-zinc-900 dark:text-white mb-1">Still have questions?</p>
           <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-6">
-            Can't find what you're looking for? Chat with our team.
+            Can't find what you're looking for? Reach out to our team.
           </p>
-          <button className="rounded-full bg-zinc-900 dark:bg-white px-6 py-2.5 text-xs font-semibold tracking-wide text-white dark:text-zinc-900 hover:opacity-80 transition-opacity">
+          
+          <div onClick={handleGmailClick}
+            className="inline-flex items-center gap-2 rounded-full bg-zinc-900 dark:bg-white px-8 py-3 text-xs font-semibold tracking-wide text-white dark:text-zinc-900 hover:opacity-80 transition-all shadow-md group"
+          >
+            <Mail size={14} />
             Contact Support
-          </button>
+            <ArrowUpRight size={14} className="opacity-50 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </div>
+          
+      
         </div>
 
       </div>

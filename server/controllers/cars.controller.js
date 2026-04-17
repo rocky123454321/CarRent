@@ -43,31 +43,42 @@ export const addCar = async (req, res) => {
 export const updateCar = async (req, res) => {
   try {
     const carId = req.params.id;
-    if (!carId.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ success: false, message: "Invalid Car ID" });
-    }
-
     const car = await Car.findById(carId);
     if (!car) return res.status(404).json({ success: false, message: "Car not found" });
 
-    if (req.file && car.imageId) {
-      await cloudinary.uploader.destroy(car.imageId);
-    }
+    // I-extract lahat ng fields mula sa body maliban sa image fields
+    const { image, imageId, ...otherData } = req.body;
 
     const updateData = {
-      ...req.body,
+      ...otherData,
       isPromo: req.body.isPromo === "true" || req.body.isPromo === true,
       promoPrice: req.body.promoPrice ? Number(req.body.promoPrice) : null,
-      promoSeason: req.body.promoSeason === "" ? null : req.body.promoSeason,
-      promoExpiry: req.body.promoExpiry || null,
-      ...(req.file && {
-        image: req.file.path,
-        imageId: req.file.filename,
-      }),
     };
 
-    const updated = await Car.findByIdAndUpdate(carId, updateData, { new: true });
-    res.status(200).json({ success: true, message: "Car updated successfully", car: updated });
+    // LOGIC CHECK: Dito natin malalaman kung pumasok ang file
+    if (req.file) {
+      console.log("New file detected:", req.file.path);
+      
+      // I-delete ang lumang image sa Cloudinary kung may bago
+      if (car.imageId) {
+        await cloudinary.uploader.destroy(car.imageId);
+      }
+      
+      // I-set ang bagong image details
+      updateData.image = req.file.path;
+      updateData.imageId = req.file.filename;
+    } else {
+      console.log("No new file, keeping old image.");
+      // IMPORTANT: Huwag maglagay ng updateData.image dito para hindi ma-overwrite ang luma
+    }
+
+    const updated = await Car.findByIdAndUpdate(
+      carId,
+      { $set: updateData },
+      { returnDocument: 'after' }
+    );
+
+    res.status(200).json({ success: true, car: updated });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

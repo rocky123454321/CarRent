@@ -32,8 +32,28 @@ export const AdminCards = () => {
 
   const handleUpdate = async () => {
     if (editingCar) {
-      await updateCar(editingCar._id, editingCar, preview);
+      // 1. Gumawa ng FormData
+      const formData = new FormData();
+
+      // 2. I-append ang lahat ng text fields mula sa editingCar
+      // Gumagamit tayo ng Object.keys para mabilis ma-append lahat
+      Object.keys(editingCar).forEach((key) => {
+        // Huwag isama ang 'image' muna dito kung ito ay object/file
+        if (key !== "image") {
+          formData.append(key, editingCar[key]);
+        }
+      });
+      
+
+      // 3. I-append ang image file kung may bago (na-set ito sa handleImageChange)
+      if (editingCar.image instanceof File) {
+        formData.append("image", editingCar.image);
+      }
+
+      // 4. Tawagin ang updateCar (id, formData)
+      await updateCar(editingCar._id, formData);
     }
+    
     setEditingCar(null);
     setOpenDialogId(null);
     setPreview(null);
@@ -42,7 +62,9 @@ export const AdminCards = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size * 1024 * 1024 > 5242880) return alert("Image must be under 5MB");
+   if (file.size > 10 * 1024 * 1024) {
+  return alert("Image must be under 10MB");
+}
     setEditingCar(prev => ({ ...prev, image: file }));
     const reader = new FileReader();
     reader.onloadend = () => setPreview(reader.result);

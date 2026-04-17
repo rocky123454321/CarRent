@@ -453,10 +453,13 @@ const MyRentalsStrip = ({ userRentals, navigate }) => {
         </button>
       </div>
 
+
       <div className="flex flex-col gap-3">
         {recent.map((rental) => {
           const s = STATUS_STYLE[rental.status] || STATUS_STYLE.pending;
           const adminId = rental.car?.uploadedBy?._id || rental.car?.uploadedBy;
+
+
 
           return (
             <div

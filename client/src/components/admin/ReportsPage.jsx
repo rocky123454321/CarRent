@@ -9,12 +9,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartContainer, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Zinc-focused Chart Config
+
 const pieChartConfig = {
-  pending:   { label: "Pending",   color: "hsl(var(--zinc-400))" },
-  confirmed: { label: "Confirmed", color: "hsl(var(--zinc-900))" },
-  completed: { label: "Completed", color: "hsl(var(--zinc-200))" },
-  cancelled: { label: "Cancelled", color: "hsl(var(--zinc-600))" },
+  pending:   { label: "Pending",   color: "#e4e4e7" }, // Zinc-200 (Lightest)
+  confirmed: { label: "Confirmed", color: "#a1a1aa" }, // Zinc-400
+  completed: { label: "Completed", color: "#52525b" }, // Zinc-600
+  cancelled: { label: "Cancelled", color: "#18181b" }, // Zinc-900 (Darkest)
 };
 
 const statusBadge = (status) => ({
