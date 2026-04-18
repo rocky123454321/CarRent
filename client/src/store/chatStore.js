@@ -3,6 +3,31 @@ import { io } from 'socket.io-client';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+// ─── API helpers ────────────────────────────────────────────────────────────
+const api = {
+  getNotifications: () =>
+    fetch(`${API_URL}/api/notifications`, { credentials: 'include' })
+      .then((r) => r.json()),
+
+  markOneRead: (id) =>
+    fetch(`${API_URL}/api/notifications/${id}/read`, {
+      method: 'PATCH',
+      credentials: 'include',
+    }),
+
+  markAllRead: () =>
+    fetch(`${API_URL}/api/notifications/read-all`, {
+      method: 'PATCH',
+      credentials: 'include',
+    }),
+
+  clearAll: () =>
+    fetch(`${API_URL}/api/notifications`, {
+      method: 'DELETE',
+      credentials: 'include',
+    }),
+};
+
 export const useChatStore = create((set, get) => ({
   socket: null,
   isConnected: false,
@@ -15,14 +40,32 @@ export const useChatStore = create((set, get) => ({
   notifications: [],
   _currentUserId: null,
 
+  // ─── NEW: fetch notifications from DB on mount ───────────────────────────
+  fetchNotifications: async () => {
+    try {
+      const res = await api.getNotifications();
+      if (res.success) {
+        // Rebuild unreadCounts from DB data
+        const unreadCounts = {};
+        res.notifications.forEach((n) => {
+          if (!n.read && n.type === 'chat' && n.userId) {
+            unreadCounts[n.userId] = (unreadCounts[n.userId] || 0) + (n.unreadCount || 1);
+          }
+        });
+        set({ notifications: res.notifications, unreadCounts });
+      }
+    } catch (err) {
+      console.error('fetchNotifications error:', err);
+    }
+  },
+
   initializeSocket: (userId) => {
     const state = get();
-
-    // ✅ Already connected for this exact user — do nothing
     if (state.socket?.connected && state._currentUserId === userId) return;
-
-    // Cleanup old socket if switching users
     if (state.socket) state.socket.disconnect();
+
+    // ✅ Fetch persisted notifications from DB on init
+    get().fetchNotifications();
 
     const socket = io(API_URL, {
       withCredentials: true,
@@ -88,10 +131,7 @@ export const useChatStore = create((set, get) => ({
         }
 
         return {
-          conversations: {
-            ...s.conversations,
-            [otherUserId]: [...prev, data],
-          },
+          conversations: { ...s.conversations, [otherUserId]: [...prev, data] },
           userProfiles: {
             ...s.userProfiles,
             ...(fromUserName ? { [fromUserId]: fromUserName } : {}),
@@ -149,7 +189,7 @@ export const useChatStore = create((set, get) => ({
       }));
     });
 
-    // ── Pending messages (offline messages — also create notifications) ──
+    // ── Pending messages ──
     socket.on('pending-messages', (pending = []) => {
       set((s) => {
         const nextConv     = { ...s.conversations };
@@ -163,7 +203,6 @@ export const useChatStore = create((set, get) => ({
           if (msg.fromUserName) nextProfiles[msg.fromUserId] = msg.fromUserName;
           if (msg.toUserName)   nextProfiles[msg.toUserId]   = msg.toUserName;
 
-          // Build notification per sender
           if (msg.fromUserId !== userId) {
             const exists = pendingNotifs.find((n) => n.userId === msg.fromUserId);
             if (exists) {
@@ -185,7 +224,6 @@ export const useChatStore = create((set, get) => ({
           }
         });
 
-        // Merge notifications
         let merged = [...s.notifications];
         pendingNotifs.forEach((n) => {
           const idx = merged.findIndex((m) => m.type === 'chat' && m.userId === n.userId);
@@ -255,12 +293,14 @@ export const useChatStore = create((set, get) => ({
     get().loadHistory(userId);
   },
 
+  // ─── Updated: also persist to DB ────────────────────────────────────────
   markNotificationRead: (notifId) => {
     set((s) => ({
       notifications: s.notifications.map((n) =>
         n.id === notifId ? { ...n, read: true } : n
       ),
     }));
+    api.markOneRead(notifId).catch(console.error);
   },
 
   markAllRead: () => {
@@ -268,11 +308,14 @@ export const useChatStore = create((set, get) => ({
       notifications: s.notifications.map((n) => ({ ...n, read: true })),
       unreadCounts: {},
     }));
+    api.markAllRead().catch(console.error);
   },
 
-  clearNotifications: () => set({ notifications: [], unreadCounts: {} }),
+  clearNotifications: () => {
+    set({ notifications: [], unreadCounts: {} });
+    api.clearAll().catch(console.error);
+  },
 
-  // ✅ Only call this on actual LOGOUT — never on page navigation
   disconnectSocket: () => {
     const { socket } = get();
     if (socket) {

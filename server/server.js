@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import { connectDb } from './db/connectDb.js';
 import { initSocket } from './socket.js';
-
+import notificationRoutes from './routes/notification.route.js';
 import authRoutes from './routes/auth.route.js';
 import carRoutes from './routes/car.routes.js';
 import rentalRoutes from './routes/rental.routes.js';
@@ -42,7 +42,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/cars', carRoutes);
 app.use('/api/users', rentalRoutes);
 app.use('/api/ratings', ratingRoutes);
-
+app.use('/api/notifications', notificationRoutes);
 initSocket(io);
 
 const PORT = process.env.PORT || 5000;

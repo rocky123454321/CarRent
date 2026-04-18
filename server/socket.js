@@ -1,11 +1,39 @@
 import { Message } from './models/Message.model.js';
 import { User } from './models/user.model.js';
+import { Notification } from './models/notification.model.js'; // ✅ NEW
 import mongoose from 'mongoose';
 
 const onlineUsers = new Map(); // userId -> socketId
 
 export const getIO = () => _io;
 let _io = null;
+
+// ✅ NEW: Save notification to DB
+async function saveNotification(recipientId, data) {
+  try {
+    if (data.type === 'chat') {
+      // Upsert chat notifications — one row per sender, increment count
+      await Notification.findOneAndUpdate(
+        { recipient: recipientId, type: 'chat', senderId: data.senderId },
+        {
+          $set: {
+            senderName: data.senderName,
+            message:    data.message,
+            timestamp:  data.timestamp || new Date(),
+            read:       false,
+          },
+          $inc: { unreadCount: 1 },
+        },
+        { upsert: true, new: true }
+      );
+    } else {
+      // new-booking / booking-status → always a new row
+      await Notification.create({ recipient: recipientId, ...data });
+    }
+  } catch (err) {
+    console.error('saveNotification error:', err.message);
+  }
+}
 
 export const initSocket = (io) => {
   _io = io;
@@ -65,15 +93,13 @@ export const initSocket = (io) => {
     };
 
     onlineUsers.set(userId, socket.id);
-
-    // Broadcast updated online list
     io.emit('online-users', Array.from(onlineUsers.keys()));
 
     setTimeout(async () => {
       await emitConversationUsers();
     }, 100);
 
-    // ── Deliver any unread messages that arrived while offline ──
+    // ── Deliver pending offline messages ──
     try {
       const pending = await Message.find({
         toUserId: currentUserObjectId,
@@ -157,6 +183,15 @@ export const initSocket = (io) => {
           saved.read = true;
           await saved.save();
         }
+
+        // ✅ Always save to DB — so notification survives refresh whether online or offline
+        await saveNotification(toUserObjectId, {
+          type:       'chat',
+          senderId:   currentUserObjectId,
+          senderName: fromUser?.name || 'User',
+          message:    saved.message,
+          timestamp:  saved.createdAt,
+        });
 
         socket.emit('private-message', msgData);
         socket.emit('conversation-users-refresh');
@@ -262,16 +297,48 @@ export const emitToAdmins = async (event, data) => {
         _io.to(socketId).emit(event, data);
       }
     });
+
+    // ✅ Always save new-booking notifications to DB for ALL admins
+    if (event === 'new-booking') {
+      for (const admin of admins) {
+        await saveNotification(admin._id, {
+          type:         'new-booking',
+          rentalId:     data.rentalId,
+          userId:       data.userId,
+          userName:     data.userName,
+          userEmail:    data.userEmail,
+          carBrand:     data.carBrand,
+          carModel:     data.carModel,
+          licensePlate: data.licensePlate,
+          totalPrice:   data.totalPrice,
+          message:      `New booking: ${data.carBrand} ${data.carModel}`,
+          timestamp:    data.timestamp || new Date(),
+        });
+      }
+    }
   } catch (err) {
     console.error('emitToAdmins error:', err);
   }
 };
 
 // ── Helper: emit booking notification to a specific user ──
-export const emitToUser = (userId, event, data) => {
+export const emitToUser = async (userId, event, data) => {
   if (!_io) return;
   const socketId = onlineUsers.get(userId.toString());
   if (socketId) {
     _io.to(socketId).emit(event, data);
+  }
+
+  // ✅ Always save booking-status to DB so it survives refresh
+  if (event === 'booking-status-update') {
+    await saveNotification(new mongoose.Types.ObjectId(userId), {
+      type:      'booking-status',
+      rentalId:  data.rentalId,
+      carBrand:  data.carBrand,
+      carModel:  data.carModel,
+      status:    data.status,
+      message:   `Booking ${data.status}: ${data.carBrand} ${data.carModel}`,
+      timestamp: data.timestamp || new Date(),
+    });
   }
 };
