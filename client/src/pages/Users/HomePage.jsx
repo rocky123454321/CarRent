@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getSeasonalAnnouncements } from '../../utils/seasonalAnnouncements';
-import { ChevronRight, Car, ChevronLeft, Zap, Shield, Clock, Gift } from 'lucide-react';
+import { ChevronRight, Car, ChevronLeft, Zap, Shield, Clock, Gift, Fuel, Cog, Users, ArrowRight, Tag  } from 'lucide-react';
 import CarDetailView from './CarDetailView';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
@@ -9,6 +9,8 @@ import { useCarStore } from '../../store/CarStore';
 import PromoSection from '../../components/user/PromoSection';
 import carImage from "../../assets/1.png";
 import Card from "../../components/user/Cards.jsx"
+import {} from 'lucide-react';
+import { getFlashDealData, getFlashPrice } from '../../utils/flashDeal.js';
 /* ─── STATUS STYLES ─── */
 const STATUS_STYLE = {
   pending:   { bg: 'bg-amber-50 dark:bg-amber-900/10',   text: 'text-amber-600 dark:text-amber-500',  label: 'Pending'   },
@@ -21,7 +23,8 @@ const STATUS_STYLE = {
 const LeftBanner = () => {
   const ANNOUNCEMENTS = getSeasonalAnnouncements();
   const [current, setCurrent] = useState(0);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
   useEffect(() => {
     const t = setInterval(() => setCurrent(p => (p + 1) % ANNOUNCEMENTS.length), 5000);
     return () => clearInterval(t);
@@ -83,13 +86,11 @@ const LeftBanner = () => {
 
 /* ─── RIGHT: 4 QUICK ACTION CARDS ─── */
 const RightPanel = ({ cars, userRentals, onSelect, navigate, isLoadingRentals }) => {
-  // ── CONNECTION 1: find active/approved rental from MyRentals data ──
-  // case-insensitive match in case DB returns 'Active', 'APPROVED', etc.
   const activeRental = userRentals.find(r => {
     const s = (r.status || '').toLowerCase();
     return s === 'confirmed' || s === 'pending';
   });
-  const featuredCar  = cars.filter(c => c.isAvailable).slice(0, 1)[0];
+  const featuredCar = cars.filter(c => c.isAvailable).slice(0, 1)[0];
 
   const [countdown, setCountdown] = useState('');
   useEffect(() => {
@@ -106,7 +107,6 @@ const RightPanel = ({ cars, userRentals, onSelect, navigate, isLoadingRentals })
     return () => clearInterval(t);
   }, [activeRental]);
 
-  // ── CONNECTION 2: chat support handler — goes to AdminChatPage with rental context ──
   const handleChatSupport = () => {
     if (!activeRental) return;
     const adminId = activeRental.car?.uploadedBy?._id || activeRental.car?.uploadedBy;
@@ -163,11 +163,9 @@ const RightPanel = ({ cars, userRentals, onSelect, navigate, isLoadingRentals })
         </div>
       </div>
 
-      {/* 2 — Active Rental / Book Now — CONNECTION 1 + 2 */}
+      {/* 2 — Active Rental / Book Now */}
       <div
-        onClick={() =>
-          !isLoadingRentals && navigate(activeRental ? '/my-rentals' : '/cars')
-        }
+        onClick={() => !isLoadingRentals && navigate(activeRental ? '/my-rentals' : '/cars')}
         className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg flex flex-col justify-between p-4 bg-zinc-900 dark:bg-white"
       >
         <div className="flex items-center justify-between">
@@ -186,7 +184,6 @@ const RightPanel = ({ cars, userRentals, onSelect, navigate, isLoadingRentals })
               <p className="text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mt-0.5">
                 {activeRental.car?.color} · {activeRental.car?.year}
               </p>
-              {/* status badge */}
               {(() => {
                 const s = STATUS_STYLE[activeRental.status];
                 return s ? (
@@ -203,7 +200,6 @@ const RightPanel = ({ cars, userRentals, onSelect, navigate, isLoadingRentals })
               </div>
               <ChevronRight size={14} className="text-zinc-500 dark:text-zinc-400 group-hover:translate-x-1 transition-transform" />
             </div>
-            {/* Chat support shortcut */}
             <button
               onClick={(e) => { e.stopPropagation(); handleChatSupport(); }}
               className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/10 dark:bg-zinc-900/10 text-white dark:text-zinc-900 text-[8px] font-black uppercase tracking-widest hover:bg-white/20 dark:hover:bg-zinc-900/20 transition-all"
@@ -274,7 +270,8 @@ const FlashDealCard = () => {
   };
 
   const [timeLeft, setTimeLeft] = useState('');
-const navigate = useNavigate()
+  const navigate = useNavigate();
+
   useEffect(() => {
     const tick = () => {
       const diff = getNextMidnight() - new Date();
@@ -289,7 +286,7 @@ const navigate = useNavigate()
   }, []);
 
   return (
-    <div onClick={()=>navigate('flash-deals')} className="group relative rounded-2xl overflow-hidden bg-gradient-to-br from-amber-500 to-orange-600 p-4 flex flex-col justify-between cursor-pointer hover:shadow-lg transition-all duration-300">
+    <div onClick={() => navigate('flash-deals')} className="group relative rounded-2xl overflow-hidden bg-gradient-to-br from-amber-500 to-orange-600 p-4 flex flex-col justify-between cursor-pointer hover:shadow-lg transition-all duration-300">
       <div className="flex items-center justify-between">
         <span className="text-[8px] font-black uppercase tracking-widest text-white/70">Flash Deal</span>
         <Zap size={12} className="text-white/70" />
@@ -353,11 +350,11 @@ const CardSkeleton = () => (
     </div>
   </div>
 );
-
-/* ─── SCROLLABLE CARDS UPDATED ─── */
+/* ─── SCROLLABLE CARDS ─── */
 const ScrollableCards = ({ limit, onSelect, isLoading }) => {
   const { cars = [], searchQuery } = useCarStore();
   const scrollRef = useRef(null);
+  const { discountPercent } = getFlashDealData(cars); // add this import at the top
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -380,7 +377,7 @@ const ScrollableCards = ({ limit, onSelect, isLoading }) => {
 
   if (isLoading) {
     return (
-      <div className="flex gap-4 overflow-x-hidden -mx-4 px-4">
+      <div className="flex flex-row flex-nowrap gap-4 overflow-x-hidden -mx-4 px-4">
         {[...Array(4)].map((_, i) => <CardSkeleton key={i} />)}
       </div>
     );
@@ -396,14 +393,13 @@ const ScrollableCards = ({ limit, onSelect, isLoading }) => {
 
   return (
     <div className="relative group/scroll px-1">
-      {/* Scroll Buttons - Visible on Hover */}
       <button
         onClick={() => scroll('left')}
         className="absolute left-[-10px] top-1/2 -translate-y-1/2 z-30 h-10 w-10 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-xl border border-zinc-100 dark:border-zinc-800 opacity-0 group-hover/scroll:opacity-100 transition-all hover:scale-110"
       >
         <ChevronLeft size={20} className="text-zinc-900 dark:text-white" />
       </button>
-      
+
       <button
         onClick={() => scroll('right')}
         className="absolute right-[-10px] top-1/2 -translate-y-1/2 z-30 h-10 w-10 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-xl border border-zinc-100 dark:border-zinc-800 opacity-0 group-hover/scroll:opacity-100 transition-all hover:scale-110"
@@ -411,29 +407,108 @@ const ScrollableCards = ({ limit, onSelect, isLoading }) => {
         <ChevronRight size={20} className="text-zinc-900 dark:text-white" />
       </button>
 
-      {/* The Scroll Container */}
-      <div 
-        ref={scrollRef} 
-        className="overflow-x-auto hide-scrollbar -mx-4 px-4 scroll-smooth"
-      >
-        <div className="flex gap-4 w-max pb-6">
-          {displayCars.map((car) => (
-            // Dito tinatawag yung inimport mong Card component
-            <Card 
-              key={car._id} 
-              car={car} 
-              onSelect={onSelect} 
-              carImagePlaceholder={carImage} // I-pass mo yung default image if kailangan
-            />
-          ))}
+      <div ref={scrollRef} className="overflow-x-auto hide-scrollbar -mx-4 px-4 scroll-smooth">
+        <div className="flex flex-row flex-nowrap gap-4 pb-6">
+          {displayCars.map((car) => {
+            const isFlash = car.isFlashDeal || car.flashDeal?.isActive;
+            const currentPrice = isFlash
+              ? getFlashPrice(car.pricePerDay, discountPercent)
+              : (car.isPromo ? car.promoPrice : car.pricePerDay);
+
+            return (
+              <div
+                key={car._id}
+                onClick={() => onSelect(car)}
+                className="group flex-shrink-0 w-[200px] bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-[2rem] overflow-hidden hover:shadow-xl hover:shadow-zinc-500/5 transition-all duration-300 cursor-pointer relative"
+              >
+                {/* Badge */}
+                {isFlash ? (
+                  <div className="absolute top-3 left-3 z-10 bg-amber-500 text-white text-[8px] font-black px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg uppercase tracking-widest animate-pulse">
+                    <Zap size={8} className="fill-white" /> -{discountPercent}%
+                  </div>
+                ) : car.isPromo ? (
+                  <div className="absolute top-3 left-3 z-10 bg-rose-500 text-white text-[8px] font-black px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg uppercase tracking-widest">
+                    <Tag size={8} className="fill-white" /> {car.promoLabel || "Promo"}
+                  </div>
+                ) : null}
+
+                {/* Header */}
+                <div className="flex items-start justify-between p-4 pt-8 pb-0">
+                  <div className="truncate pr-2">
+                    <h3 className="font-bold text-sm text-zinc-900 dark:text-white tracking-tighter truncate">
+                      {car.brand} {car.model}
+                    </h3>
+                    <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.18em] mt-0.5">
+                      {car.year} · {car.color}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Image */}
+                <div className="mx-4 my-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl flex justify-center items-center p-4 h-28">
+                  <img
+                    src={car.image || carImage}
+                    alt={`${car.brand} ${car.model}`}
+                    className="max-h-full w-auto object-contain transition-all duration-500 group-hover:scale-110 group-hover:-rotate-2"
+                  />
+                </div>
+
+                {/* Specs */}
+                <div className="flex justify-between px-5 py-2 border-t border-zinc-50 dark:border-zinc-900">
+                  <div className="flex flex-col items-center gap-1">
+                    <Fuel size={12} className="text-zinc-400" />
+                    <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">{car.fuelType}</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1">
+                    <Cog size={12} className="text-zinc-400" />
+                    <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">{car.transmission}</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1">
+                    <Users size={12} className="text-zinc-400" />
+                    <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide truncate max-w-[40px]">{car.mileage}</span>
+                  </div>
+                </div>
+
+                {/* Price + CTA */}
+                <div className="flex items-center justify-between border-t border-zinc-50 dark:border-zinc-900 px-5 py-4 bg-zinc-50/50 dark:bg-zinc-900/20">
+                  <div className="flex flex-col">
+                    <span className="text-[8px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest">Daily Rate</span>
+                    <div className="flex flex-col items-start leading-none">
+                      {(car.isPromo || isFlash) && (
+                        <span className="text-[9px] text-zinc-300 dark:text-zinc-600 line-through font-bold mb-0.5">
+                          ₱{car.pricePerDay.toLocaleString()}
+                        </span>
+                      )}
+                      <div className="flex items-baseline gap-1">
+                        <span className={`text-lg font-bold tracking-tight leading-none ${
+                          isFlash ? 'text-amber-500' : (car.isPromo ? 'text-rose-500' : 'text-zinc-900 dark:text-white')
+                        }`}>
+                          ₱{currentPrice?.toLocaleString()}
+                        </span>
+                        <span className="text-[8px] text-zinc-400 font-medium uppercase tracking-tighter">/day</span>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    className={`h-8 w-8 flex items-center justify-center rounded-full transition-all duration-300 shadow-sm active:scale-90 ${
+                      isFlash
+                        ? 'bg-amber-500 text-white hover:bg-amber-600'
+                        : (car.isPromo ? 'bg-rose-500 text-white hover:bg-rose-600' : 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950')
+                    }`}
+                    onClick={(e) => { e.stopPropagation(); onSelect(car); }}
+                  >
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 };
-
 /* ─── MY RENTALS PREVIEW STRIP ─── */
-// CONNECTION 3: Shows recent rentals from MyRentals data directly on HomePage
 const MyRentalsStrip = ({ userRentals, navigate }) => {
   const recent = userRentals.slice(0, 3);
   if (recent.length === 0) return null;
@@ -453,13 +528,10 @@ const MyRentalsStrip = ({ userRentals, navigate }) => {
         </button>
       </div>
 
-
       <div className="flex flex-col gap-3">
         {recent.map((rental) => {
           const s = STATUS_STYLE[rental.status] || STATUS_STYLE.pending;
           const adminId = rental.car?.uploadedBy?._id || rental.car?.uploadedBy;
-
-
 
           return (
             <div
@@ -467,12 +539,10 @@ const MyRentalsStrip = ({ userRentals, navigate }) => {
               onClick={() => navigate('/my-rentals')}
               className="group flex items-center gap-4 bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-2xl px-5 py-4 cursor-pointer hover:shadow-lg hover:shadow-zinc-500/5 transition-all duration-300"
             >
-              {/* Car icon */}
               <div className="w-11 h-11 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 flex items-center justify-center shrink-0 group-hover:border-zinc-900 dark:group-hover:border-zinc-500 transition-colors">
                 <Car size={18} className="text-zinc-900 dark:text-white" />
               </div>
 
-              {/* Info */}
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-tight truncate">
                   {rental.car?.brand} {rental.car?.model}
@@ -484,7 +554,6 @@ const MyRentalsStrip = ({ userRentals, navigate }) => {
                 </p>
               </div>
 
-              {/* Status + price */}
               <div className="flex flex-col items-end gap-1.5 shrink-0">
                 <span className={`text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${s.bg} ${s.text}`}>
                   {s.label}
@@ -494,7 +563,6 @@ const MyRentalsStrip = ({ userRentals, navigate }) => {
                 </p>
               </div>
 
-              {/* Chat shortcut — only for active/approved */}
               {(rental.status === 'confirmed' || rental.status === 'pending') && adminId && (
                 <button
                   onClick={(e) => {
@@ -557,7 +625,7 @@ const HomePage = () => {
         </h1>
       </header>
 
-      {/* ── 2. Hero: Left Banner + Right 4-Grid ── */}
+      {/* ── 2. Hero Banner ── */}
       <HeroBannerSection
         cars={cars || []}
         userRentals={userRentals || []}
@@ -566,10 +634,7 @@ const HomePage = () => {
         isLoadingRentals={isLoadingRentals}
       />
 
-  
-
-
-      {/* ── 4. Premium Fleet ── */}
+      {/* ── 3. Premium Fleet ── */}
       <section className="px-1">
         <div className="flex justify-between items-end mb-6">
           <div>
@@ -586,7 +651,7 @@ const HomePage = () => {
         <ScrollableCards limit={10} onSelect={(car) => setSelectedCar(car)} isLoading={isLoading} />
       </section>
 
-      {/* ── 5. Recommended ── */}
+      {/* ── 4. Recommended ── */}
       <section className="pt-4 px-1">
         <div className="flex justify-between items-end mb-6">
           <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Recommended Rides</h2>
