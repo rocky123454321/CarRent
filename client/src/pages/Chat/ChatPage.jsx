@@ -131,7 +131,7 @@ const Chat = ({
     </div>
 
     {/* Messages */}
-    <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 bg-zinc-50/30 dark:bg-black/20">
+    <div  className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-8 space-y-6 bg-zinc-50/30 dark:bg-black/20">
       {!activeConversation ? (
         <div className="flex flex-col items-center justify-center h-full text-zinc-200 dark:text-zinc-900 text-center px-10">
           <ShieldCheck size={60} className="mb-6 opacity-20" />
@@ -155,12 +155,14 @@ const Chat = ({
           const isMine = msg.fromUserId === user._id;
           return (
             <div key={msg._id || i} className={`flex ${isMine ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-3 duration-500`}>
-              <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[75%]`}>
+              <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[75%] min-w-0`}>
                 {/* ✅ Fixed: break-words + whitespace-pre-wrap for long messages */}
-                <div className={`px-5 py-3.5 rounded-[1.5rem] text-sm font-medium leading-relaxed shadow-sm break-words whitespace-pre-wrap min-w-0 w-full
-                  ${isMine
-                    ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 rounded-br-none'
-                    : 'bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 rounded-bl-none border border-zinc-100 dark:border-zinc-800/50'}`}>
+                <div
+  style={{ wordBreak: 'break-word', overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}
+  className={`px-5 py-3.5 rounded-[1.5rem] text-sm font-medium leading-relaxed shadow-sm
+    ${isMine
+      ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 rounded-br-none'
+      : 'bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 rounded-bl-none border border-zinc-100 dark:border-zinc-800/50'}`}>
                   {msg.message}
                 </div>
                 <span className="text-[8px] font-black text-zinc-400 dark:text-zinc-600 mt-2 px-1 uppercase tracking-[0.2em] italic">
