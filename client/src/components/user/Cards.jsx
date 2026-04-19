@@ -7,12 +7,24 @@ import { useNavigate } from "react-router-dom";
 // ✅ Import from single source of truth
 import { getFlashDealData, getFlashPrice } from '../../utils/flashDeal.js';
 
-const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect, onlyPromo }) => {
+const Cards = ({ 
+  manualData, // ✅ Added for sidebar/YouMayLike
+  limit, 
+  filterFuel, 
+  filterTransmission, 
+  filterPrice, 
+  onSelect, 
+  onlyPromo,
+  variant // ✅ Added to control grid layout
+}) => {
   const navigate = useNavigate();
-  const { cars = [], searchQuery } = useCarStore();
+  const { cars: storeCars = [], searchQuery } = useCarStore();
 
-  // ✅ Get today's flash deal data once — same discount % for all cards
-  const { discountPercent } = getFlashDealData(cars);
+  // ✅ FIX: Prioritize manualData (passed from YouMayLike) over the global store
+  const baseCars = manualData || storeCars;
+
+  // ✅ Get today's flash deal data once
+  const { discountPercent } = getFlashDealData(baseCars);
 
   const handleSelect = (car) => {
     if (onSelect) {
@@ -23,22 +35,25 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect, o
         state: {
           car,
           isFlashDeal: isFlash || false,
-          discountPercent, // ✅ Pass today's discount to CarDetailView
+          discountPercent,
         },
       });
     }
   };
 
-  const filtered = cars.filter((car) => {
+  const filtered = baseCars.filter((car) => {
     const isFlash = car.isFlashDeal || car.flashDeal?.isActive;
     const promoMatch = onlyPromo ? (car.isPromo || isFlash) : true;
-    const searchMatch = !searchQuery ||
-      `${car.brand} ${car.model} ${car.color}`.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Skip complex search matching if manualData is provided (usually for sidebar)
+    const searchMatch = manualData ? true : (!searchQuery ||
+      `${car.brand} ${car.model} ${car.color}`.toLowerCase().includes(searchQuery.toLowerCase()));
+      
     const fuelMatch = !filterFuel || filterFuel === "all" || car.fuelType === filterFuel;
     const transMatch = !filterTransmission || filterTransmission === "All" || car.transmission === filterTransmission;
+    
     const priceMatch = (() => {
       let p = car.pricePerDay;
-      // ✅ Use utility for consistent price calculation
       if (isFlash) p = getFlashPrice(car.pricePerDay, discountPercent);
       else if (car.isPromo) p = car.promoPrice;
       if (!filterPrice || filterPrice === "all") return true;
@@ -58,21 +73,21 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect, o
     return (
       <div className="flex flex-col items-center justify-center py-10 text-center">
         <p className="text-zinc-400 dark:text-zinc-500 text-sm font-medium">
-          {onlyPromo ? "No active promos available right now." : "No cars match your filters."}
-        </p>
-        <p className="text-zinc-300 dark:text-zinc-600 text-[10px] uppercase tracking-widest mt-2">
-          Try adjusting the search
+          {onlyPromo ? "No active promos available." : "No cars match your filters."}
         </p>
       </div>
     );
   }
 
+  // ✅ DYNAMIC GRID: If variant is 'compact', use 1 column. Else, use the responsive grid.
+  const gridStyle = variant === "compact" 
+    ? "grid-cols-1 gap-4" 
+    : "grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-5";
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-5">
+    <div className={`grid ${gridStyle}`}>
       {displayCars.map((car) => {
         const isFlash = car.isFlashDeal || car.flashDeal?.isActive;
-
-        // ✅ Always use utility — consistent with FlashDealPage and CarDetailView
         const currentPrice = isFlash
           ? getFlashPrice(car.pricePerDay, discountPercent)
           : (car.isPromo ? car.promoPrice : car.pricePerDay);
@@ -81,7 +96,7 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect, o
           <div
             key={car._id}
             onClick={() => handleSelect(car)}
-            className="group bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-[2rem] overflow-hidden hover:shadow-xl hover:shadow-zinc-500/5 transition-all duration-300 cursor-pointer relative"
+            className="group bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 overflow-hidden hover:shadow-xl hover:shadow-zinc-500/5 transition-all duration-300 cursor-pointer relative rounded-[2rem]"
           >
             {/* Badge */}
             {isFlash ? (
@@ -109,6 +124,7 @@ const Cards = ({ limit, filterFuel, filterTransmission, filterPrice, onSelect, o
               />
             </div>
 
+            {/* Features - Hidden or simplified if needed, but keeping for consistency */}
             <div className="flex justify-between px-5 py-2 border-t border-zinc-50 dark:border-zinc-900">
               <div className="flex flex-col items-center gap-1">
                 <Fuel size={12} className="text-zinc-400" />

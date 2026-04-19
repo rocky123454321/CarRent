@@ -47,7 +47,7 @@ const LoginPage = () => {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleLogin} className="px-10 pb-10 space-y-5">
+          <form autocomplete="off" onSubmit={handleLogin} className="px-10 pb-10 space-y-5">
 
             {/* Email */}
             <div className="space-y-2">

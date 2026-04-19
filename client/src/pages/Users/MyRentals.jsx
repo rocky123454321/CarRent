@@ -1,18 +1,24 @@
-import React, { useEffect, useState } from 'react';
+
+
+
+import React, { useEffect, useState ,useMemo} from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import Cards from '../../components/user/Cards';
 import {
   MessageSquare, Calendar, CarFront, BadgeCheck,
-  X, Trash2, ChevronDown, ChevronUp, Clock, MapPin,
+  X, Trash2, ChevronDown, ChevronUp, Clock,
   CreditCard, User, Phone, Home, Tag, Fuel, Settings2,
-  Users, TrendingUp, AlertCircle, CheckCircle2, XCircle,
-  Timer, Star, ArrowRight
+  Users, AlertCircle, CheckCircle2, XCircle,
+  Timer, ArrowRight, Sparkles, ChevronRight
 } from 'lucide-react';
 import { useRentalStore } from '../../store/RentalStore.js';
+import { useCarStore } from '../../store/CarStore.js';
 import { toast } from 'sonner';
 
-// ── STATUS MAP (matches actual DB enum: pending, confirmed, completed, cancelled) ──
+// ── STATUS MAP ──
 const STATUS = {
-  pending:   {
+  pending: {
     bg: 'bg-amber-50 dark:bg-amber-500/10',
     text: 'text-amber-600 dark:text-amber-400',
     border: 'border-amber-200 dark:border-amber-500/20',
@@ -56,7 +62,6 @@ const STATUS = {
 
 const getStatus = (s) => STATUS[s] || STATUS.pending;
 
-// ── FILTERS (maps to actual DB values) ──
 const FILTERS = [
   { key: 'all',       label: 'All'       },
   { key: 'pending',   label: 'Pending'   },
@@ -65,7 +70,6 @@ const FILTERS = [
   { key: 'cancelled', label: 'Cancelled' },
 ];
 
-// ── HELPERS ──
 const fmt = (date) =>
   new Date(date).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -80,11 +84,11 @@ const countdown = (endDate) => {
   return d > 0 ? `${d}d ${h}h remaining` : `${h}h remaining`;
 };
 
-// ── SKELETON ──
+// ── SKELETONS ──
 const RentalSkeleton = () => (
-  <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-[2rem] p-6 md:p-8 animate-pulse space-y-5">
+  <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-[2rem] p-6 animate-pulse space-y-5">
     <div className="flex gap-5 items-start">
-      <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-900 rounded-[1.25rem] shrink-0" />
+      <div className="w-14 h-14 bg-zinc-100 dark:bg-zinc-900 rounded-[1.25rem] shrink-0" />
       <div className="flex-1 space-y-3">
         <div className="flex justify-between">
           <div className="space-y-2">
@@ -93,7 +97,6 @@ const RentalSkeleton = () => (
           </div>
           <div className="h-7 w-24 bg-zinc-100 dark:bg-zinc-900 rounded-full" />
         </div>
-        <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-56" />
         <div className="grid grid-cols-3 gap-3 pt-2">
           <div className="h-14 bg-zinc-100 dark:bg-zinc-900 rounded-2xl" />
           <div className="h-14 bg-zinc-100 dark:bg-zinc-900 rounded-2xl" />
@@ -104,7 +107,21 @@ const RentalSkeleton = () => (
   </div>
 );
 
-// ── STAT MINI CARD ──
+const CarCardSkeleton = () => (
+  <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden animate-pulse">
+    <div className="h-28 bg-zinc-100 dark:bg-zinc-900" />
+    <div className="p-3 space-y-2">
+      <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-3/4" />
+      <div className="h-2 bg-zinc-100 dark:bg-zinc-900 rounded w-1/2" />
+      <div className="flex justify-between items-center mt-3">
+        <div className="h-4 bg-zinc-100 dark:bg-zinc-900 rounded w-20" />
+        <div className="h-7 bg-zinc-100 dark:bg-zinc-900 rounded-xl w-16" />
+      </div>
+    </div>
+  </div>
+);
+
+// ── MINI STAT ──
 const MiniStat = ({ label, value, icon: Icon, color = 'zinc' }) => (
   <div className="flex flex-col gap-1.5 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-2xl p-3">
     <div className="flex items-center gap-1.5">
@@ -141,11 +158,11 @@ const ConfirmDialog = ({ open, title, desc, confirmLabel, confirmColor, onConfir
 
 // ── SUMMARY STATS BAR ──
 const SummaryBar = ({ rentals }) => {
-  const total     = rentals.length;
-  const confirmed = rentals.filter(r => r.status === 'confirmed').length;
-  const pending   = rentals.filter(r => r.status === 'pending').length;
-  const completed = rentals.filter(r => r.status === 'completed').length;
-  const cancelled = rentals.filter(r => r.status === 'cancelled').length;
+  const total      = rentals.length;
+  const confirmed  = rentals.filter(r => r.status === 'confirmed').length;
+  const pending    = rentals.filter(r => r.status === 'pending').length;
+  const completed  = rentals.filter(r => r.status === 'completed').length;
+  const cancelled  = rentals.filter(r => r.status === 'cancelled').length;
   const totalSpent = rentals.filter(r => r.status !== 'cancelled').reduce((acc, r) => acc + (r.totalPrice || 0), 0);
 
   return (
@@ -178,8 +195,53 @@ const SummaryBar = ({ rentals }) => {
     </div>
   );
 };
+const YouMayLike = ({ rentedCarIds = [] }) => {
+  const { cars, getCars, isLoading } = useCarStore();
 
-// ── MAIN COMPONENT ──
+  useEffect(() => {
+    if (cars.length === 0) getCars();
+  }, [getCars, cars.length]);
+
+  const suggestedCars = useMemo(() => {
+    if (!cars || cars.length === 0) return [];
+    
+    return [...cars]
+      .filter(car => !rentedCarIds.includes(car._id))
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 5); // <--- LIMIT TO EXACTLY 5
+  }, [cars, rentedCarIds]);
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between px-1">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">
+          You May Like
+        </h3>
+        <span className="text-[9px] font-bold text-zinc-300 uppercase tracking-widest">
+          {suggestedCars.length} items
+        </span>
+      </div>
+
+      {/* ── 1 PER ROW CONTAINER ── */}
+      <div className="flex flex-col gap-4"> 
+        {isLoading ? (
+          [...Array(5)].map((_, i) => (
+            <div key={i} className="h-32 w-full bg-zinc-50 dark:bg-zinc-900/50 rounded-[2rem] animate-pulse" />
+          ))
+        ) : (
+          suggestedCars.map((car) => (
+            <div key={car._id} className="w-full">
+              <Cards 
+                manualData={[car]} // I-pass bilang single-item array
+                variant="compact" 
+              />
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
 const MyRentals = () => {
   const navigate = useNavigate();
   const { userRentals, fetchUserRentals, isLoading, cancelRental, deleteRental } = useRentalStore();
@@ -189,6 +251,8 @@ const MyRentals = () => {
   const [filter, setFilter]         = useState('all');
 
   useEffect(() => { fetchUserRentals(); }, [fetchUserRentals]);
+
+  const rentedCarIds = userRentals.map(r => r.car?._id).filter(Boolean);
 
   const handleChatSupport = (rental) => {
     const adminId = rental.car?.uploadedBy?._id || rental.car?.uploadedBy;
@@ -218,20 +282,18 @@ const MyRentals = () => {
     setDialog(null);
   };
 
-  // ── filter uses actual DB values ──
   const filtered = filter === 'all'
     ? userRentals
     : userRentals.filter(r => r.status === filter);
 
-  // canCancel: pending or confirmed (DB values)
   const canCancel = (s) => ['pending', 'confirmed'].includes(s);
   const canDelete = (s) => ['completed', 'cancelled'].includes(s);
 
   return (
-    <div className="pb-24 space-y-8" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div className="pb-24" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
 
       {/* ── HEADER ── */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div className="mb-8">
         {isLoading ? (
           <div className="space-y-3 animate-pulse">
             <div className="h-10 w-52 bg-zinc-100 dark:bg-zinc-900 rounded-xl" />
@@ -250,284 +312,288 @@ const MyRentals = () => {
         )}
       </div>
 
-      {/* ── SUMMARY STATS ── */}
-      {!isLoading && userRentals.length > 0 && <SummaryBar rentals={userRentals} />}
+      {/* ── TWO-COLUMN LAYOUT ── */}
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-      {/* ── FILTER TABS ── */}
-    
-<div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
-  {isLoading
-    ? [1, 2, 3, 4, 5].map(i => (
-        <div key={i} className="h-10 w-28 bg-zinc-100 dark:bg-zinc-900 rounded-xl shrink-0 animate-pulse" />
-      ))
-    : FILTERS.map(f => {
-        const active = filter === f.key;
-        return (
-          <button
-            key={f.key}
-            onClick={() => setFilter(f.key)}
-            className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all
-              ${active
-                ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 border-zinc-900 dark:border-white shadow-lg'
-                : 'bg-white dark:bg-zinc-950 text-zinc-400 dark:text-zinc-500 border-zinc-100 dark:border-zinc-800 hover:border-zinc-400'}`}
-          >
-            {f.label}
-          </button>
-        );
-      })
-  }
-</div>
+        {/* ── LEFT: Main Content ── */}
+        <div className="flex-1 min-w-0 space-y-6">
 
-      {/* ── RENTAL LIST ── */}
-      <div className="space-y-4">
-        {isLoading ? (
-          [1,2,3].map(i => <RentalSkeleton key={i} />)
-        ) : filtered.length === 0 ? (
-          <div className="border border-dashed border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] text-center py-24 space-y-3">
-            <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-900 rounded-2xl flex items-center justify-center mx-auto">
-              <CarFront size={22} className="text-zinc-300 dark:text-zinc-700" />
-            </div>
-            <p className="text-xs font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.3em]">No records found</p>
-            <button onClick={() => navigate('/cars')} className="inline-flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 px-5 py-2.5 rounded-xl hover:bg-zinc-900 dark:hover:bg-white hover:text-white dark:hover:text-zinc-900 transition-all">
-              Browse Cars <ArrowRight size={12} />
-            </button>
+          {!isLoading && userRentals.length > 0 && <SummaryBar rentals={userRentals} />}
+
+          {/* Filter Tabs */}
+          <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
+            {isLoading
+              ? [1,2,3,4,5].map(i => (
+                  <div key={i} className="h-10 w-28 bg-zinc-100 dark:bg-zinc-900 rounded-xl shrink-0 animate-pulse" />
+                ))
+              : FILTERS.map(f => {
+                  const active = filter === f.key;
+                  return (
+                    <button
+                      key={f.key}
+                      onClick={() => setFilter(f.key)}
+                      className={`shrink-0 px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all
+                        ${active
+                          ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 border-zinc-900 dark:border-white shadow-lg'
+                          : 'bg-white dark:bg-zinc-950 text-zinc-400 dark:text-zinc-500 border-zinc-100 dark:border-zinc-800 hover:border-zinc-400'}`}
+                    >
+                      {f.label}
+                    </button>
+                  );
+                })
+            }
           </div>
-        ) : (
-          filtered.map((rental) => {
-            const s          = getStatus(rental.status);
-            const StatusIcon = s.icon;
-            const isExpanded = expandedId === rental._id;
-            const isBusy     = processing[rental._id];
-            const days       = diffDays(rental.rentalStartDate, rental.rentalEndDate);
-            const pricePerDay = rental.car?.pricePerDay;
-            const isActive   = rental.status === 'confirmed' || rental.status === 'pending';
 
-            return (
-              <div
-                key={rental._id}
-                className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-[2rem] overflow-hidden "
-              >
-                <div className="p-5 md:p-7">
-
-                  {/* ── TOP ROW ── */}
-                  <div className="flex flex-col sm:flex-row sm:items-start gap-5">
-
-                    {/* Car Icon */}
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-zinc-50 dark:bg-zinc-900 rounded-[1.25rem] flex items-center justify-center shrink-0 border border-zinc-100 dark:border-zinc-800 group-hover:border-zinc-900 dark:group-hover:border-zinc-500 transition-colors">
-                      <CarFront size={22} className="text-zinc-900 dark:text-white" />
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-
-                      {/* Car name + status badge */}
-                      <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
-                        <div className="min-w-0">
-                          <h3 className="font-black text-zinc-900 dark:text-white text-lg uppercase tracking-tight leading-none mb-1 truncate">
-                            {rental.car?.brand} {rental.car?.model}
-                          </h3>
-                          <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-[0.2em]">
-                            {rental.car?.licensePlate || 'N/A'}
-                          </p>
-                        </div>
-                        <span className={`flex items-center gap-1.5 text-[9px] font-black px-3 py-1.5 rounded-full border shrink-0 uppercase tracking-widest ${s.bg} ${s.text} ${s.border}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${s.dot} ${s.pulse ? 'animate-pulse' : ''}`} />
-                          {s.label}
-                        </span>
-                      </div>
-
-                      {/* Status description */}
-                      <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 mb-4">{s.desc}</p>
-
-                      {/* ── MINI STATS GRID ── */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-                        <MiniStat icon={Calendar} label="Check-in"  value={fmt(rental.rentalStartDate)} color="blue" />
-                        <MiniStat icon={Calendar} label="Check-out" value={fmt(rental.rentalEndDate)}   color="blue" />
-                        <MiniStat icon={Timer}    label="Duration"  value={`${days} day${days !== 1 ? 's' : ''}`} color="violet" />
-                        <MiniStat icon={CreditCard} label="Rate/Day" value={pricePerDay ? `₱${pricePerDay.toLocaleString()}` : '—'} color="emerald" />
-                      </div>
-
-                      {/* Countdown for active */}
-                      {isActive && (
-                        <div className={`flex items-center gap-2 mb-4 px-3 py-2 rounded-xl ${s.bg} ${s.border} border`}>
-                          <Clock size={11} className={s.text} />
-                          <span className={`text-[9px] font-black uppercase tracking-widest ${s.text}`}>
-                            {rental.status === 'confirmed' ? countdown(rental.rentalEndDate) : 'Waiting for owner confirmation'}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* ── BOTTOM ROW: price + actions ── */}
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-5 border-t border-zinc-50 dark:border-zinc-900 gap-4">
-                        <div className="flex items-end gap-4">
-                          <div>
-                            <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">Total Amount</p>
-                            <p className="text-2xl font-black text-zinc-900 dark:text-white tracking-tighter leading-none">
-                              ₱{rental.totalPrice?.toLocaleString()}
-                            </p>
-                          </div>
-                          <div className="pb-0.5">
-                            <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">Duration</p>
-                            <p className="text-sm font-black text-zinc-500 dark:text-zinc-400">{days}d</p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <button
-                            onClick={() => handleChatSupport(rental)}
-                            className="h-10 px-4 flex items-center gap-2 text-[9px] font-black text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-900 dark:hover:bg-white hover:text-white dark:hover:text-zinc-900 rounded-xl transition-all uppercase tracking-widest"
-                          >
-                            <MessageSquare size={13} /> Contact
-                          </button>
-
-                          {canCancel(rental.status) && (
-                            <button
-                              disabled={isBusy}
-                              onClick={() => setDialog({ type: 'cancel', rental })}
-                              className="h-10 px-4 flex items-center gap-2 text-[9px] font-black text-amber-600 border border-amber-200 dark:border-amber-900/30 bg-amber-50 dark:bg-amber-900/10 hover:bg-amber-600 hover:text-white rounded-xl transition-all uppercase tracking-widest disabled:opacity-30"
-                            >
-                              <X size={13} /> Cancel
-                            </button>
-                          )}
-
-                          {canDelete(rental.status) && (
-                            <button
-                              disabled={isBusy}
-                              onClick={() => setDialog({ type: 'delete', rental })}
-                              className="h-10 px-4 flex items-center gap-2 text-[9px] font-black text-rose-600 border border-rose-200 dark:border-rose-900/30 bg-rose-50 dark:bg-rose-900/10 hover:bg-rose-600 hover:text-white rounded-xl transition-all uppercase tracking-widest"
-                            >
-                              <Trash2 size={13} /> Remove
-                            </button>
-                          )}
-
-                          <button
-                            onClick={() => setExpandedId(isExpanded ? null : rental._id)}
-                            className="h-10 w-10 flex items-center justify-center text-zinc-400 border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 rounded-xl transition-all"
-                          >
-                            {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+          {/* Rental List */}
+          <div className="space-y-4">
+            {isLoading ? (
+              [1,2,3].map(i => <RentalSkeleton key={i} />)
+            ) : filtered.length === 0 ? (
+              <div className="border border-dashed border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] text-center py-24 space-y-3">
+                <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-900 rounded-2xl flex items-center justify-center mx-auto">
+                  <CarFront size={22} className="text-zinc-300 dark:text-zinc-700" />
                 </div>
+                <p className="text-xs font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.3em]">No records found</p>
+                <button onClick={() => navigate('/cars')} className="inline-flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 px-5 py-2.5 rounded-xl hover:bg-zinc-900 dark:hover:bg-white hover:text-white dark:hover:text-zinc-900 transition-all">
+                  Browse Cars <ArrowRight size={12} />
+                </button>
+              </div>
+            ) : (
+              filtered.map((rental) => {
+                const s           = getStatus(rental.status);
+                const isExpanded  = expandedId === rental._id;
+                const isBusy      = processing[rental._id];
+                const days        = diffDays(rental.rentalStartDate, rental.rentalEndDate);
+                const pricePerDay = rental.car?.pricePerDay;
+                const isActive    = rental.status === 'confirmed' || rental.status === 'pending';
+                const carImage    = rental.car?.images?.[0] || rental.car?.image || null;
 
-                {/* ── EXPANDED DETAILS ── */}
-                {isExpanded && (
-                  <div className="border-t border-zinc-50 dark:border-zinc-900 bg-zinc-50/30 dark:bg-zinc-900/20 p-5 md:p-7 animate-in slide-in-from-top-2 duration-300 space-y-6">
+                return (
+                  <div key={rental._id} className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-[2rem] overflow-hidden">
+                    <div className="p-5 md:p-7">
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-5">
 
-                    {/* Section: Rental Timeline */}
-                    <div>
-                      <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                        <Calendar size={10} /> Timeline Details
-                      </h4>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 p-4 rounded-2xl">
-                          <p className="text-[8px] font-black text-zinc-400 uppercase mb-1.5">Check-in</p>
-                          <p className="text-xs font-black text-zinc-900 dark:text-white">{fmt(rental.rentalStartDate)}</p>
+                        {/* Car Image or Icon */}
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-zinc-50 dark:bg-zinc-900 rounded-[1.25rem] flex items-center justify-center shrink-0 border border-zinc-100 dark:border-zinc-800 overflow-hidden">
+                          {carImage
+                            ? <img src={carImage} alt="" className="w-full h-full object-cover" />
+                            : <CarFront size={22} className="text-zinc-900 dark:text-white" />
+                          }
                         </div>
-                        <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 p-4 rounded-2xl">
-                          <p className="text-[8px] font-black text-zinc-400 uppercase mb-1.5">Check-out</p>
-                          <p className="text-xs font-black text-zinc-900 dark:text-white">{fmt(rental.rentalEndDate)}</p>
-                        </div>
-                        <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 p-4 rounded-2xl">
-                          <p className="text-[8px] font-black text-zinc-400 uppercase mb-1.5">Total Days</p>
-                          <p className="text-xs font-black text-zinc-900 dark:text-white">{days} day{days !== 1 ? 's' : ''}</p>
-                        </div>
-                        <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 p-4 rounded-2xl">
-                          <p className="text-[8px] font-black text-zinc-400 uppercase mb-1.5">Booked On</p>
-                          <p className="text-xs font-black text-zinc-900 dark:text-white">{fmt(rental.createdAt)}</p>
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Section: Payment Breakdown */}
-                    <div>
-                      <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                        <CreditCard size={10} /> Payment Breakdown
-                      </h4>
-                      <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
-                        <div className="divide-y divide-zinc-50 dark:divide-zinc-900">
-                          <div className="flex justify-between items-center px-5 py-3">
-                            <span className="text-[10px] font-bold text-zinc-400">Rate per Day</span>
-                            <span className="text-xs font-black text-zinc-900 dark:text-white">₱{pricePerDay?.toLocaleString() || '—'}</span>
-                          </div>
-                          <div className="flex justify-between items-center px-5 py-3">
-                            <span className="text-[10px] font-bold text-zinc-400">Number of Days</span>
-                            <span className="text-xs font-black text-zinc-900 dark:text-white">{days}</span>
-                          </div>
-                          <div className="flex justify-between items-center px-5 py-3 bg-zinc-50 dark:bg-zinc-900/50">
-                            <span className="text-[10px] font-black text-zinc-900 dark:text-white uppercase tracking-widest">Total</span>
-                            <span className="text-sm font-black text-zinc-900 dark:text-white">₱{rental.totalPrice?.toLocaleString()}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Section: Car Details */}
-                    {rental.car && (
-                      <div>
-                        <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                          <CarFront size={10} /> Vehicle Details
-                        </h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                          {[
-                            { icon: Tag,      label: 'Brand',        value: rental.car.brand       },
-                            { icon: CarFront, label: 'Model',        value: rental.car.model       },
-                            { icon: Settings2,label: 'License Plate',value: rental.car.licensePlate},
-                            { icon: Fuel,     label: 'Fuel Type',    value: rental.car.fuelType    },
-                            { icon: Settings2,label: 'Transmission', value: rental.car.transmission},
-                            { icon: Users,    label: 'Capacity',     value: rental.car.seats ? `${rental.car.seats} seats` : '—' },
-                          ].map(({ icon: Icon, label, value }) => value && (
-                            <div key={label} className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl p-4">
-                              <div className="flex items-center gap-1.5 mb-1.5">
-                                <Icon size={9} className="text-zinc-400" />
-                                <p className="text-[8px] font-black text-zinc-400 uppercase tracking-wider">{label}</p>
-                              </div>
-                              <p className="text-xs font-black text-zinc-900 dark:text-white uppercase">{value}</p>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+                            <div className="min-w-0">
+                              <h3 className="font-black text-zinc-900 dark:text-white text-lg uppercase tracking-tight leading-none mb-1 truncate">
+                                {rental.car?.brand} {rental.car?.model}
+                              </h3>
+                              <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-[0.2em]">
+                                {rental.car?.licensePlate || 'N/A'}
+                              </p>
                             </div>
-                          ))}
+                            <span className={`flex items-center gap-1.5 text-[9px] font-black px-3 py-1.5 rounded-full border shrink-0 uppercase tracking-widest ${s.bg} ${s.text} ${s.border}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${s.dot} ${s.pulse ? 'animate-pulse' : ''}`} />
+                              {s.label}
+                            </span>
+                          </div>
+
+                          <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 mb-4">{s.desc}</p>
+
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+                            <MiniStat icon={Calendar}   label="Check-in"  value={fmt(rental.rentalStartDate)} color="blue" />
+                            <MiniStat icon={Calendar}   label="Check-out" value={fmt(rental.rentalEndDate)}   color="blue" />
+                            <MiniStat icon={Timer}      label="Duration"  value={`${days} day${days !== 1 ? 's' : ''}`} color="violet" />
+                            <MiniStat icon={CreditCard} label="Rate/Day"  value={pricePerDay ? `₱${pricePerDay.toLocaleString()}` : '—'} color="emerald" />
+                          </div>
+
+                          {isActive && (
+                            <div className={`flex items-center gap-2 mb-4 px-3 py-2 rounded-xl ${s.bg} ${s.border} border`}>
+                              <Clock size={11} className={s.text} />
+                              <span className={`text-[9px] font-black uppercase tracking-widest ${s.text}`}>
+                                {rental.status === 'confirmed' ? countdown(rental.rentalEndDate) : 'Waiting for owner confirmation'}
+                              </span>
+                            </div>
+                          )}
+
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-5 border-t border-zinc-50 dark:border-zinc-900 gap-4">
+                            <div className="flex items-end gap-4">
+                              <div>
+                                <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">Total Amount</p>
+                                <p className="text-2xl font-black text-zinc-900 dark:text-white tracking-tighter leading-none">
+                                  ₱{rental.totalPrice?.toLocaleString()}
+                                </p>
+                              </div>
+                              <div className="pb-0.5">
+                                <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">Duration</p>
+                                <p className="text-sm font-black text-zinc-500 dark:text-zinc-400">{days}d</p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <button
+                                onClick={() => handleChatSupport(rental)}
+                                className="h-10 px-4 flex items-center gap-2 text-[9px] font-black text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-900 dark:hover:bg-white hover:text-white dark:hover:text-zinc-900 rounded-xl transition-all uppercase tracking-widest"
+                              >
+                                <MessageSquare size={13} /> Contact
+                              </button>
+
+                              {canCancel(rental.status) && (
+                                <button
+                                  disabled={isBusy}
+                                  onClick={() => setDialog({ type: 'cancel', rental })}
+                                  className="h-10 px-4 flex items-center gap-2 text-[9px] font-black text-amber-600 border border-amber-200 dark:border-amber-900/30 bg-amber-50 dark:bg-amber-900/10 hover:bg-amber-600 hover:text-white rounded-xl transition-all uppercase tracking-widest disabled:opacity-30"
+                                >
+                                  <X size={13} /> Cancel
+                                </button>
+                              )}
+
+                              {canDelete(rental.status) && (
+                                <button
+                                  disabled={isBusy}
+                                  onClick={() => setDialog({ type: 'delete', rental })}
+                                  className="h-10 px-4 flex items-center gap-2 text-[9px] font-black text-rose-600 border border-rose-200 dark:border-rose-900/30 bg-rose-50 dark:bg-rose-900/10 hover:bg-rose-600 hover:text-white rounded-xl transition-all uppercase tracking-widest"
+                                >
+                                  <Trash2 size={13} /> Remove
+                                </button>
+                              )}
+
+                              <button
+                                onClick={() => setExpandedId(isExpanded ? null : rental._id)}
+                                className="h-10 w-10 flex items-center justify-center text-zinc-400 border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 rounded-xl transition-all"
+                              >
+                                {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    )}
+                    </div>
 
-                    {/* Section: Renter Info */}
-                    {rental.personalDetails && (
-                      <div>
-                        <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                          <User size={10} /> Renter Information
-                        </h4>
-                        <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
-                          <div className="divide-y divide-zinc-50 dark:divide-zinc-900">
+                    {/* Expanded Details */}
+                    {isExpanded && (
+                      <div className="border-t border-zinc-50 dark:border-zinc-900 bg-zinc-50/30 dark:bg-zinc-900/20 p-5 md:p-7 animate-in slide-in-from-top-2 duration-300 space-y-6">
+                        <div>
+                          <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                            <Calendar size={10} /> Timeline Details
+                          </h4>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             {[
-                              { icon: User,   label: 'Full Name', value: rental.personalDetails.fullName },
-                              { icon: Phone,  label: 'Phone',     value: rental.personalDetails.phone    },
-                              { icon: Home,   label: 'Address',   value: rental.personalDetails.address  },
-                            ].map(({ icon: Icon, label, value }) => value && (
-                              <div key={label} className="flex items-center justify-between px-5 py-3 gap-4">
-                                <div className="flex items-center gap-2 shrink-0">
-                                  <Icon size={11} className="text-zinc-400" />
-                                  <span className="text-[10px] font-bold text-zinc-400">{label}</span>
-                                </div>
-                                <span className="text-xs font-black text-zinc-900 dark:text-white text-right truncate">{value}</span>
+                              { label: 'Check-in',   value: fmt(rental.rentalStartDate) },
+                              { label: 'Check-out',  value: fmt(rental.rentalEndDate)   },
+                              { label: 'Total Days', value: `${days} day${days !== 1 ? 's' : ''}` },
+                              { label: 'Booked On',  value: fmt(rental.createdAt)       },
+                            ].map(({ label, value }) => (
+                              <div key={label} className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 p-4 rounded-2xl">
+                                <p className="text-[8px] font-black text-zinc-400 uppercase mb-1.5">{label}</p>
+                                <p className="text-xs font-black text-zinc-900 dark:text-white">{value}</p>
                               </div>
                             ))}
                           </div>
                         </div>
+
+                        <div>
+                          <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                            <CreditCard size={10} /> Payment Breakdown
+                          </h4>
+                          <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
+                            <div className="divide-y divide-zinc-50 dark:divide-zinc-900">
+                              <div className="flex justify-between items-center px-5 py-3">
+                                <span className="text-[10px] font-bold text-zinc-400">Rate per Day</span>
+                                <span className="text-xs font-black text-zinc-900 dark:text-white">₱{pricePerDay?.toLocaleString() || '—'}</span>
+                              </div>
+                              <div className="flex justify-between items-center px-5 py-3">
+                                <span className="text-[10px] font-bold text-zinc-400">Number of Days</span>
+                                <span className="text-xs font-black text-zinc-900 dark:text-white">{days}</span>
+                              </div>
+                              <div className="flex justify-between items-center px-5 py-3 bg-zinc-50 dark:bg-zinc-900/50">
+                                <span className="text-[10px] font-black text-zinc-900 dark:text-white uppercase tracking-widest">Total</span>
+                                <span className="text-sm font-black text-zinc-900 dark:text-white">₱{rental.totalPrice?.toLocaleString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {rental.car && (
+                          <div>
+                            <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                              <CarFront size={10} /> Vehicle Details
+                            </h4>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                              {[
+                                { icon: Tag,       label: 'Brand',         value: rental.car.brand        },
+                                { icon: CarFront,  label: 'Model',         value: rental.car.model        },
+                                { icon: Settings2, label: 'License Plate', value: rental.car.licensePlate },
+                                { icon: Fuel,      label: 'Fuel Type',     value: rental.car.fuelType     },
+                                { icon: Settings2, label: 'Transmission',  value: rental.car.transmission },
+                                { icon: Users,     label: 'Capacity',      value: rental.car.seats ? `${rental.car.seats} seats` : '—' },
+                              ].map(({ icon: Icon, label, value }) => value && (
+                                <div key={label} className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl p-4">
+                                  <div className="flex items-center gap-1.5 mb-1.5">
+                                    <Icon size={9} className="text-zinc-400" />
+                                    <p className="text-[8px] font-black text-zinc-400 uppercase tracking-wider">{label}</p>
+                                  </div>
+                                  <p className="text-xs font-black text-zinc-900 dark:text-white uppercase">{value}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {rental.personalDetails && (
+                          <div>
+                            <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                              <User size={10} /> Renter Information
+                            </h4>
+                            <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
+                              <div className="divide-y divide-zinc-50 dark:divide-zinc-900">
+                                {[
+                                  { icon: User,  label: 'Full Name', value: rental.personalDetails.fullName },
+                                  { icon: Phone, label: 'Phone',     value: rental.personalDetails.phone    },
+                                  { icon: Home,  label: 'Address',   value: rental.personalDetails.address  },
+                                ].map(({ icon: Icon, label, value }) => value && (
+                                  <div key={label} className="flex items-center justify-between px-5 py-3 gap-4">
+                                    <div className="flex items-center gap-2 shrink-0">
+                                      <Icon size={11} className="text-zinc-400" />
+                                      <span className="text-[10px] font-bold text-zinc-400">{label}</span>
+                                    </div>
+                                    <span className="text-xs font-black text-zinc-900 dark:text-white text-right truncate">{value}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between px-5 py-3 bg-zinc-50 dark:bg-zinc-900/30 rounded-2xl border border-zinc-100 dark:border-zinc-800">
+                          <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Rental ID</span>
+                          <span className="text-[9px] font-black text-zinc-500 dark:text-zinc-400 font-mono">{rental._id}</span>
+                        </div>
                       </div>
                     )}
-
-                    {/* Section: Rental ID */}
-                    <div className="flex items-center justify-between px-5 py-3 bg-zinc-50 dark:bg-zinc-900/30 rounded-2xl border border-zinc-100 dark:border-zinc-800">
-                      <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Rental ID</span>
-                      <span className="text-[9px] font-black text-zinc-500 dark:text-zinc-400 font-mono">{rental._id}</span>
-                    </div>
-
                   </div>
-                )}
-              </div>
-            );
-          })
-        )}
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        {/* ── RIGHT: You May Like ── */}
+      <div className="w-full lg:w-72 xl:w-80 shrink-0 lg:sticky lg:top-6">
+  <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-[2.5rem] p-6 shadow-sm">
+    <YouMayLike rentedCarIds={rentedCarIds} />
+    
+    {/* Optional: Add a call to action or promo below the list */}
+    <div className="mt-6 p-4 rounded-3xl bg-zinc-900 dark:bg-zinc-100 text-center">
+      <p className="text-[9px] font-black text-white dark:text-zinc-900 uppercase tracking-widest">
+        Need Help?
+      </p>
+      <button className="mt-2 text-[10px] font-bold text-zinc-400 dark:text-zinc-500 hover:text-white transition-colors">
+        Contact Support
+      </button>
+    </div>
+  </div>
+</div>
+
       </div>
 
       {/* ── CONFIRM DIALOG ── */}

@@ -53,7 +53,7 @@ const SignUpPage = () => {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSignUp} className="px-10 pb-10 space-y-4">
+          <form autocomplete="off" onSubmit={handleSignUp} className="px-10 pb-10 space-y-4">
 
             {/* Full Name */}
             <div className="space-y-1.5">
