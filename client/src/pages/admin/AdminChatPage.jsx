@@ -104,7 +104,8 @@ const Chat = ({
   userIsTyping, messagesEndRef, inputRef,
   user, message, handleTyping, handleSend, isConnected,
 }) => (
-  <div className="flex flex-col h-full w-full bg-white dark:bg-zinc-950 transition-colors duration-300" style={font}>
+  <div className="flex flex-col h-full w-full bg-white dark:bg-zinc-950 transition-colors duration-300 overflow-hidden" style={font}>
+    {/* Header */}
     <div className="px-6 py-5 border-b border-zinc-100 dark:border-zinc-900 flex items-center justify-between shrink-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md z-10">
       <div className="flex items-center gap-4 min-w-0">
         <button onClick={() => setMobileView("sidebar")} className="md:hidden p-2.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-xl transition shrink-0">
@@ -117,7 +118,9 @@ const Chat = ({
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <p className="font-bold text-zinc-900 dark:text-white text-[15px] leading-tight truncate uppercase tracking-tight">{getDisplayName(activeConversation)}</p>
+                <p className="font-bold text-zinc-900 dark:text-white text-[15px] leading-tight truncate uppercase tracking-tight">
+                  {getDisplayName(activeConversation)}
+                </p>
                 <ShieldCheck size={14} className="text-emerald-500 shrink-0" />
               </div>
               <div className="flex items-center gap-1.5">
@@ -135,7 +138,8 @@ const Chat = ({
       </button>
     </div>
 
-    <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 bg-zinc-50/20 dark:bg-black/10 custom-scrollbar">
+    {/* ✅ Messages — overflow-x-hidden prevents horizontal scroll */}
+    <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-8 space-y-6 bg-zinc-50/20 dark:bg-black/10 custom-scrollbar">
       {!activeConversation ? (
         <div className="flex flex-col items-center justify-center h-full text-center">
           <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-[0.2em]">Select Chat</h3>
@@ -155,15 +159,20 @@ const Chat = ({
         activeMessages.map((msg, i) => {
           const isMine = msg.fromUserId === user._id;
           return (
-            <div key={msg._id || i} className={`flex ${isMine ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
-              <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[75%]`}>
-                <div className={`px-5 py-3.5 rounded-[1.8rem] text-[13px] font-medium leading-relaxed
+            <div
+              key={msg._id || i}
+              className={`flex w-full ${isMine ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}
+            >
+              {/* ✅ max-w-[75%] constrains width, min-w-0 allows shrinking */}
+              <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[75%] min-w-0`}>
+                {/* ✅ break-all forces break on ANY long unbroken string */}
+                <div className={`px-5 py-3.5 rounded-[1.8rem] text-[13px] font-medium leading-relaxed break-all overflow-hidden
                   ${isMine
                     ? 'bg-zinc-900 text-white rounded-br-none dark:bg-white dark:text-zinc-950 shadow-lg shadow-zinc-900/5'
                     : 'bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 rounded-bl-none border border-zinc-100 dark:border-zinc-800'}`}>
                   {msg.message}
                 </div>
-                <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-2 px-1 italic">
+                <span className="text-[8px] font-black text-zinc-400 dark:text-zinc-600 mt-2 px-1 uppercase tracking-[0.2em] italic">
                   {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
@@ -183,17 +192,22 @@ const Chat = ({
       <div ref={messagesEndRef} className="h-4" />
     </div>
 
+    {/* Input */}
     <div className="p-6 bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-900 shrink-0">
       <div className="flex gap-3 items-end max-w-6xl mx-auto">
-        <div className="flex-1 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-[2rem] flex items-center px-6 py-1 transition-all">
+        <div className="flex-1 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-[2rem] flex items-end px-6 py-1 transition-all">
           <textarea
             ref={inputRef}
             rows={1}
             value={message}
             onChange={handleTyping}
+            onInput={(e) => {
+              e.target.style.height = 'auto';
+              e.target.style.height = `${Math.min(e.target.scrollHeight, 128)}px`;
+            }}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
             placeholder="Type your secure message..."
-            className="flex-1 bg-transparent border-none focus:ring-0 text-xs py-4 resize-none max-h-32 font-medium text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none uppercase tracking-widest"
+            className="flex-1 bg-transparent border-none focus:ring-0 text-xs py-4 resize-none overflow-y-auto max-h-32 font-medium text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none uppercase tracking-widest"
           />
         </div>
         <button
@@ -228,28 +242,23 @@ const AdminChatPage = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const font = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
-const conversationUserIds = Object.keys(conversations)
-  .filter(id => {
-    // 1. I-exclude ang sarili mong ID
-    const isNotMe = id !== user?._id;
 
-    // 2. I-check kung nag-match sa search term
-    const name = userProfiles[id] || id;
-    const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase());
-
-    // Dapat TRUE pareho para lumabas sa listahan
-    return isNotMe && matchesSearch;
-  })
-  .sort((a, b) => {
-    const aLast = conversations[a]?.slice(-1)[0]?.timestamp || 0;
-    const bLast = conversations[b]?.slice(-1)[0]?.timestamp || 0;
-    return bLast - aLast;
-  });
+  const conversationUserIds = Object.keys(conversations)
+    .filter(id => {
+      const isNotMe = id !== user?._id;
+      const name = userProfiles[id] || id;
+      const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase());
+      return isNotMe && matchesSearch;
+    })
+    .sort((a, b) => {
+      const aLast = conversations[a]?.slice(-1)[0]?.timestamp || 0;
+      const bLast = conversations[b]?.slice(-1)[0]?.timestamp || 0;
+      return bLast - aLast;
+    });
 
   const activeMessages = conversations[activeConversation] || [];
   const userIsTyping = activeConversation ? typingUsers[activeConversation] : false;
 
-  // ✅ NO disconnectSocket in cleanup — socket stays alive
   useEffect(() => {
     if (user?._id) initializeSocket(user._id);
   }, [user?._id]);
@@ -279,6 +288,7 @@ const conversationUserIds = Object.keys(conversations)
     if (!text || !isConnected || !activeConversation) return;
     sendPrivateMessage({ toUserId: activeConversation, message: text });
     setMessage("");
+    if (inputRef.current) inputRef.current.style.height = 'auto';
     setTyping(activeConversation, false);
     clearTimeout(typingTimeout.current);
     inputRef.current?.focus();
@@ -310,7 +320,8 @@ const conversationUserIds = Object.keys(conversations)
         <div className={`${mobileView === "sidebar" ? "flex" : "hidden"} md:flex w-full md:w-80 lg:w-96 shrink-0 flex-col`}>
           <Sidebar {...sharedProps} searchTerm={searchTerm} setSearchTerm={setSearchTerm} conversationUserIds={conversationUserIds} loadingConversations={loadingConversations} />
         </div>
-        <div className={`${mobileView === "chat" ? "flex" : "hidden"} md:flex flex-1 flex-col min-w-0`}>
+        {/* ✅ overflow-hidden on chat column wrapper */}
+        <div className={`${mobileView === "chat" ? "flex" : "hidden"} md:flex flex-1 flex-col min-w-0 overflow-hidden`}>
           <Chat {...sharedProps} />
         </div>
       </div>
@@ -318,4 +329,4 @@ const conversationUserIds = Object.keys(conversations)
   );
 };
 
-export default AdminChatPage;      
+export default AdminChatPage;

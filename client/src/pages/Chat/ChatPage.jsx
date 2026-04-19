@@ -8,7 +8,6 @@ const Skeleton = ({ className }) => (
   <div className={`bg-zinc-100 dark:bg-zinc-900 animate-pulse rounded-xl ${className}`} />
 );
 
-
 const Sidebar = ({
   font, searchQuery, setSearchQuery, isConnected,
   filteredConversations, loading, onlineUsers,
@@ -18,9 +17,10 @@ const Sidebar = ({
     <div className="p-6 border-b border-zinc-100 dark:border-zinc-900 space-y-5 shrink-0">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tighter text-zinc-900 dark:text-white uppercase italic">Messages<span className="text-zinc-300 dark:text-zinc-800">.</span></h2>
+          <h2 className="text-2xl font-bold tracking-tighter text-zinc-900 dark:text-white uppercase italic">
+            Messages<span className="text-zinc-300 dark:text-zinc-800">.</span>
+          </h2>
         </div>
-       
       </div>
       <div className="relative">
         <Search size={13} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-600" />
@@ -29,7 +29,7 @@ const Sidebar = ({
           placeholder="SEARCH CONVERSATIONS..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-zinc-50 dark:bg-zinc-900/50 border  border-zinc-100 dark:border-zinc-900 rounded-2xl py-3 pl-10 pr-4 text-[10px] font-bold tracking-widest text-zinc-700 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 dark:focus:border-zinc-100 transition-all uppercase"
+          className="w-full bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-900 rounded-2xl py-3 pl-10 pr-4 text-[10px] font-bold tracking-widest text-zinc-700 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 dark:focus:border-zinc-100 transition-all uppercase"
         />
       </div>
     </div>
@@ -54,37 +54,33 @@ const Sidebar = ({
           const isOnline = onlineUsers.includes(uid);
           const isActive = activeConversation === uid;
           return (
-          <button
-  key={uid}
-  onClick={() => selectConversation(uid)}
-  className={`w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all text-left group
-    ${isActive ? 'bg-transparent' : 'hover:bg-zinc-50 dark:hover:bg-zinc-900/50'}`}
->
-  <div className="relative shrink-0">
-    {/* Profile Icon Container */}
-    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors border
-      ${isActive 
-        ? 'bg-zinc-100 dark:bg-zinc-800 border-zinc-900 dark:border-white' 
-        : 'bg-white dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800'}`}>
-      <ShieldCheck size={18} className={isActive ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-600'} />
-    </div>
-
-    {/* Status Indicator sa baba ng Profile Pic */}
-    <span className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 transition-colors
-      ${isOnline ? 'bg-emerald-500' : 'bg-red-500'}
-      ${isActive ? 'border-white dark:border-zinc-950' : 'border-white dark:border-zinc-950'}`} 
-    />
-  </div>
-
-  <div className="flex-1 min-w-0">
-    <p className={`text-xs font-bold truncate transition-colors uppercase tracking-tight ${isActive ? 'text-zinc-900 dark:text-white' : 'text-zinc-900 dark:text-zinc-100'}`}>
-      {userProfiles[uid] || 'System Admin'}
-    </p>
-    <p className={`text-[10px] truncate mt-1 transition-colors font-medium text-zinc-400 dark:text-zinc-600`}>
-      {getLastMessage(uid)}
-    </p>
-  </div>
-</button>
+            <button
+              key={uid}
+              onClick={() => selectConversation(uid)}
+              className={`w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all text-left group
+                ${isActive ? 'bg-transparent' : 'hover:bg-zinc-50 dark:hover:bg-zinc-900/50'}`}
+            >
+              <div className="relative shrink-0">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors border
+                  ${isActive
+                    ? 'bg-zinc-100 dark:bg-zinc-800 border-zinc-900 dark:border-white'
+                    : 'bg-white dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800'}`}>
+                  <ShieldCheck size={18} className={isActive ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-600'} />
+                </div>
+                <span className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 transition-colors
+                  ${isOnline ? 'bg-emerald-500' : 'bg-red-500'} border-white dark:border-zinc-950`}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={`text-xs font-bold truncate transition-colors uppercase tracking-tight
+                  ${isActive ? 'text-zinc-900 dark:text-white' : 'text-zinc-900 dark:text-zinc-100'}`}>
+                  {userProfiles[uid] || 'System Admin'}
+                </p>
+                <p className="text-[10px] truncate mt-1 transition-colors font-medium text-zinc-400 dark:text-zinc-600">
+                  {getLastMessage(uid)}
+                </p>
+              </div>
+            </button>
           );
         })
       )}
@@ -92,7 +88,6 @@ const Sidebar = ({
   </div>
 );
 
-// ── Chat View Component ──
 const Chat = ({
   font, activeConversation, setMobileView, isConnected,
   onlineUsers, activeName, isActiveOnline, carName,
@@ -101,6 +96,7 @@ const Chat = ({
   handleTyping, handleSend,
 }) => (
   <div className="flex flex-col h-full w-full bg-white dark:bg-zinc-950 transition-colors duration-300" style={font}>
+    {/* Header */}
     <div className="px-6 py-4 border-b border-zinc-100 dark:border-zinc-900 flex items-center gap-4 shrink-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl">
       <button
         onClick={() => setMobileView('sidebar')}
@@ -134,6 +130,7 @@ const Chat = ({
       )}
     </div>
 
+    {/* Messages */}
     <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 bg-zinc-50/30 dark:bg-black/20">
       {!activeConversation ? (
         <div className="flex flex-col items-center justify-center h-full text-zinc-200 dark:text-zinc-900 text-center px-10">
@@ -148,13 +145,10 @@ const Chat = ({
         ))
       ) : activeMessages.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-center px-6">
-         
-           
-            <p className="text-xs font-bold text-zinc-900 dark:text-white mb-2 uppercase tracking-widest italic">New Protocol</p>
-            <p className="text-[10px] leading-relaxed font-medium text-zinc-400 dark:text-zinc-600 uppercase tracking-tighter">
-              Communication line established for {carName ? <span className="text-zinc-900 dark:text-white font-black underline">{carName}</span> : 'support'}.
-            </p>
-          
+          <p className="text-xs font-bold text-zinc-900 dark:text-white mb-2 uppercase tracking-widest italic">New Protocol</p>
+          <p className="text-[10px] leading-relaxed font-medium text-zinc-400 dark:text-zinc-600 uppercase tracking-tighter">
+            Communication line established{carName ? ` for ${carName}` : ' for support'}.
+          </p>
         </div>
       ) : (
         activeMessages.map((msg, i) => {
@@ -162,7 +156,8 @@ const Chat = ({
           return (
             <div key={msg._id || i} className={`flex ${isMine ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-3 duration-500`}>
               <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[75%]`}>
-                <div className={`px-5 py-3.5 rounded-[1.5rem] text-sm font-medium leading-relaxed shadow-sm transition-all
+                {/* ✅ Fixed: break-words + whitespace-pre-wrap for long messages */}
+                <div className={`px-5 py-3.5 rounded-[1.5rem] text-sm font-medium leading-relaxed shadow-sm break-words whitespace-pre-wrap min-w-0 w-full
                   ${isMine
                     ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 rounded-br-none'
                     : 'bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 rounded-bl-none border border-zinc-100 dark:border-zinc-800/50'}`}>
@@ -190,20 +185,26 @@ const Chat = ({
       <div ref={messagesEndRef} className="h-4" />
     </div>
 
+    {/* Input */}
     <div className="px-6 py-6 bg-white dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-900 shrink-0">
       <div className="flex gap-3 items-end max-w-5xl mx-auto">
         <div className="flex-1 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-2xl flex items-end px-5 py-3 focus-within:border-zinc-900 dark:focus-within:border-white transition-all">
+          {/* ✅ Fixed: auto-resize textarea, removed invalid max-h-22 */}
           <textarea
             ref={inputRef}
             rows={1}
             value={message}
             onChange={handleTyping}
+            onInput={(e) => {
+              e.target.style.height = 'auto';
+              e.target.style.height = `${Math.min(e.target.scrollHeight, 128)}px`;
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
             }}
             disabled={!isConnected || !activeConversation}
             placeholder="TYPE YOUR MESSAGE..."
-            className="flex-1 bg-transparent border-none focus:ring-0 text-[11px] font-bold tracking-widest py-1 h-5 resize-none max-h-22 text-zinc-800 dark:text-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700 outline-none uppercase"
+            className="flex-1 bg-transparent border-none focus:ring-0 text-[11px] font-bold tracking-widest py-1 resize-none overflow-y-auto max-h-32 text-zinc-800 dark:text-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700 outline-none uppercase"
           />
         </div>
         <button
@@ -218,7 +219,6 @@ const Chat = ({
   </div>
 );
 
-// ── Main Page Component ──
 const ChatPage = () => {
   const { user } = useAuthStore();
   const location = useLocation();
@@ -268,18 +268,15 @@ const ChatPage = () => {
     return () => clearTimeout(t);
   }, []);
 
- const conversationUserIds = useMemo(() => {
+  const conversationUserIds = useMemo(() => {
     return Object.keys(conversations)
-      // 1. DAGDAG NA FILTER: Alisin ang sarili mong ID
       .filter(id => id !== user?._id)
-      
-      // 2. EXISTING SORT: Panatilihin ang pagkakasunod-sunod base sa oras
       .sort((a, b) => {
         const aLast = conversations[a]?.slice(-1)[0]?.timestamp || 0;
         const bLast = conversations[b]?.slice(-1)[0]?.timestamp || 0;
         return bLast - aLast;
       });
-  }, [conversations, user?._id]); // Idagdag ang user?._id sa dependencies
+  }, [conversations, user?._id]);
 
   const filteredConversations = useMemo(() => {
     if (!searchQuery) return conversationUserIds;
@@ -305,6 +302,8 @@ const ChatPage = () => {
     if (!text || !isConnected || !activeConversation) return;
     sendPrivateMessage({ toUserId: activeConversation, message: text });
     setMessage('');
+    // ✅ Reset textarea height after send
+    if (inputRef.current) inputRef.current.style.height = 'auto';
     setTyping(activeConversation, false);
     clearTimeout(typingTimeout.current);
     inputRef.current?.focus();
@@ -338,9 +337,9 @@ const ChatPage = () => {
     handleTyping, handleSend, setMobileView,
     activeName, isActiveOnline, carName,
   };
-//
+
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in duration-700 md:p-8 " style={font}>
+    <div className="flex flex-col gap-6 animate-in fade-in duration-700 md:p-8" style={font}>
       <button
         onClick={() => navigate(-1)}
         className="flex lg:hidden md:hidden items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition w-fit italic"
@@ -352,12 +351,10 @@ const ChatPage = () => {
         className="flex overflow-hidden lg:rounded-[2rem] lg:border border-zinc-100 dark:border-zinc-900 shadow-2xl shadow-zinc-200/50 dark:shadow-none bg-white dark:bg-zinc-950 transition-all duration-500"
         style={{ height: 'calc(100vh - 160px)' }}
       >
-      
         <div className="hidden md:flex w-80 border-r border-zinc-100 dark:border-zinc-900 shrink-0 flex-col">
           <Sidebar {...sharedProps} searchQuery={searchQuery} setSearchQuery={setSearchQuery} filteredConversations={filteredConversations} />
         </div>
 
-       
         <div className="flex md:hidden flex-1 min-w-0 overflow-hidden">
           {mobileView === 'sidebar'
             ? <Sidebar {...sharedProps} searchQuery={searchQuery} setSearchQuery={setSearchQuery} filteredConversations={filteredConversations} />
@@ -365,7 +362,6 @@ const ChatPage = () => {
           }
         </div>
 
-      
         <div className="hidden md:flex flex-1 min-w-0 flex-col overflow-hidden">
           <Chat {...sharedProps} />
         </div>
