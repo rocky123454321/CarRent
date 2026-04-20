@@ -15,7 +15,15 @@ router.post('/:id/rent',    verifyToken, rentCar);
 router.post('/:id/return',  verifyToken, returnCar);
 
 // ── ADMIN ROUTES ─────────────────────────────────
-router.post('/',    verifyToken, upload.single('image'), addCar);
+router.post(
+  '/',
+  verifyToken,
+  upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'images', maxCount: 2 },
+  ]),
+  addCar
+);
 router.put('/:id',  verifyToken, upload.single('image'), updateCar);
 router.delete('/:id', verifyToken, deleteCar);
 router.delete('/delete/:id', verifyToken, Settings);

@@ -22,7 +22,7 @@ const CarDetailView = ({ car: carProp, onBack }) => {
 
   // Flash deal detection — from route state (FlashDealPage) or car prop (HomePage)
   const isFlashDealRoute  = state?.isFlashDeal || false;
-  const discountPercent   = state?.discountPercent || null; // passed from FlashDealPage
+  const discountPercent   = state?.discountPercent || null;
   const isFlash           = isFlashDealRoute || car?.isFlashDeal || car?.flashDeal?.isActive;
   const isPromo           = car?.isPromo && !isFlash;
 
@@ -47,6 +47,9 @@ const CarDetailView = ({ car: carProp, onBack }) => {
   const [reviewRating, setReviewRating]       = useState(0);
   const [reviewText, setReviewText]           = useState('');
 
+  // ✅ Track which thumbnail is selected (0, 1, or 2)
+  const [selectedImage, setSelectedImage] = useState(0);
+
   useEffect(() => {
     if (car?._id) fetchRatings(car._id);
     return () => reset();
@@ -56,6 +59,11 @@ const CarDetailView = ({ car: carProp, onBack }) => {
     document.body.style.overflow = showBookingForm ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [showBookingForm]);
+
+  // ✅ Reset selected image when car changes
+  useEffect(() => {
+    setSelectedImage(0);
+  }, [car?._id]);
 
   const submitReview = async (e) => {
     e.preventDefault();
@@ -91,7 +99,13 @@ const CarDetailView = ({ car: carProp, onBack }) => {
     );
   }
 
-  const mainImage = car.image || carImage;
+  // ✅ Build image list from available gallery images, then fill remaining slots with the main image.
+  const baseImage = car.image || car.images?.[0] || carImage;
+  const galleryImages = Array.isArray(car.images) ? car.images.filter(Boolean) : [];
+  const imageList = [...galleryImages];
+  while (imageList.length < 3) {
+    imageList.push(baseImage);
+  }
 
   return (
     <div className="space-y-4 md:space-y-6 pb-20 transition-colors duration-300">
@@ -107,11 +121,13 @@ const CarDetailView = ({ car: carProp, onBack }) => {
       <div className="bg-white dark:bg-zinc-900/40 rounded-[2rem] md:rounded-[2.5rem] mx-1 md:mx-0">
         <div className="flex flex-col lg:flex-row">
 
-          {/* Image */}
+          {/* ✅ Image Section with clickable thumbnails */}
           <div className="lg:w-[55%] p-4 md:p-8 space-y-4 md:space-y-6">
+
+            {/* Main large image */}
             <div className="bg-zinc-50 dark:bg-zinc-900 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center h-56 md:h-72 lg:h-[480px] overflow-hidden group relative">
 
-              {/* ✅ Flash badge shows today's actual discount % */}
+              {/* Flash badge */}
               {isFlash && (
                 <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10 bg-amber-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full flex items-center gap-2 shadow-lg animate-pulse">
                   <Zap size={11} className="fill-white" />
@@ -128,19 +144,60 @@ const CarDetailView = ({ car: carProp, onBack }) => {
                 </div>
               )}
 
-              <img src={mainImage} alt={`${car.brand} ${car.model}`} className="h-full object-contain p-4 md:p-8 transition-transform duration-1000 group-hover:scale-110" />
+              {/* ✅ Main image — swaps based on selectedImage index */}
+              <img
+                key={selectedImage}
+                src={imageList[selectedImage]}
+                alt={`${car.brand} ${car.model}`}
+                className="h-full object-contain p-4 md:p-8 transition-all duration-500 ease-in-out group-hover:scale-110"
+                style={{ animation: 'fadeIn 0.3s ease-in-out' }}
+              />
+
+              {/* ✅ Dot indicators at bottom of main image */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+                {imageList.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setSelectedImage(i)}
+                    className={`rounded-full transition-all duration-200 ${
+                      selectedImage === i
+                        ? 'w-4 h-1.5 bg-zinc-900 dark:bg-white'
+                        : 'w-1.5 h-1.5 bg-zinc-400 dark:bg-zinc-600 hover:bg-zinc-600 dark:hover:bg-zinc-400'
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
 
+            {/* ✅ Clickable thumbnails */}
             <div className="grid grid-cols-3 gap-3 md:gap-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-zinc-50 dark:bg-zinc-900 rounded-xl md:rounded-2xl flex items-center justify-center h-20 md:h-24 overflow-hidden cursor-pointer transition-all group">
-                  <img src={mainImage} alt={`view ${i}`} className="h-[60%] object-contain opacity-40 group-hover:opacity-100 transition-opacity" />
-                </div>
+              {imageList.map((img, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setSelectedImage(i)}
+                  className={`bg-zinc-50 dark:bg-zinc-900 rounded-xl md:rounded-2xl flex items-center justify-center h-20 md:h-24 overflow-hidden transition-all duration-200 relative
+                    ${selectedImage === i
+                      ? 'ring-2 ring-zinc-900 dark:ring-white scale-[1.04] shadow-lg'
+                      : 'opacity-50 hover:opacity-90 hover:scale-[1.02]'
+                    }`}
+                >
+                  <img
+                    src={img}
+                    alt={`View ${i + 1}`}
+                    className="h-[65%] object-contain transition-all duration-200"
+                  />
+                  {/* Active indicator overlay */}
+                  {selectedImage === i && (
+                    <div className="absolute inset-0 rounded-xl md:rounded-2xl ring-2 ring-inset ring-zinc-900/10 dark:ring-white/10" />
+                  )}
+                </button>
               ))}
             </div>
           </div>
 
-          {/* Details */}
+          {/* Details — unchanged */}
           <div className="lg:w-[45%] p-6 md:p-10 flex flex-col justify-between">
             <div>
               <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
@@ -218,7 +275,6 @@ const CarDetailView = ({ car: carProp, onBack }) => {
                     )}
                   </div>
 
-                  {/* ✅ Flash label shows exact % and savings */}
                   {isFlash && (
                     <div className="mt-1 space-y-0.5">
                       <p className="text-[8px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-1">
@@ -340,6 +396,14 @@ const CarDetailView = ({ car: carProp, onBack }) => {
           </div>
         </div>
       )}
+
+      {/* ✅ Fade-in keyframe for image swap animation */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.97); }
+          to   { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
     </div>
   );
 };

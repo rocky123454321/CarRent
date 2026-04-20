@@ -15,7 +15,9 @@ const CarsSchema = new mongoose.Schema({
   currentRenter:   { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   rentalStartDate: { type: Date },
   rentalEndDate:   { type: Date },
-  image:   { type: String, default: "" },
+  image: { type: String, default: "" },
+  images: { type: [String], default: [] },
+  imageIds: { type: [String], default: [] },
   imageId: { type: String, default: "" },
 
   // ✅ ADMIN-SET PROMOS (Manual)

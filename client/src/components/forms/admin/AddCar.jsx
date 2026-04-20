@@ -11,7 +11,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ImagePlus, X, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
-// I-import ang utility function mo (siguraduhin na tama ang path)
 import { getSeasonalAnnouncements } from "../../../utils/seasonalAnnouncements";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -21,16 +20,20 @@ const AddCar = () => {
     brand: "", model: "", year: "", color: "",
     pricePerDay: "", mileage: "", fuelType: "Petrol",
     transmission: "Automatic", licensePlate: "",
-    isAvailable: true, image: null,
+    isAvailable: true,
     isPromo: false, promoPrice: "", promoLabel: "",
-    promoSeason: "", 
+    promoSeason: "",
     promoExpiry: "",
   };
 
-  const [form, setForm] = useState(initialState);
-  const [preview, setPreview] = useState(null);
+  const [form, setForm]       = useState(initialState);
   const [loading, setLoading] = useState(false);
-  const fileInputRef = useRef(null);
+
+  // ✅ Support up to 3 images — each slot has a file + preview
+  const [images, setImages] = useState([null, null, null]);       // File objects
+  const [previews, setPreviews] = useState([null, null, null]);   // Base64 strings
+
+  const fileInputRefs = [useRef(null), useRef(null), useRef(null)];
 
   const { user } = useAuthStore();
   const fetchAdminCars = useAdminCarStore((s) => s.fetchAdminCars);
@@ -38,27 +41,20 @@ const AddCar = () => {
   // --- AUTOMATIC SEASON SYNC ---
   useEffect(() => {
     if (form.isPromo) {
-      // Kunin ang active announcements base sa logic ng SeasonalAnnouncement file
       const announcements = getSeasonalAnnouncements();
-      
-      // Hanapin ang pinaka-unang 'promo' type announcement (yung may pinakamataas na priority)
-      const currentPromo = announcements.find(a => a.type === 'promo');
-      
-      // Default Expiry: +7 days from today
+      const currentPromo  = announcements.find(a => a.type === 'promo');
+
       const expiryDate = new Date();
       expiryDate.setDate(expiryDate.getDate() + 7);
       const expiryString = expiryDate.toISOString().split('T')[0];
 
       setForm(prev => ({
         ...prev,
-        // Kunin ang ID mula sa announcement (e.g., 'summer-promo' o 'payday-sale')
         promoSeason: currentPromo ? currentPromo.id : "general-sale",
         promoExpiry: prev.promoExpiry || expiryString,
-        // Kung walang manually typed label, gamitin yung title mula sa announcement
-        promoLabel: prev.promoLabel || (currentPromo ? currentPromo.title.toUpperCase() : "SPECIAL DEAL")
+        promoLabel:  prev.promoLabel  || (currentPromo ? currentPromo.title.toUpperCase() : "SPECIAL DEAL")
       }));
     } else {
-      // Reset promo fields kapag in-uncheck ang promo
       setForm(prev => ({ ...prev, promoSeason: "", promoPrice: "", promoLabel: "" }));
     }
   }, [form.isPromo]);
@@ -66,25 +62,42 @@ const AddCar = () => {
   const handle = (field) => (e) =>
     setForm(prev => ({ ...prev, [field]: e.target.value }));
 
-  const handleImageChange = (e) => {
+  // ✅ Handle image upload for a specific slot (0, 1, or 2)
+  const handleImageChange = (slotIndex) => (e) => {
     const file = e.target.files[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
-    setForm(prev => ({ ...prev, image: file }));
+
+    const newImages = [...images];
+    newImages[slotIndex] = file;
+    setImages(newImages);
+
     const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result);
+    reader.onloadend = () => {
+      const newPreviews = [...previews];
+      newPreviews[slotIndex] = reader.result;
+      setPreviews(newPreviews);
+    };
     reader.readAsDataURL(file);
   };
 
-  const removeImage = () => {
-    setForm(prev => ({ ...prev, image: null }));
-    setPreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  // ✅ Remove image from a specific slot
+  const removeImage = (slotIndex) => {
+    const newImages   = [...images];
+    const newPreviews = [...previews];
+    newImages[slotIndex]   = null;
+    newPreviews[slotIndex] = null;
+    setImages(newImages);
+    setPreviews(newPreviews);
+    if (fileInputRefs[slotIndex].current) fileInputRefs[slotIndex].current.value = "";
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user?._id) { toast.error("Please login first"); return; }
+
+    // Must have at least 1 image (slot 0 = main image)
+    if (!images[0]) { toast.error("Please upload at least the main vehicle photo"); return; }
 
     if (form.isPromo && Number(form.promoPrice) >= Number(form.pricePerDay)) {
       return toast.error("Promo price must be lower than daily rate");
@@ -93,30 +106,23 @@ const AddCar = () => {
     setLoading(true);
     try {
       const formData = new FormData();
-      Object.keys(form).forEach(key => {
-        const value = form[key];
-        if (key === 'image') {
-          if (value) formData.append("image", value);
-        } else {
-          formData.append(key, value);
-        }
-      });
-
+      Object.keys(form).forEach(key => formData.append(key, form[key]));
       formData.append("uploadedBy", user._id);
 
-      const res = await fetch(`${API_URL}/api/cars`, {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
+      // ✅ Append images: slot 0 → "image" (main, backward-compatible), slots 1-2 → "images"
+      if (images[0]) formData.append("image",  images[0]);
+      if (images[1]) formData.append("images", images[1]);
+      if (images[2]) formData.append("images", images[2]);
 
+      const res  = await fetch(`${API_URL}/api/cars`, { method: "POST", body: formData, credentials: "include" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to add car");
 
       toast.success("Car added successfully!");
       fetchAdminCars();
       setForm(initialState);
-      setPreview(null);
+      setImages([null, null, null]);
+      setPreviews([null, null, null]);
     } catch (error) {
       toast.error(error.message || "Failed to add car");
     } finally {
@@ -125,6 +131,9 @@ const AddCar = () => {
   };
 
   const labelClass = "text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-500 mb-2 block";
+
+  // ✅ Slot labels for the 3 image upload areas
+  const slotLabels = ["Main Photo", "Side View", "Interior / Detail"];
 
   return (
     <div className="max-w-2xl mx-auto my-12 p-10 bg-white dark:bg-zinc-950 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-900 shadow-2xl shadow-zinc-200/50 dark:shadow-none transition-all">
@@ -137,32 +146,63 @@ const AddCar = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Image Showcase */}
+
+        {/* ✅ 3-Slot Image Upload */}
         <div>
-          <label className={labelClass}>Vehicle Showcase</label>
-          <div
-            onClick={() => !preview && fileInputRef.current?.click()}
-            className={`relative h-56 w-full rounded-[2rem] border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center cursor-pointer overflow-hidden
-              ${preview ? 'border-zinc-200 dark:border-zinc-800' : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-900'}`}
-          >
-            {preview ? (
-              <>
-                <img src={preview} alt="Preview" className="h-full w-full object-contain p-6" />
-                <button type="button" onClick={(e) => { e.stopPropagation(); removeImage(); }}
-                  className="absolute top-4 right-4 p-2 bg-zinc-900 text-white rounded-full hover:bg-red-500 transition-colors">
-                  <X size={16} />
-                </button>
-              </>
-            ) : (
-              <div className="text-center group">
-                <div className="w-16 h-16 bg-zinc-50 dark:bg-zinc-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <ImagePlus className="text-zinc-400" size={28} />
+          <label className={labelClass}>Vehicle Showcase · Up to 3 Photos</label>
+          <div className="grid grid-cols-3 gap-3 md:gap-4">
+            {[0, 1, 2].map((slot) => (
+              <div key={slot} className="space-y-1.5">
+                <div
+                  onClick={() => !previews[slot] && fileInputRefs[slot].current?.click()}
+                  className={`relative rounded-[1.5rem] border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center cursor-pointer overflow-hidden
+                    ${slot === 0 ? 'h-40' : 'h-32'}
+                    ${previews[slot]
+                      ? 'border-zinc-200 dark:border-zinc-800'
+                      : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-900 dark:hover:border-zinc-500'
+                    }`}
+                >
+                  {previews[slot] ? (
+                    <>
+                      <img src={previews[slot]} alt={`Preview ${slot + 1}`} className="h-full w-full object-contain p-3" />
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); removeImage(slot); }}
+                        className="absolute top-2 right-2 p-1.5 bg-zinc-900 text-white rounded-full hover:bg-red-500 transition-colors"
+                      >
+                        <X size={12} />
+                      </button>
+                      {/* Slot number badge */}
+                      <div className="absolute bottom-2 left-2 bg-zinc-900/70 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                        {slot === 0 ? 'Main' : `#${slot + 1}`}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center px-2">
+                      <div className={`${slot === 0 ? 'w-12 h-12' : 'w-9 h-9'} bg-zinc-50 dark:bg-zinc-900 rounded-xl flex items-center justify-center mx-auto mb-2`}>
+                        <ImagePlus className="text-zinc-400" size={slot === 0 ? 22 : 16} />
+                      </div>
+                      <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest leading-tight">
+                        {slot === 0 ? 'Add Main' : 'Add Photo'}
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Add Photo</p>
+                <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest text-center truncate">
+                  {slotLabels[slot]}
+                  {slot === 0 && <span className="text-rose-400 ml-0.5">*</span>}
+                </p>
+                <input
+                  type="file"
+                  ref={fileInputRefs[slot]}
+                  onChange={handleImageChange(slot)}
+                  className="hidden"
+                  accept="image/*"
+                />
               </div>
-            )}
+            ))}
           </div>
-          <input type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
+          <p className="text-[9px] text-zinc-400 mt-2 text-center">* Main photo is required. Side & detail photos are optional.</p>
         </div>
 
         {/* Basic Info */}
