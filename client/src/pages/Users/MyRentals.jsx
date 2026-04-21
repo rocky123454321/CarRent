@@ -1,16 +1,12 @@
-
-
-
-import React, { useEffect, useState ,useMemo} from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import Cards from '../../components/user/Cards';
 import {
   MessageSquare, Calendar, CarFront, BadgeCheck,
   X, Trash2, ChevronDown, ChevronUp, Clock,
   CreditCard, User, Phone, Home, Tag, Fuel, Settings2,
   Users, AlertCircle, CheckCircle2, XCircle,
-  Timer, ArrowRight, Sparkles, ChevronRight
+  Timer, ArrowRight, Receipt, Shield, Printer,
 } from 'lucide-react';
 import { useRentalStore } from '../../store/RentalStore.js';
 import { useCarStore } from '../../store/CarStore.js';
@@ -71,7 +67,7 @@ const FILTERS = [
 ];
 
 const fmt = (date) =>
-  new Date(date).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+  date ? new Date(date).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
 
 const diffDays = (start, end) =>
   Math.max(1, Math.ceil((new Date(end) - new Date(start)) / 86400000));
@@ -102,20 +98,6 @@ const RentalSkeleton = () => (
           <div className="h-14 bg-zinc-100 dark:bg-zinc-900 rounded-2xl" />
           <div className="h-14 bg-zinc-100 dark:bg-zinc-900 rounded-2xl" />
         </div>
-      </div>
-    </div>
-  </div>
-);
-
-const CarCardSkeleton = () => (
-  <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden animate-pulse">
-    <div className="h-28 bg-zinc-100 dark:bg-zinc-900" />
-    <div className="p-3 space-y-2">
-      <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-3/4" />
-      <div className="h-2 bg-zinc-100 dark:bg-zinc-900 rounded w-1/2" />
-      <div className="flex justify-between items-center mt-3">
-        <div className="h-4 bg-zinc-100 dark:bg-zinc-900 rounded w-20" />
-        <div className="h-7 bg-zinc-100 dark:bg-zinc-900 rounded-xl w-16" />
       </div>
     </div>
   </div>
@@ -195,6 +177,8 @@ const SummaryBar = ({ rentals }) => {
     </div>
   );
 };
+
+// ── YOU MAY LIKE ──
 const YouMayLike = ({ rentedCarIds = [] }) => {
   const { cars, getCars, isLoading } = useCarStore();
 
@@ -204,26 +188,19 @@ const YouMayLike = ({ rentedCarIds = [] }) => {
 
   const suggestedCars = useMemo(() => {
     if (!cars || cars.length === 0) return [];
-    
     return [...cars]
       .filter(car => !rentedCarIds.includes(car._id))
       .sort(() => 0.5 - Math.random())
-      .slice(0, 5); // <--- LIMIT TO EXACTLY 5
+      .slice(0, 5);
   }, [cars, rentedCarIds]);
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">
-          You May Like
-        </h3>
-        <span className="text-[9px] font-bold text-zinc-300 uppercase tracking-widest">
-          {suggestedCars.length} items
-        </span>
+        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">You May Like</h3>
+        <span className="text-[9px] font-bold text-zinc-300 uppercase tracking-widest">{suggestedCars.length} items</span>
       </div>
-
-      {/* ── 1 PER ROW CONTAINER ── */}
-      <div className="flex flex-col gap-4"> 
+      <div className="flex flex-col gap-4">
         {isLoading ? (
           [...Array(5)].map((_, i) => (
             <div key={i} className="h-32 w-full bg-zinc-50 dark:bg-zinc-900/50 rounded-[2rem] animate-pulse" />
@@ -231,10 +208,7 @@ const YouMayLike = ({ rentedCarIds = [] }) => {
         ) : (
           suggestedCars.map((car) => (
             <div key={car._id} className="w-full">
-              <Cards 
-                manualData={[car]} // I-pass bilang single-item array
-                variant="compact" 
-              />
+              <Cards manualData={[car]} variant="compact" />
             </div>
           ))
         )}
@@ -242,13 +216,307 @@ const YouMayLike = ({ rentedCarIds = [] }) => {
     </div>
   );
 };
+
+// ─────────────────────────────────────────────
+// ── RECEIPT OVERLAY MODAL ──
+// ─────────────────────────────────────────────
+const ReceiptModal = ({ rental, onClose }) => {
+  const overlayRef = useRef();
+
+  if (!rental) return null;
+
+  const days = diffDays(rental.rentalStartDate, rental.rentalEndDate);
+  const s = getStatus(rental.status);
+  const pd = rental.personalDetails || {};
+  const pi = rental.paymentInfo || {};
+  const bookingRef = rental.bookingRef || rental._id?.slice(-8).toUpperCase();
+  const paidAt = rental.paidAt || fmt(rental.createdAt);
+
+  const checks = [
+    { label: 'Booking Reference',  value: bookingRef,               ok: !!bookingRef },
+    { label: 'Payment Timestamp',  value: paidAt,                   ok: !!paidAt },
+    { label: 'Cardholder on File', value: pd.fullName || '—',       ok: !!pd.fullName },
+    { label: 'Card (masked)',      value: pi.cardLastFour ? `${pi.brand || ''} •••• ${pi.cardLastFour}` : '—', ok: !!pi.cardLastFour },
+    { label: 'Transaction Status', value: rental.status === 'cancelled' ? 'Cancelled' : 'Verified', ok: rental.status !== 'cancelled' },
+  ];
+  const allOk = checks.every(c => c.ok);
+
+  const handleOverlayClick = (e) => {
+    if (e.target === overlayRef.current) onClose();
+  };
+
+  const handlePrint = () => {
+    const win = window.open('', '_blank');
+    win.document.write(`
+      <html><head><title>Receipt – ${bookingRef}</title>
+      <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Courier New',monospace;background:#fff;color:#111;padding:36px;max-width:460px;margin:0 auto}
+        .logo{font-size:24px;font-weight:900;letter-spacing:-1.5px;margin-bottom:2px}
+        .tagline{font-size:9px;color:#999;text-transform:uppercase;letter-spacing:3px;margin-bottom:4px}
+        .ref-row{font-size:10px;color:#666;margin-bottom:28px;padding-bottom:12px;border-bottom:1px dashed #ddd}
+        hr{border:none;border-top:1px dashed #ddd;margin:14px 0}
+        .sec{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:#aaa;margin-bottom:10px}
+        .row{display:flex;justify-content:space-between;font-size:12px;margin:5px 0}
+        .muted{color:#888}
+        .total-row{display:flex;justify-content:space-between;font-size:17px;font-weight:900;margin-top:4px}
+        .stamp{text-align:center;margin-top:28px;padding:16px;border:2.5px solid ${allOk ? '#16a34a' : '#d97706'};border-radius:12px;color:${allOk ? '#16a34a' : '#d97706'};font-weight:900;font-size:13px;letter-spacing:4px;text-transform:uppercase}
+        .footer{text-align:center;font-size:9px;color:#bbb;margin-top:20px;line-height:1.8}
+        .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+        .cell{background:#f5f5f5;border-radius:8px;padding:10px}
+        .cell-lbl{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:#aaa;margin-bottom:4px}
+        .cell-val{font-size:12px;font-weight:900}
+        .cell-sub{font-size:10px;color:#888;margin-top:3px}
+      </style></head><body>
+      <div class="logo">DriveEasy</div>
+      <div class="tagline">Official Rental Receipt</div>
+      <div class="ref-row">Booking Ref: <strong>${bookingRef}</strong> &nbsp;·&nbsp; Paid: ${paidAt}</div>
+      <div class="sec">Vehicle</div>
+      <div class="row"><span>${rental.car?.brand || ''} ${rental.car?.model || ''}</span><span>₱${rental.car?.pricePerDay?.toLocaleString() || '—'}/day</span></div>
+      <div class="row"><span class="muted">License Plate</span><span>${rental.car?.licensePlate || '—'}</span></div>
+      <hr/>
+      <div class="sec">Trip Details</div>
+      <div class="grid2">
+        <div class="cell">
+          <div class="cell-lbl">Pick-up</div>
+          <div class="cell-val">${rental.pickupLocation || '—'}</div>
+          <div class="cell-sub">${fmt(rental.rentalStartDate)}${rental.pickupTime ? ' · ' + rental.pickupTime : ''}</div>
+        </div>
+        <div class="cell">
+          <div class="cell-lbl">Drop-off</div>
+          <div class="cell-val">${rental.dropoffLocation || '—'}</div>
+          <div class="cell-sub">${fmt(rental.rentalEndDate)}${rental.dropoffTime ? ' · ' + rental.dropoffTime : ''}</div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px"><span class="muted">Duration</span><span>${days} day${days !== 1 ? 's' : ''}</span></div>
+      <hr/>
+      <div class="sec">Renter</div>
+      <div class="row"><span class="muted">Name</span><span>${pd.fullName || '—'}</span></div>
+      <div class="row"><span class="muted">Phone</span><span>${pd.phone || '—'}</span></div>
+      <div class="row"><span class="muted">Address</span><span>${pd.address || '—'}</span></div>
+      <hr/>
+      <div class="sec">Payment</div>
+      <div class="row"><span class="muted">Card</span><span>${pi.brand ? pi.brand + ' ' : ''}${pi.cardLastFour ? '•••• ' + pi.cardLastFour : '—'}</span></div>
+      <div class="row"><span class="muted">Rate × Days</span><span>₱${rental.car?.pricePerDay?.toLocaleString() || '—'} × ${days}</span></div>
+      <hr/>
+      <div class="total-row"><span>TOTAL PAID</span><span>₱${rental.totalPrice?.toLocaleString()}</span></div>
+      <div class="stamp">${allOk ? '✓ Payment Verified' : '⚠ Review Required'}</div>
+      <div class="footer">DriveEasy · Official Receipt<br/>Keep this for your records.<br/>Transaction ID: ${rental._id}</div>
+    </body></html>`);
+    win.document.close();
+    win.print();
+  };
+
+  return (
+    <div
+      ref={overlayRef}
+      onClick={handleOverlayClick}
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4"
+      style={{
+        background: 'rgba(9,9,11,0.78)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+      }}
+    >
+      <div
+        className="relative bg-white dark:bg-zinc-950 w-full sm:max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden"
+        style={{ maxHeight: '92dvh' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Mobile drag handle */}
+        <div className="flex justify-center pt-3 pb-1 sm:hidden">
+          <div className="w-10 h-1 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
+        </div>
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-900">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-2xl bg-zinc-900 dark:bg-white flex items-center justify-center shrink-0">
+              <Receipt size={14} className="text-white dark:text-zinc-900" />
+            </div>
+            <div>
+              <p className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-tight leading-none">Rental Receipt</p>
+              <p className="text-[9px] font-bold text-zinc-400 font-mono mt-0.5 tracking-widest">{bookingRef}</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-9 h-9 flex items-center justify-center rounded-2xl border border-zinc-100 dark:border-zinc-800 text-zinc-400 hover:bg-zinc-900 dark:hover:bg-white hover:text-white dark:hover:text-zinc-900 transition-all"
+          >
+            <X size={15} />
+          </button>
+        </div>
+
+        {/* Scrollable body */}
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(92dvh - 145px)' }}>
+          <div className="p-6 space-y-5">
+
+            {/* Brand banner */}
+            <div className="bg-zinc-900 dark:bg-zinc-100 rounded-2xl px-5 py-4 flex items-center justify-between">
+              <div>
+                <p className="font-black text-white dark:text-zinc-900 text-base tracking-tighter leading-none">DriveEasy</p>
+                <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-[0.2em] mt-0.5">Official Rental Receipt</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider">Paid At</p>
+                <p className="text-[11px] font-black text-white dark:text-zinc-900 mt-0.5">{paidAt}</p>
+              </div>
+            </div>
+
+            {/* Vehicle */}
+            <div className="flex items-center gap-4 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-2xl p-4">
+              <div className="w-12 h-12 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 flex items-center justify-center overflow-hidden shrink-0">
+                {rental.car?.images?.[0]
+                  ? <img src={rental.car.images[0]} alt="" className="w-full h-full object-cover" />
+                  : <CarFront size={18} className="text-zinc-400" />
+                }
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight truncate">
+                  {rental.car?.brand} {rental.car?.model}
+                </p>
+                <p className="text-[10px] text-zinc-400 font-bold">
+                  {rental.car?.licensePlate || 'N/A'} · ₱{rental.car?.pricePerDay?.toLocaleString()}/day
+                </p>
+              </div>
+              <span className={`text-[9px] font-black px-2.5 py-1.5 rounded-xl border uppercase tracking-widest shrink-0 ${s.bg} ${s.text} ${s.border}`}>
+                {s.label}
+              </span>
+            </div>
+
+            {/* Trip grid */}
+            <div>
+              <p className="text-[8px] font-black uppercase tracking-[0.25em] text-zinc-400 mb-3">Trip Details</p>
+              <div className="grid grid-cols-2 gap-2.5">
+                <div className="bg-blue-50 dark:bg-blue-500/8 border border-blue-100 dark:border-blue-500/15 rounded-2xl p-3.5">
+                  <p className="text-[8px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] mb-2">Pick-up</p>
+                  <p className="text-xs font-black text-zinc-900 dark:text-white mb-1 truncate">{rental.pickupLocation || '—'}</p>
+                  <p className="text-[10px] text-zinc-400 font-bold">{fmt(rental.rentalStartDate)}</p>
+                  {rental.pickupTime && <p className="text-[10px] text-zinc-400">{rental.pickupTime}</p>}
+                </div>
+                <div className="bg-emerald-50 dark:bg-emerald-500/8 border border-emerald-100 dark:border-emerald-500/15 rounded-2xl p-3.5">
+                  <p className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em] mb-2">Drop-off</p>
+                  <p className="text-xs font-black text-zinc-900 dark:text-white mb-1 truncate">{rental.dropoffLocation || '—'}</p>
+                  <p className="text-[10px] text-zinc-400 font-bold">{fmt(rental.rentalEndDate)}</p>
+                  {rental.dropoffTime && <p className="text-[10px] text-zinc-400">{rental.dropoffTime}</p>}
+                </div>
+              </div>
+              <div className="mt-2 flex items-center justify-between bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-xl px-4 py-2.5">
+                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Duration</span>
+                <span className="text-xs font-black text-zinc-900 dark:text-white">{days} Day{days !== 1 ? 's' : ''}</span>
+              </div>
+            </div>
+
+            {/* Renter */}
+            {(pd.fullName || pd.phone || pd.address) && (
+              <div>
+                <p className="text-[8px] font-black uppercase tracking-[0.25em] text-zinc-400 mb-3">Renter</p>
+                <div className="bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-2xl divide-y divide-zinc-100 dark:divide-zinc-800 overflow-hidden">
+                  {[
+                    { icon: User,  label: 'Full Name', value: pd.fullName },
+                    { icon: Phone, label: 'Phone',     value: pd.phone    },
+                    { icon: Home,  label: 'Address',   value: pd.address  },
+                  ].filter(r => r.value).map(({ icon: Icon, label, value }) => (
+                    <div key={label} className="flex items-center justify-between px-4 py-2.5 gap-4">
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Icon size={10} className="text-zinc-400" />
+                        <span className="text-[9px] font-black text-zinc-400 uppercase tracking-wider">{label}</span>
+                      </div>
+                      <span className="text-xs font-black text-zinc-900 dark:text-white text-right truncate">{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Payment */}
+            <div>
+              <p className="text-[8px] font-black uppercase tracking-[0.25em] text-zinc-400 mb-3">Payment Breakdown</p>
+              <div className="bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
+                <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                  {pi.cardLastFour && (
+                    <div className="flex justify-between items-center px-4 py-2.5">
+                      <span className="text-[9px] font-black text-zinc-400 uppercase tracking-wider">Card</span>
+                      <span className="text-xs font-black text-zinc-900 dark:text-white font-mono">
+                        {pi.brand ? `${pi.brand} ` : ''}•••• {pi.cardLastFour}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center px-4 py-2.5">
+                    <span className="text-[9px] font-black text-zinc-400 uppercase tracking-wider">Rate per Day</span>
+                    <span className="text-xs font-black text-zinc-900 dark:text-white">₱{rental.car?.pricePerDay?.toLocaleString() || '—'}</span>
+                  </div>
+                  <div className="flex justify-between items-center px-4 py-2.5">
+                    <span className="text-[9px] font-black text-zinc-400 uppercase tracking-wider">Days</span>
+                    <span className="text-xs font-black text-zinc-900 dark:text-white">× {days}</span>
+                  </div>
+                  <div className="flex justify-between items-center px-4 py-4 bg-zinc-900 dark:bg-zinc-100">
+                    <span className="text-[10px] font-black text-white dark:text-zinc-900 uppercase tracking-widest">Total Paid</span>
+                    <span className="text-lg font-black text-white dark:text-zinc-900">₱{rental.totalPrice?.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Verification */}
+            <div className={`rounded-2xl border p-4 space-y-2.5 ${allOk ? 'bg-emerald-50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20' : 'bg-amber-50 dark:bg-amber-500/5 border-amber-200 dark:border-amber-500/20'}`}>
+              <div className="flex items-center gap-2 mb-1">
+                <Shield size={12} className={allOk ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-500'} />
+                <p className="text-[8px] font-black uppercase tracking-[0.25em] text-zinc-400">Transaction Verification</p>
+              </div>
+              {checks.map(({ label, value, ok }) => (
+                <div key={label} className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 shrink-0">
+                    {ok
+                      ? <CheckCircle2 size={11} className="text-emerald-500 shrink-0" />
+                      : <AlertCircle  size={11} className="text-amber-400 shrink-0"   />
+                    }
+                    <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400">{label}</span>
+                  </div>
+                  <span className={`text-[9px] font-black truncate max-w-[140px] ${ok ? 'text-zinc-800 dark:text-zinc-200' : 'text-amber-500'}`}>
+                    {value}
+                  </span>
+                </div>
+              ))}
+              <div className={`pt-2.5 border-t text-center text-[9px] font-black uppercase tracking-[0.2em] ${allOk ? 'border-emerald-200 dark:border-emerald-700/30 text-emerald-600 dark:text-emerald-400' : 'border-amber-200 dark:border-amber-700/30 text-amber-600 dark:text-amber-400'}`}>
+                {allOk ? '✓ Legitimate Transaction — Payment Verified' : '⚠ Some details missing — Contact support'}
+              </div>
+            </div>
+
+            {/* Transaction ID */}
+            <div className="flex items-center justify-between px-4 py-3 bg-zinc-50 dark:bg-zinc-900/30 rounded-2xl border border-zinc-100 dark:border-zinc-800">
+              <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Transaction ID</span>
+              <span className="text-[9px] font-black text-zinc-500 dark:text-zinc-400 font-mono truncate max-w-[160px]">{rental._id}</span>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Sticky footer */}
+        <div className="px-6 pb-6 pt-3 border-t border-zinc-100 dark:border-zinc-900 bg-white dark:bg-zinc-950">
+          <button
+            onClick={handlePrint}
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-zinc-900 dark:bg-white hover:bg-zinc-700 dark:hover:bg-zinc-100 text-white dark:text-zinc-900 text-[10px] font-black uppercase tracking-widest transition-all"
+          >
+            <Printer size={14} /> Print / Save Receipt
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// ── MAIN PAGE ──
+// ─────────────────────────────────────────────
 const MyRentals = () => {
   const navigate = useNavigate();
   const { userRentals, fetchUserRentals, isLoading, cancelRental, deleteRental } = useRentalStore();
-  const [expandedId, setExpandedId] = useState(null);
-  const [dialog, setDialog]         = useState(null);
-  const [processing, setProcessing] = useState({});
-  const [filter, setFilter]         = useState('all');
+  const [expandedId,    setExpandedId]    = useState(null);
+  const [dialog,        setDialog]        = useState(null);
+  const [processing,    setProcessing]    = useState({});
+  const [filter,        setFilter]        = useState('all');
+  const [receiptRental, setReceiptRental] = useState(null);
 
   useEffect(() => { fetchUserRentals(); }, [fetchUserRentals]);
 
@@ -257,12 +525,7 @@ const MyRentals = () => {
   const handleChatSupport = (rental) => {
     const adminId = rental.car?.uploadedBy?._id || rental.car?.uploadedBy;
     navigate('/chat', {
-      state: {
-        userId: adminId,
-        context: 'rental',
-        rentalId: rental._id,
-        renterName: `${rental.car?.brand} ${rental.car?.model}`,
-      },
+      state: { userId: adminId, context: 'rental', rentalId: rental._id, renterName: `${rental.car?.brand} ${rental.car?.model}` },
     });
   };
 
@@ -282,17 +545,14 @@ const MyRentals = () => {
     setDialog(null);
   };
 
-  const filtered = filter === 'all'
-    ? userRentals
-    : userRentals.filter(r => r.status === filter);
-
+  const filtered = filter === 'all' ? userRentals : userRentals.filter(r => r.status === filter);
   const canCancel = (s) => ['pending', 'confirmed'].includes(s);
   const canDelete = (s) => ['completed', 'cancelled'].includes(s);
 
   return (
     <div className="pb-24" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
 
-      {/* ── HEADER ── */}
+      {/* HEADER */}
       <div className="mb-8">
         {isLoading ? (
           <div className="space-y-3 animate-pulse">
@@ -305,27 +565,23 @@ const MyRentals = () => {
               <span className="h-px w-5 bg-zinc-300 dark:bg-zinc-700" />
               <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400">Rental History</p>
             </div>
-            <h1 className="text-4xl font-black text-zinc-900 dark:text-white tracking-tighter uppercase leading-none">
-              My Rentals
-            </h1>
+            <h1 className="text-4xl font-black text-zinc-900 dark:text-white tracking-tighter uppercase leading-none">My Rentals</h1>
           </div>
         )}
       </div>
 
-      {/* ── TWO-COLUMN LAYOUT ── */}
+      {/* TWO-COLUMN LAYOUT */}
       <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-        {/* ── LEFT: Main Content ── */}
+        {/* LEFT */}
         <div className="flex-1 min-w-0 space-y-6">
 
           {!isLoading && userRentals.length > 0 && <SummaryBar rentals={userRentals} />}
 
-          {/* Filter Tabs */}
+          {/* Filter tabs */}
           <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
             {isLoading
-              ? [1,2,3,4,5].map(i => (
-                  <div key={i} className="h-10 w-28 bg-zinc-100 dark:bg-zinc-900 rounded-xl shrink-0 animate-pulse" />
-                ))
+              ? [1,2,3,4,5].map(i => <div key={i} className="h-10 w-28 bg-zinc-100 dark:bg-zinc-900 rounded-xl shrink-0 animate-pulse" />)
               : FILTERS.map(f => {
                   const active = filter === f.key;
                   return (
@@ -344,7 +600,7 @@ const MyRentals = () => {
             }
           </div>
 
-          {/* Rental List */}
+          {/* Rental list */}
           <div className="space-y-4">
             {isLoading ? (
               [1,2,3].map(i => <RentalSkeleton key={i} />)
@@ -373,7 +629,6 @@ const MyRentals = () => {
                     <div className="p-5 md:p-7">
                       <div className="flex flex-col sm:flex-row sm:items-start gap-5">
 
-                        {/* Car Image or Icon */}
                         <div className="w-14 h-14 sm:w-16 sm:h-16 bg-zinc-50 dark:bg-zinc-900 rounded-[1.25rem] flex items-center justify-center shrink-0 border border-zinc-100 dark:border-zinc-800 overflow-hidden">
                           {carImage
                             ? <img src={carImage} alt="" className="w-full h-full object-cover" />
@@ -400,8 +655,8 @@ const MyRentals = () => {
                           <p className="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 mb-4">{s.desc}</p>
 
                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-                            <MiniStat icon={Calendar}   label="Check-in"  value={fmt(rental.rentalStartDate)} color="blue" />
-                            <MiniStat icon={Calendar}   label="Check-out" value={fmt(rental.rentalEndDate)}   color="blue" />
+                            <MiniStat icon={Calendar}   label="Check-in"  value={fmt(rental.rentalStartDate)} color="blue"   />
+                            <MiniStat icon={Calendar}   label="Check-out" value={fmt(rental.rentalEndDate)}   color="blue"   />
                             <MiniStat icon={Timer}      label="Duration"  value={`${days} day${days !== 1 ? 's' : ''}`} color="violet" />
                             <MiniStat icon={CreditCard} label="Rate/Day"  value={pricePerDay ? `₱${pricePerDay.toLocaleString()}` : '—'} color="emerald" />
                           </div>
@@ -430,6 +685,14 @@ const MyRentals = () => {
                             </div>
 
                             <div className="flex items-center gap-2 flex-wrap">
+                              {/* ── RECEIPT BUTTON ── */}
+                              <button
+                                onClick={() => setReceiptRental(rental)}
+                                className="h-10 px-4 flex items-center gap-1.5 text-[9px] font-black text-zinc-900 dark:text-white bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-900 dark:hover:bg-white hover:text-white dark:hover:text-zinc-900 rounded-xl transition-all uppercase tracking-widest"
+                              >
+                                <Receipt size={13} /> Receipt
+                              </button>
+
                               <button
                                 onClick={() => handleChatSupport(rental)}
                                 className="h-10 px-4 flex items-center gap-2 text-[9px] font-black text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-900 dark:hover:bg-white hover:text-white dark:hover:text-zinc-900 rounded-xl transition-all uppercase tracking-widest"
@@ -469,7 +732,7 @@ const MyRentals = () => {
                       </div>
                     </div>
 
-                    {/* Expanded Details */}
+                    {/* Expanded */}
                     {isExpanded && (
                       <div className="border-t border-zinc-50 dark:border-zinc-900 bg-zinc-50/30 dark:bg-zinc-900/20 p-5 md:p-7 animate-in slide-in-from-top-2 duration-300 space-y-6">
                         <div>
@@ -577,26 +840,29 @@ const MyRentals = () => {
           </div>
         </div>
 
-        {/* ── RIGHT: You May Like ── */}
-      <div className="w-full lg:w-72 xl:w-80 shrink-0 lg:sticky lg:top-6">
-  <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-[2.5rem] p-6 shadow-sm">
-    <YouMayLike rentedCarIds={rentedCarIds} />
-    
-    {/* Optional: Add a call to action or promo below the list */}
-    <div className="mt-6 p-4 rounded-3xl bg-zinc-900 dark:bg-zinc-100 text-center">
-      <p className="text-[9px] font-black text-white dark:text-zinc-900 uppercase tracking-widest">
-        Need Help?
-      </p>
-      <button className="mt-2 text-[10px] font-bold text-zinc-400 dark:text-zinc-500 hover:text-white transition-colors">
-        Contact Support
-      </button>
-    </div>
-  </div>
-</div>
-
+        {/* RIGHT */}
+        <div className="w-full lg:w-72 xl:w-80 shrink-0 lg:sticky lg:top-6">
+          <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-[2.5rem] p-6 shadow-sm">
+            <YouMayLike rentedCarIds={rentedCarIds} />
+            <div className="mt-6 p-4 rounded-3xl bg-zinc-900 dark:bg-zinc-100 text-center">
+              <p className="text-[9px] font-black text-white dark:text-zinc-900 uppercase tracking-widest">Need Help?</p>
+              <button className="mt-2 text-[10px] font-bold text-zinc-400 dark:text-zinc-500 hover:text-white transition-colors">
+                Contact Support
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* ── CONFIRM DIALOG ── */}
+      {/* RECEIPT OVERLAY */}
+      {receiptRental && (
+        <ReceiptModal
+          rental={receiptRental}
+          onClose={() => setReceiptRental(null)}
+        />
+      )}
+
+      {/* CONFIRM DIALOG */}
       <ConfirmDialog
         open={!!dialog}
         title={dialog?.type === 'cancel' ? 'Confirm Cancellation' : 'Permanent Removal'}

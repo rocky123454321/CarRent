@@ -77,8 +77,8 @@ const CarDetailView = ({ car: carProp, onBack }) => {
 
   const handleRentalSuccess = () => {
     toast.success('Rental confirmed!');
-    setShowBookingForm(false);
-    navigate('/my-rentals');
+   
+  
   };
 
   const handleChatWithAdmin = () => {

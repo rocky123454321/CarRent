@@ -10,6 +10,7 @@ import { useAuthStore } from '../../store/authStore.js';
 import { differenceInDays } from 'date-fns';
 import PaymentDemo from './PaymentDemo';
 import { useBookingStore } from '../../store/BookingStore.js';
+import { useNavigate } from 'react-router-dom';
 
 const locations = ['Manila', 'Cebu', 'Davao', 'Quezon City'];
 const times = ['08:00 AM', '09:00 AM', '10:00 AM', '12:00 PM', '02:00 PM', '04:00 PM'];
@@ -52,6 +53,7 @@ const SectionCard = ({ step, title, children }) => (
 const BookingForm = ({ car, onSuccess }) => {
   const { user, isAuthenticated } = useAuthStore();
   const bookCar = useBookingStore((s) => s.bookCar);
+  const navigate = useNavigate();
   const [showPayment, setShowPayment] = useState(false);
   const [pendingData, setPendingData] = useState(null);
 
@@ -82,13 +84,16 @@ const BookingForm = ({ car, onSuccess }) => {
     setShowPayment(true);
   };
 
-  const handlePaymentSuccess = async () => {
+  // Called ONLY after payment processing succeeds — does NOT navigate
+  const handlePaymentSuccess = async (paymentInfo) => {
     if (!pendingData) return;
     const result = await bookCar(car._id, {
       rentalStartDate: new Date(pendingData.pickupDate).toISOString(),
       rentalEndDate:   new Date(pendingData.dropoffDate).toISOString(),
       totalDays: days,
       totalPrice,
+      bookingRef: paymentInfo?.bookingRef,
+      paidAt:     paymentInfo?.paidAt,
       personalDetails: {
         fullName: pendingData.fullName,
         phone:    pendingData.phone,
@@ -97,9 +102,15 @@ const BookingForm = ({ car, onSuccess }) => {
     });
     if (result.success) {
       reset();
-      setShowPayment(false);
       onSuccess?.(result.rental);
+      // Do NOT close modal or navigate here — receipt is shown inside PaymentDemo
     }
+  };
+
+  // Called when user explicitly clicks "My Rentals" on the receipt
+  const handleGoToRentals = () => {
+    setShowPayment(false);
+    navigate('/my-rentals');
   };
 
   return (
@@ -127,7 +138,6 @@ const BookingForm = ({ car, onSuccess }) => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Pick-up */}
           <SectionCard step="1" title="Pick-up Details">
             <Field label="Station" icon={MapPin} error={errors.pickupLocation?.message}>
               <select {...register('pickupLocation')} className={inputCls}>
@@ -148,7 +158,6 @@ const BookingForm = ({ car, onSuccess }) => {
             </div>
           </SectionCard>
 
-          {/* Drop-off */}
           <SectionCard step="2" title="Drop-off Details">
             <Field label="Return Station" icon={MapPin} error={errors.dropoffLocation?.message}>
               <select {...register('dropoffLocation')} className={inputCls}>
@@ -169,7 +178,6 @@ const BookingForm = ({ car, onSuccess }) => {
             </div>
           </SectionCard>
 
-          {/* Renter Info */}
           <SectionCard step="3" title="Your Information">
             <Field label="Full Name" icon={User} error={errors.fullName?.message}>
               <input {...register('fullName')} placeholder="Juan dela Cruz" className={inputCls} />
@@ -184,13 +192,8 @@ const BookingForm = ({ car, onSuccess }) => {
             </div>
           </SectionCard>
 
-          {/* Price Summary */}
           {days > 0 && (
-            <div className={`rounded-2xl p-5 flex items-center justify-between transition-all ${
-              isFlashActive
-                ? 'bg-amber-500'
-                : 'bg-blue-600'
-            }`}>
+            <div className={`rounded-2xl p-5 flex items-center justify-between transition-all ${isFlashActive ? 'bg-amber-500' : 'bg-blue-600'}`}>
               <div>
                 <p className="text-xs font-medium text-white/70 mb-0.5">Rental Period</p>
                 <p className="text-lg font-bold text-white">{days} {days === 1 ? 'Day' : 'Days'}</p>
@@ -210,17 +213,12 @@ const BookingForm = ({ car, onSuccess }) => {
             </div>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={isSubmitting || !car?.isAvailable}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:text-gray-400 text-white font-semibold py-4 rounded-xl transition-all flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-600/20 active:scale-[0.99]"
           >
-            {isSubmitting ? (
-              <span className="animate-pulse">Processing...</span>
-            ) : (
-              <>Continue to Payment <ArrowRight size={16} /></>
-            )}
+            {isSubmitting ? <span className="animate-pulse">Processing...</span> : <>Continue to Payment <ArrowRight size={16} /></>}
           </button>
         </form>
       </div>
@@ -242,8 +240,17 @@ const BookingForm = ({ car, onSuccess }) => {
               <div className="p-6">
                 <PaymentDemo
                   car={{ ...car, pricePerDay: activePrice }}
-                  rentalDetails={{ days, pickup: pendingData?.pickupLocation, dropoff: pendingData?.dropoffLocation }}
+                  rentalDetails={{
+                    days,
+                    pickup:      pendingData?.pickupLocation,
+                    dropoff:     pendingData?.dropoffLocation,
+                    pickupDate:  pendingData?.pickupDate,
+                    dropoffDate: pendingData?.dropoffDate,
+                    pickupTime:  pendingData?.pickupTime,
+                    dropoffTime: pendingData?.dropoffTime,
+                  }}
                   onSuccess={handlePaymentSuccess}
+                  onGoToRentals={handleGoToRentals}
                 />
               </div>
             </div>
