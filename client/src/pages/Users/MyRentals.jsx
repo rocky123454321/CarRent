@@ -733,106 +733,136 @@ const MyRentals = () => {
                     </div>
 
                     {/* Expanded */}
-                    {isExpanded && (
-                      <div className="border-t border-zinc-50 dark:border-zinc-900 bg-zinc-50/30 dark:bg-zinc-900/20 p-5 md:p-7 animate-in slide-in-from-top-2 duration-300 space-y-6">
-                        <div>
-                          <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                            <Calendar size={10} /> Timeline Details
-                          </h4>
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            {[
-                              { label: 'Check-in',   value: fmt(rental.rentalStartDate) },
-                              { label: 'Check-out',  value: fmt(rental.rentalEndDate)   },
-                              { label: 'Total Days', value: `${days} day${days !== 1 ? 's' : ''}` },
-                              { label: 'Booked On',  value: fmt(rental.createdAt)       },
-                            ].map(({ label, value }) => (
-                              <div key={label} className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 p-4 rounded-2xl">
-                                <p className="text-[8px] font-black text-zinc-400 uppercase mb-1.5">{label}</p>
-                                <p className="text-xs font-black text-zinc-900 dark:text-white">{value}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
+                   {isExpanded && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+    {/* Backdrop - Clickable para masara */}
+    <div 
+      className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm animate-in fade-in duration-300" 
+   onClick={() => setExpandedId(isExpanded ? null : rental._id)}
+    />
 
-                        <div>
-                          <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                            <CreditCard size={10} /> Payment Breakdown
-                          </h4>
-                          <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
-                            <div className="divide-y divide-zinc-50 dark:divide-zinc-900">
-                              <div className="flex justify-between items-center px-5 py-3">
-                                <span className="text-[10px] font-bold text-zinc-400">Rate per Day</span>
-                                <span className="text-xs font-black text-zinc-900 dark:text-white">₱{pricePerDay?.toLocaleString() || '—'}</span>
-                              </div>
-                              <div className="flex justify-between items-center px-5 py-3">
-                                <span className="text-[10px] font-bold text-zinc-400">Number of Days</span>
-                                <span className="text-xs font-black text-zinc-900 dark:text-white">{days}</span>
-                              </div>
-                              <div className="flex justify-between items-center px-5 py-3 bg-zinc-50 dark:bg-zinc-900/50">
-                                <span className="text-[10px] font-black text-zinc-900 dark:text-white uppercase tracking-widest">Total</span>
-                                <span className="text-sm font-black text-zinc-900 dark:text-white">₱{rental.totalPrice?.toLocaleString()}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+    {/* Modal Content */}
+    <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-zinc-50 dark:bg-zinc-900 rounded-[2rem] border border-zinc-200 dark:border-zinc-800 shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+      
+      {/* Sticky Header sa loob ng Overlay */}
+      <div className="sticky top-0 z-10 bg-zinc-50/80 dark:bg-zinc-900/80 backdrop-blur-md px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
+        <h3 className="text-[10px] font-black text-zinc-900 dark:text-white uppercase tracking-[0.3em]">
+          Booking Summary
+        </h3>
+        <button 
+        onClick={() => setExpandedId(isExpanded ? null : rental._id)}
+          className="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full transition-colors"
+        >
+          <X size={16} className="text-zinc-500" />
+        </button>
+      </div>
 
-                        {rental.car && (
-                          <div>
-                            <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                              <CarFront size={10} /> Vehicle Details
-                            </h4>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                              {[
-                                { icon: Tag,       label: 'Brand',         value: rental.car.brand        },
-                                { icon: CarFront,  label: 'Model',         value: rental.car.model        },
-                                { icon: Settings2, label: 'License Plate', value: rental.car.licensePlate },
-                                { icon: Fuel,      label: 'Fuel Type',     value: rental.car.fuelType     },
-                                { icon: Settings2, label: 'Transmission',  value: rental.car.transmission },
-                                { icon: Users,     label: 'Capacity',      value: rental.car.seats ? `${rental.car.seats} seats` : '—' },
-                              ].map(({ icon: Icon, label, value }) => value && (
-                                <div key={label} className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl p-4">
-                                  <div className="flex items-center gap-1.5 mb-1.5">
-                                    <Icon size={9} className="text-zinc-400" />
-                                    <p className="text-[8px] font-black text-zinc-400 uppercase tracking-wider">{label}</p>
-                                  </div>
-                                  <p className="text-xs font-black text-zinc-900 dark:text-white uppercase">{value}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+      <div className="p-5 md:p-8 space-y-8">
+        {/* Timeline Details */}
+        <div>
+          <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+            <Calendar size={10} /> Timeline Details
+          </h4>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: 'Check-in',   value: fmt(rental.rentalStartDate) },
+              { label: 'Check-out',  value: fmt(rental.rentalEndDate)   },
+              { label: 'Total Days', value: `${days} day${days !== 1 ? 's' : ''}` },
+              { label: 'Booked On',  value: fmt(rental.createdAt)       },
+            ].map(({ label, value }) => (
+              <div key={label} className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 p-4 rounded-2xl">
+                <p className="text-[8px] font-black text-zinc-400 uppercase mb-1.5">{label}</p>
+                <p className="text-xs font-black text-zinc-900 dark:text-white">{value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
 
-                        {rental.personalDetails && (
-                          <div>
-                            <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                              <User size={10} /> Renter Information
-                            </h4>
-                            <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
-                              <div className="divide-y divide-zinc-50 dark:divide-zinc-900">
-                                {[
-                                  { icon: User,  label: 'Full Name', value: rental.personalDetails.fullName },
-                                  { icon: Phone, label: 'Phone',     value: rental.personalDetails.phone    },
-                                  { icon: Home,  label: 'Address',   value: rental.personalDetails.address  },
-                                ].map(({ icon: Icon, label, value }) => value && (
-                                  <div key={label} className="flex items-center justify-between px-5 py-3 gap-4">
-                                    <div className="flex items-center gap-2 shrink-0">
-                                      <Icon size={11} className="text-zinc-400" />
-                                      <span className="text-[10px] font-bold text-zinc-400">{label}</span>
-                                    </div>
-                                    <span className="text-xs font-black text-zinc-900 dark:text-white text-right truncate">{value}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        )}
+        {/* Payment Breakdown */}
+        <div>
+          <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+            <CreditCard size={10} /> Payment Breakdown
+          </h4>
+          <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
+            <div className="divide-y divide-zinc-50 dark:divide-zinc-900">
+              <div className="flex justify-between items-center px-5 py-3">
+                <span className="text-[10px] font-bold text-zinc-400">Rate per Day</span>
+                <span className="text-xs font-black text-zinc-900 dark:text-white">₱{pricePerDay?.toLocaleString() || '—'}</span>
+              </div>
+              <div className="flex justify-between items-center px-5 py-3">
+                <span className="text-[10px] font-bold text-zinc-400">Number of Days</span>
+                <span className="text-xs font-black text-zinc-900 dark:text-white">{days}</span>
+              </div>
+              <div className="flex justify-between items-center px-5 py-3 bg-zinc-100 dark:bg-zinc-900">
+                <span className="text-[10px] font-black text-zinc-900 dark:text-white uppercase tracking-widest">Total</span>
+                <span className="text-sm font-black text-zinc-900 dark:text-white">₱{rental.totalPrice?.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                        <div className="flex items-center justify-between px-5 py-3 bg-zinc-50 dark:bg-zinc-900/30 rounded-2xl border border-zinc-100 dark:border-zinc-800">
-                          <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Rental ID</span>
-                          <span className="text-[9px] font-black text-zinc-500 dark:text-zinc-400 font-mono">{rental._id}</span>
-                        </div>
-                      </div>
-                    )}
+        {/* Vehicle Details */}
+        {rental.car && (
+          <div>
+            <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+              <CarFront size={10} /> Vehicle Details
+            </h4>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {[
+                { icon: Tag,       label: 'Brand',         value: rental.car.brand         },
+                { icon: CarFront,  label: 'Model',         value: rental.car.model         },
+                { icon: Settings2, label: 'License Plate', value: rental.car.licensePlate },
+                { icon: Fuel,      label: 'Fuel Type',     value: rental.car.fuelType      },
+                { icon: Settings2, label: 'Transmission',  value: rental.car.transmission  },
+                { icon: Users,     label: 'Capacity',      value: rental.car.seats ? `${rental.car.seats} seats` : '—' },
+              ].map(({ icon: Icon, label, value }) => value && (
+                <div key={label} className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl p-4">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Icon size={9} className="text-zinc-400" />
+                    <p className="text-[8px] font-black text-zinc-400 uppercase tracking-wider">{label}</p>
+                  </div>
+                  <p className="text-xs font-black text-zinc-900 dark:text-white uppercase">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Renter Information */}
+        {rental.personalDetails && (
+          <div>
+            <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+              <User size={10} /> Renter Information
+            </h4>
+            <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
+              <div className="divide-y divide-zinc-50 dark:divide-zinc-900">
+                {[
+                  { icon: User,  label: 'Full Name', value: rental.personalDetails.fullName },
+                  { icon: Phone, label: 'Phone',     value: rental.personalDetails.phone    },
+                  { icon: Home,  label: 'Address',   value: rental.personalDetails.address  },
+                ].map(({ icon: Icon, label, value }) => value && (
+                  <div key={label} className="flex items-center justify-between px-5 py-3 gap-4">
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Icon size={11} className="text-zinc-400" />
+                      <span className="text-[10px] font-bold text-zinc-400">{label}</span>
+                    </div>
+                    <span className="text-xs font-black text-zinc-900 dark:text-white text-right truncate">{value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Footer/Rental ID */}
+        <div className="flex items-center justify-between px-5 py-3 bg-zinc-100 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+          <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Rental ID</span>
+          <span className="text-[9px] font-black text-zinc-500 dark:text-zinc-400 font-mono">{rental._id}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
                   </div>
                 );
               })
