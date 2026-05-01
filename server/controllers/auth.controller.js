@@ -13,7 +13,7 @@ export const getAdminId = async (req, res) => {
 	try {
 		const admin =
 			(await User.findOne({ role: "admin" }).select("_id name email role")) ||
-			(await User.findOne({ role: "renter" }).select("_id name email role"));
+		  	(await User.findOne({ role: "renter" }).select("_id name email role"));
 		if (!admin) {
 			return res.status(404).json({ success: false, message: "Admin user not found" });
 		}
@@ -293,34 +293,37 @@ export const resendVerificationEmail = async (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
-	try {
-		const { name, email, password } = req.body;
-		const user = await User.findById(req.userId);
-		if (!user) return res.status(404).json({ success: false, message: "User not found" });
+  try {
+	  console.log("=== UPDATE PROFILE DEBUG ===");
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
+    console.log("USER ID:", req.userId);
+    const { name, email, password } = req.body;
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-		if (email && email !== user.email) {
-			const existing = await User.findOne({ email });
-			if (existing && existing._id.toString() !== user._id.toString()) {
-				return res.status(400).json({ success: false, message: "Email is already in use" });
-			}
-			user.email = email;
-			user.isVerified = false;
-			user.verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
-			user.verificationTokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
-		}
+    if (name) user.name = name;
+    if (password) user.password = await bcryptjs.hash(password, 10);
 
-		if (name) user.name = name;
-		if (password) user.password = await bcryptjs.hash(password, 10);
+    // ✅ Handle profile image upload
+    if (req.file) {
+      // Delete old image from Cloudinary if exists
+      if (user.profileImageId) {
+        await cloudinary.uploader.destroy(user.profileImageId);
+      }
+      user.profileImage   = req.file.path;
+      user.profileImageId = req.file.filename;
+    }
 
-		await user.save();
-		res.status(200).json({
-			success: true,
-			message: "Profile updated successfully",
-			user: { ...user._doc, password: undefined },
-		});
-	} catch (error) {
-		res.status(500).json({ success: false, message: error.message });
-	}
+    await user.save();
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: { ...user._doc, password: undefined },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 export const getUserById = async (req, res) => {

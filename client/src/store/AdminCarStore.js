@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
-import { toast } from "sonner"; // O kahit anong notification library na gamit mo
+import { toast } from "sonner";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -48,7 +48,7 @@ export const useAdminCarStore = create((set, get) => ({
     try {
       await axios.delete(`${API_URL}/api/cars/${id}`);
       set((state) => ({
-        cars: state.cars.filter((c) => c._id !== id)
+        cars: state.cars.filter((c) => c._id !== id),
       }));
       toast.success("Car deleted successfully");
     } catch (err) {
@@ -57,13 +57,22 @@ export const useAdminCarStore = create((set, get) => ({
     }
   },
 
-  // 4. PUT /api/cars/:id — General update
+  // 4. PUT /api/cars/:id — ✅ Fixed: supports FormData (multipart) for image uploads
   updateCar: async (id, updates) => {
     set({ isLoading: true, error: null });
     try {
-      const res = await axios.put(`${API_URL}/api/cars/${id}`, updates);
+      // ✅ If FormData, set correct Content-Type header for multipart
+      const isFormData = updates instanceof FormData;
+      const res = await axios.put(`${API_URL}/api/cars/${id}`, updates, {
+        headers: isFormData
+          ? { "Content-Type": "multipart/form-data" }
+          : { "Content-Type": "application/json" },
+      });
+
       set((state) => ({
-        cars: state.cars.map((c) => (c._id === id ? res.data.car || { ...c, ...updates } : c)),
+        cars: state.cars.map((c) =>
+          c._id === id ? res.data.car || { ...c, ...updates } : c
+        ),
         isLoading: false,
       }));
       toast.success("Car updated successfully!");
@@ -81,7 +90,7 @@ export const useAdminCarStore = create((set, get) => ({
     await get().updateCar(id, { isAvailable });
   },
 
-  // 6. Old fetch all cars (deprecated)
+  // 6. Fetch all cars (for non-admin pages / fallback)
   fetchAdminCars: async () => {
     if (get().isLoading) return;
     set({ isLoading: true, error: null });
@@ -91,5 +100,5 @@ export const useAdminCarStore = create((set, get) => ({
     } catch (err) {
       set({ error: err.response?.data?.message || "Failed to load cars", isLoading: false });
     }
-  }
+  },
 }));

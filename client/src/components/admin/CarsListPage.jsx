@@ -2,17 +2,21 @@ import React, { useEffect } from 'react'
 import { AdminCards } from './AdminCards'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCarStore } from '../../store/CarStore'
+import { useAuthStore } from '../../store/authStore'
 
 const CarsListPage = () => {
-  const { cars, isLoading, getAdminCars } = useCarStore()
+  const { cars, isLoading, getallcarsadmin } = useCarStore()
+  const { user } = useAuthStore()
 
   useEffect(() => {
-    getAdminCars()
-  }, [getAdminCars])
+    if (user?._id) {
+      getallcarsadmin(user._id)
+    }
+  }, [user])
 
   return (
-    <div className=" mt-18  lg:ml-5 space-y-8 max-w-7xl transition-colors duration-300">
-      {/* Header - Fixed Position, Zinc Typography */}
+    <div className="mt-18 lg:ml-5 space-y-8 max-w-7xl transition-colors duration-300">
+      {/* Header */}
       <div className="space-y-1">
         <div className="inline-flex items-center gap-2 mb-1">
           <span className="h-px w-5 bg-zinc-300 dark:bg-zinc-700" />
@@ -28,7 +32,7 @@ const CarsListPage = () => {
         </p>
       </div>
 
-      {/* Content - Position stays the same */}
+      {/* Content */}
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -36,7 +40,6 @@ const CarsListPage = () => {
               key={i}
               className="bg-white dark:bg-zinc-950 rounded-3xl border border-zinc-100 dark:border-zinc-900 shadow-sm p-5 space-y-4"
             >
-              {/* Updated Skeleton Colors */}
               <Skeleton className="h-40 w-full rounded-2xl bg-zinc-100 dark:bg-zinc-900" />
               <div className="space-y-2">
                 <Skeleton className="h-5 w-3/4 rounded-lg bg-zinc-100 dark:bg-zinc-900" />

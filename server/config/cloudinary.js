@@ -8,7 +8,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
+// ── Cars storage ─────────────────────────────────────────────────
+const carStorage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder:          "carrent/cars",
@@ -17,5 +18,17 @@ const storage = new CloudinaryStorage({
   },
 });
 
-export const upload = multer({ storage });
+// ── Profile image storage ────────────────────────────────────────
+const profileStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder:          "carrent/profiles",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+    transformation:  [{ width: 400, height: 400, crop: "fill", gravity: "face" }],
+  },
+});
+
+// ── Exports ──────────────────────────────────────────────────────
+export const upload        = multer({ storage: carStorage });
+export const uploadProfile = multer({ storage: profileStorage });
 export { cloudinary };

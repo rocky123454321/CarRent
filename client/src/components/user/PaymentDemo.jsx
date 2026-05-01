@@ -64,7 +64,7 @@ const Receipt = ({ carInfo, rental, total, cardName, cardNumber, brand, bookingR
         .ref { text-align: center; font-size: 11px; color: #999; margin-top: 12px; }
         .section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-bottom: 8px; }
       </style></head><body>
-      <div class="logo">DriveEasy</div>
+      <div class="logo">Supernova</div>
       <div class="sub">Official Rental Receipt</div>
       <hr class="divider"/>
       <div class="section-title">Vehicle</div>
@@ -88,7 +88,7 @@ const Receipt = ({ carInfo, rental, total, cardName, cardNumber, brand, bookingR
       <div class="ref">Booking Ref: ${bookingRef}</div>
       <div class="ref">Paid: ${paidAt}</div>
       <div class="stamp">PAYMENT VERIFIED</div>
-      <div class="ref" style="margin-top:16px">Thank you for choosing DriveEasy.</div>
+      <div class="ref" style="margin-top:16px">Thank you for choosing Supernova.</div>
     </body></html>`);
     win.document.close();
     win.print();
@@ -113,7 +113,7 @@ const Receipt = ({ carInfo, rental, total, cardName, cardNumber, brand, bookingR
         <div className="bg-gray-900 dark:bg-black px-5 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-white font-black text-base tracking-tight">DriveEasy</p>
+              <p className="text-white font-black text-base tracking-tight">Supernova</p>
               <p className="text-gray-400 text-[10px] font-medium uppercase tracking-widest">Official Rental Receipt</p>
             </div>
             <div className="text-right">

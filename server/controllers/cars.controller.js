@@ -32,6 +32,10 @@ const destroyCloudinaryAssets = async (publicIds = []) => {
 
 export const addCar = async (req, res) => {
   try {
+
+     console.log("=== ADD CAR DEBUG ===");
+    console.log("BODY:", req.body);
+    console.log("FILES:", req.files);
     const {
       brand, model, year, color, pricePerDay,
       uploadedBy, mileage, fuelType, transmission,

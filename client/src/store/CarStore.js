@@ -7,7 +7,6 @@ const CARS = `${API_URL}/api/cars`;
 
 axios.defaults.withCredentials = true;
 
-// Helper: detect current season
 const getCurrentSeason = () => {
   const month = new Date().getMonth() + 1;
   const day   = new Date().getDate();
@@ -21,14 +20,15 @@ const getCurrentSeason = () => {
 
 export const useCarStore = create((set, get) => ({
   cars: [],
-  car: null, // Ito ang lalagyan ng single car data para sa Details view
+  car: null,
   isLoading: false,
   error: null,
   message: null,
   searchQuery: "",
   setSearchQuery: (query) => set({ searchQuery: query }),
 
-  // ✅ PROMO GETTERS
+  // ── PROMO GETTERS ────────────────────────────────────────────────
+
   getPromoCars: () => {
     const { cars } = get();
     const season = getCurrentSeason();
@@ -47,23 +47,24 @@ export const useCarStore = create((set, get) => ({
     return promoCars[Math.floor(Math.random() * promoCars.length)];
   },
 
-  // ✅ ENHANCED GET SINGLE CAR BY ID - Merge with promo context
+  // ── GET SINGLE CAR BY ID ─────────────────────────────────────────
+
   getCarById: async (id) => {
     set({ isLoading: true, error: null });
     try {
       const res = await axios.get(`${CARS}/${id}`);
       const apiCar = res.data.car || res.data;
-      
+
       // Preserve promo/flash data from navigation state or list
       const currentCar = get().car;
       const mergedCar = {
         ...apiCar,
         ...(currentCar?.promoPrice && { promoPrice: currentCar.promoPrice }),
-        ...(currentCar?.isPromo && { isPromo: currentCar.isPromo }),
-        ...(currentCar?.flashDeal && { flashDeal: currentCar.flashDeal }),
-        ...(currentCar?.promoLabel && { promoLabel: currentCar.promoLabel })
+        ...(currentCar?.isPromo    && { isPromo:    currentCar.isPromo    }),
+        ...(currentCar?.flashDeal  && { flashDeal:  currentCar.flashDeal  }),
+        ...(currentCar?.promoLabel && { promoLabel: currentCar.promoLabel }),
       };
-      
+
       set({ car: mergedCar, isLoading: false });
       return mergedCar;
     } catch (error) {
@@ -72,12 +73,12 @@ export const useCarStore = create((set, get) => ({
     }
   },
 
-  // GET /api/cars
+  // ── GET ALL CARS (public) ────────────────────────────────────────
+
   getCars: async () => {
     set({ isLoading: true, error: null });
     try {
       const res = await axios.get(CARS);
-      // Kung ang API mo ay may structure na { cars: [...] } o [...] lang
       const data = Array.isArray(res.data) ? res.data : (res.data.cars || []);
       set({ cars: data, isLoading: false });
     } catch (error) {
@@ -85,19 +86,25 @@ export const useCarStore = create((set, get) => ({
     }
   },
 
-  // GET /api/cars/admin/:id
+  // ── GET CARS BY ADMIN ID ─────────────────────────────────────────
+  // ✅ Removed broken getAdminCars() that called /api/cars/admin (no ID)
+  // ✅ Only one admin fetch function — always pass adminId
+
   getallcarsadmin: async (id) => {
     set({ isLoading: true, error: null });
     try {
       const res = await axios.get(`${CARS}/admin/${id}`);
-      set({ cars: res.data.cars, isLoading: false });
+      const data = Array.isArray(res.data) ? res.data : (res.data.cars || []);
+      set({ cars: data, isLoading: false });
     } catch (error) {
       set({ error: error.response?.data?.message || "Error fetching admin cars", isLoading: false });
     }
   },
 
-  // POST /api/cars
-  createCar: async (carData) => { // In-simplify para tumanggap ng object
+  // ── CREATE CAR ───────────────────────────────────────────────────
+  // NOTE: AddCar.jsx uses fetch() directly — this is for other callers
+
+  createCar: async (carData) => {
     set({ isLoading: true, error: null });
     try {
       const res = await axios.post(CARS, carData);
@@ -114,7 +121,8 @@ export const useCarStore = create((set, get) => ({
     }
   },
 
-  // PUT /api/cars/:id
+  // ── UPDATE CAR ───────────────────────────────────────────────────
+
   updateCar: async (id, carData) => {
     set({ isLoading: true, error: null });
     try {
@@ -131,7 +139,8 @@ export const useCarStore = create((set, get) => ({
     }
   },
 
-  // DELETE /api/cars/:id
+  // ── DELETE CAR ───────────────────────────────────────────────────
+
   deleteCar: async (id) => {
     set({ isLoading: true, error: null });
     try {
@@ -145,17 +154,6 @@ export const useCarStore = create((set, get) => ({
     } catch (error) {
       set({ error: error.response?.data?.message || "Error deleting car", isLoading: false });
       toast.error("Failed to delete car");
-    }
-  },
-
-  // GET /api/cars/admin
-  getAdminCars: async () => {
-    set({ isLoading: true, error: null });
-    try {
-      const res = await axios.get(`${CARS}/admin`, { withCredentials: true });
-      set({ cars: res.data.data || res.data.cars || [], isLoading: false });
-    } catch (error) {
-      set({ error: error.response?.data?.message || "Error fetching admin cars list", isLoading: false });
     }
   },
 }));

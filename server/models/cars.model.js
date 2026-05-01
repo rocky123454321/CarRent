@@ -29,10 +29,11 @@ const CarsSchema = new mongoose.Schema({
     type: Number, 
     default: null,
     validate: {
-      validator: function(v) {
-        if (this.isPromo && v >= this.pricePerDay) return false;
-        return true;
-      },
+     validator: function(v) {
+      // ✅ Skip validation kung walang promo o walang promoPrice
+      if (!this.isPromo || v === null || v === undefined) return true;
+      return v < this.pricePerDay;
+    },
       message: "Promo price must be lower than the original price per day!"
     }
   },

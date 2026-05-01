@@ -219,9 +219,15 @@ const AdminNav = ({ onMenuClick }) => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 p-1 pr-3 rounded-full border border-zinc-100 dark:border-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all active:scale-95">
-                  <div className="w-7 h-7 rounded-full bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 flex items-center justify-center font-bold text-[10px] uppercase shadow-sm">
-                    {user?.name?.charAt(0)}
-                  </div>
+                <div className="w-7 h-7 rounded-full bg-zinc-950 dark:bg-zinc-100 overflow-hidden flex items-center justify-center shadow-sm">
+  {user?.profileImage ? (
+    <img src={user.profileImage} alt={user.name} className="w-full h-full object-cover" />
+  ) : (
+    <span className="text-white dark:text-zinc-950 font-bold text-[10px] uppercase">
+      {user?.name?.charAt(0)}
+    </span>
+  )}
+</div>
                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">{user?.name?.split(" ")[0]}</span>
                 </button>
               </DropdownMenuTrigger>

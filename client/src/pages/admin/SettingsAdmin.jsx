@@ -1,57 +1,105 @@
-import React, { useEffect, useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState, useRef } from "react";
 import { useAuthStore } from "@/store/authStore";
-import { useThemeStore } from "@/store/themeStore"; // ✅ Using your global theme store
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useThemeStore } from "@/store/themeStore";
+import { useAdminCarStore } from "@/store/AdminCarStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { User, Bell, Trash2, Save, Moon, Sun, ShieldCheck } from "lucide-react";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  User, Bell, Trash2, Save, Moon, Sun, ShieldCheck,
+  Camera, Eye, EyeOff, LogOut, Car, Calendar,
+  AlertTriangle, Lock, Mail, Badge, Clock, RefreshCw
+} from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export const SettingsAdmin = () => {
   const navigate = useNavigate();
   const { user, logout, updateProfile, deleteAccount, isLoading: authLoading } = useAuthStore();
   const { darkMode, toggleTheme } = useThemeStore();
+  const { cars } = useAdminCarStore();
 
   const [confirmationText, setConfirmationText] = useState("");
+  const [loading, setLoading]         = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState(user?.profileImage || null);
+  const [avatarFile, setAvatarFile]   = useState(null);
+  const fileInputRef = useRef(null);
+
   const [form, setForm] = useState({
     name: user?.name || "",
     email: user?.email || "",
+    currentPassword: "",
     password: "",
     notifications: true,
   });
 
-  const [loading, setLoading] = useState(false);
-
   useEffect(() => {
-    setForm((prev) => ({
+    setForm(prev => ({
       ...prev,
       name: user?.name || "",
       email: user?.email || "",
     }));
-  }, [user?.name, user?.email]);
+    setAvatarPreview(user?.profileImage || null);
+  }, [user]);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  // ── Avatar upload ────────────────────────────────────────────────
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+    setAvatarFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setAvatarPreview(reader.result);
+    reader.readAsDataURL(file);
   };
 
-  const handleToggle = (field) => {
-    setForm({ ...form, [field]: !form[field] });
-  };
+  // ── Save profile ─────────────────────────────────────────────────
+const handleSubmit = async () => {
+  console.log("=== SUBMIT CLICKED ===");
+  console.log("form:", form);
+  console.log("avatarFile:", avatarFile);
+  console.log("API_URL:", API_URL);
+  
+  try {
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("name", form.name.trim());
+    formData.append("email", form.email.trim());
+    if (form.password.trim()) formData.append("password", form.password.trim());
+    if (avatarFile) formData.append("profileImage", avatarFile);
 
+    console.log("Sending to:", `${API_URL}/api/auth/profile`);
+
+    const res = await axios.patch(`${API_URL}/api/auth/profile`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
+    });
+
+    console.log("RESPONSE:", res.data);
+    toast.success("Profile updated successfully");
+  } catch (error) {
+    console.log("ERROR:", error);
+    console.log("ERROR RESPONSE:", error?.response?.data);
+    toast.error(error?.response?.data?.message || "Failed to save changes");
+  } finally {
+    setLoading(false);
+  }
+};
+  // ── Delete account ───────────────────────────────────────────────
   const handleDeleteAccount = async () => {
     try {
       setLoading(true);
@@ -66,194 +114,355 @@ export const SettingsAdmin = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  // ── Logout ───────────────────────────────────────────────────────
+  const handleLogout = async () => {
     try {
-      setLoading(true);
-      await updateProfile({
-        name: form.name.trim(),
-        email: form.email.trim(),
-        password: form.password.trim() || undefined,
-      });
-      setForm((prev) => ({ ...prev, password: "" }));
-      toast.success("Profile updated");
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to save changes");
-    } finally {
-      setLoading(false);
+      await logout();
+      navigate("/landing", { replace: true });
+    } catch {
+      toast.error("Logout failed");
     }
   };
 
+  // ── Stats ────────────────────────────────────────────────────────
+  const totalCars      = cars?.length || 0;
+  const availableCars  = cars?.filter(c => c.isAvailable)?.length || 0;
+  const rentedCars     = totalCars - availableCars;
+  const joinedDate     = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" })
+    : "—";
+
+  const initials = user?.name
+    ? user.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+    : "AD";
+
   return (
-    <div className="max-w-4xl mx-auto space-y-12 py-12 px-6">
-      
-      {/* ─── SECTION HEADER (Landing Page Style) ─── */}
-      <div className="text-center">
-        <div className="inline-flex items-center gap-2 mb-4">
+    <div className="max-w-3xl mx-auto space-y-8 py-10 px-4 md:px-6">
+
+      {/* ── Page Header ─────────────────────────────────────────── */}
+      <div>
+        <div className="inline-flex items-center gap-2 mb-1">
           <span className="h-px w-5 bg-zinc-300 dark:bg-zinc-700" />
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
-            System Administration
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+            Administration
           </p>
-          <span className="h-px w-5 bg-zinc-300 dark:bg-zinc-700" />
         </div>
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tighter leading-[1.1] text-zinc-900 dark:text-white uppercase italic">
-          Admin <span className="text-zinc-300 dark:text-zinc-700">Settings.</span>
+        <h1 className="text-3xl font-bold tracking-tighter text-zinc-900 dark:text-white">
+          Settings
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-zinc-400 dark:text-zinc-500 font-medium">
-          Manage administrative credentials and global environment preferences.
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+          Manage your account, preferences, and system configuration.
         </p>
       </div>
 
-      <div className="grid gap-6">
-        
-        {/* Profile Settings - Underlined Style */}
-        <Card className="rounded-2xl border border-zinc-100 dark:border-zinc-900 bg-white dark:bg-zinc-900/50 shadow-none overflow-hidden">
-          <CardHeader className="p-8 border-b border-zinc-50 dark:border-zinc-800/50">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-                <ShieldCheck size={18} />
+      {/* ── Admin Stats ─────────────────────────────────────────── */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label: "Total Cars",  value: totalCars,     icon: Car,      color: "text-zinc-900 dark:text-white" },
+          { label: "Available",   value: availableCars, icon: Car,      color: "text-emerald-600 dark:text-emerald-400" },
+          { label: "Rented Out",  value: rentedCars,    icon: Car,      color: "text-amber-600 dark:text-amber-400" },
+        ].map(({ label, value, icon: Icon, color }) => (
+          <div key={label} className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-2xl p-4 text-center">
+            <p className={`text-2xl font-bold tracking-tighter ${color}`}>{value}</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mt-0.5">{label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Profile Card ────────────────────────────────────────── */}
+      <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-3xl overflow-hidden">
+        <div className="p-6 border-b border-zinc-50 dark:border-zinc-900 flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400">
+            <User size={16} />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">Profile</p>
+            <p className="text-[10px] text-zinc-400 uppercase tracking-widest">Identity & credentials</p>
+          </div>
+        </div>
+
+        <div className="p-6 space-y-6">
+          {/* Avatar */}
+          <div className="flex items-center gap-5">
+            <div className="relative">
+              <div className="w-20 h-20 rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden flex items-center justify-center">
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-2xl font-bold text-zinc-400 dark:text-zinc-600">{initials}</span>
+                )}
               </div>
-              <div>
-                <CardTitle className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider">Identity Matrix</CardTitle>
-                <CardDescription className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Update admin credentials</CardDescription>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute -bottom-2 -right-2 w-7 h-7 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+              >
+                <Camera size={12} />
+              </button>
+              <input ref={fileInputRef} type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
+            </div>
+            <div>
+              <p className="font-bold text-zinc-900 dark:text-white">{user?.name || "Admin"}</p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500">{user?.email}</p>
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-2 py-0.5 rounded-full">
+                  <ShieldCheck size={9} /> {user?.role || "Admin"}
+                </span>
+                {user?.isVerified && (
+                  <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50 px-2 py-0.5 rounded-full">
+                    ✓ Verified
+                  </span>
+                )}
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="p-8 space-y-8">
-            <div className="grid gap-8 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 italic">Full Name</Label>
-                <Input
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  className="bg-transparent border-none border-b border-zinc-100 dark:border-zinc-800 rounded-none h-10 focus-visible:ring-0 focus-visible:border-zinc-900 dark:focus-visible:border-white transition-colors dark:text-white font-medium px-0"
-                />
+          </div>
+
+          {/* Account Info */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-xl p-3 border border-zinc-100 dark:border-zinc-800">
+              <div className="flex items-center gap-1.5 mb-1">
+                <Calendar size={11} className="text-zinc-400" />
+                <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-400">Member Since</p>
               </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 italic">Admin Email</Label>
-                <Input
-                  name="email"
-                  value={form.email}
-                  readOnly
-                  className="bg-transparent cursor-not-allowed  border-none border-b border-zinc-100 dark:border-zinc-800 rounded-none h-10 focus-visible:ring-0 focus-visible:border-zinc-900 dark:focus-visible:border-white transition-colors dark:text-white font-medium px-0"
-                />
-              </div>
+              <p className="text-xs font-bold text-zinc-900 dark:text-white">{joinedDate}</p>
             </div>
-            <div className="space-y-2">
-              <Label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 italic">Security Credential</Label>
+            <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-xl p-3 border border-zinc-100 dark:border-zinc-800">
+              <div className="flex items-center gap-1.5 mb-1">
+                <Mail size={11} className="text-zinc-400" />
+                <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-400">Email Status</p>
+              </div>
+              <p className="text-xs font-bold text-zinc-900 dark:text-white">
+                {user?.isVerified ? "✓ Verified" : "⚠ Unverified"}
+              </p>
+            </div>
+          </div>
+
+          {/* Name field */}
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Full Name</Label>
+            <Input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              className="h-11 rounded-xl border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white"
+            />
+          </div>
+
+          {/* Email field — read only */}
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Email Address</Label>
+            <div className="relative">
               <Input
-                type="password"
+                name="email"
+                value={form.email}
+                readOnly
+                className="h-11 rounded-xl border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-500 cursor-not-allowed pr-10"
+              />
+              <Lock size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-300 dark:text-zinc-700" />
+            </div>
+            <p className="text-[9px] text-zinc-400 uppercase tracking-widest">Email cannot be changed for security reasons</p>
+          </div>
+
+          {/* New Password */}
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">New Password</Label>
+            <div className="relative">
+              <Input
+                type={showNewPassword ? "text" : "password"}
                 name="password"
-                placeholder="••••••••"
+                placeholder="Leave blank to keep current"
                 value={form.password}
                 onChange={handleChange}
-                className="bg-transparent border-none border-b border-zinc-100 dark:border-zinc-800 rounded-none h-10 focus-visible:ring-0 focus-visible:border-zinc-900 dark:focus-visible:border-white transition-colors dark:text-white font-medium px-0 tracking-widest"
+                className="h-11 rounded-xl border-zinc-200 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white pr-10"
               />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Preferences - Switch Row Style */}
-        <Card className="rounded-2xl border border-zinc-100 dark:border-zinc-900 bg-white dark:bg-zinc-900/50 shadow-none overflow-hidden">
-          <CardHeader className="p-8 border-b border-zinc-50 dark:border-zinc-800/50">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-                <Moon size={18} />
-              </div>
-              <div>
-                <CardTitle className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider">Environment Sync</CardTitle>
-                <CardDescription className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Global aesthetic and alerts</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-8 space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50/50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/50">
-              <div className="flex items-center gap-4">
-                <div className="p-2 rounded-lg bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 shadow-sm border dark:border-zinc-700">
-                  {darkMode ? <Moon size={18} /> : <Sun size={18} />}
-                </div>
-                <div>
-                  <Label className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Interface Mode</Label>
-                  <p className="text-[10px] text-zinc-400 uppercase tracking-tighter">Toggle dark/light matrix</p>
-                </div>
-              </div>
-              <Switch
-                checked={darkMode}
-                onCheckedChange={toggleTheme}
-                className="data-[state=checked]:bg-zinc-900 dark:data-[state=checked]:bg-white"
-              />
-            </div>
-
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50/50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800/50">
-              <div className="flex items-center gap-4">
-                <div className="p-2 rounded-lg bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 shadow-sm border dark:border-zinc-700">
-                  <Bell size={18} />
-                </div>
-                <div>
-                  <Label className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Signal Alerts</Label>
-                  <p className="text-[10px] text-zinc-400 uppercase tracking-tighter">Real-time status notifications</p>
-                </div>
-              </div>
-              <Switch
-                checked={form.notifications}
-                onCheckedChange={() => handleToggle("notifications")}
-                className="data-[state=checked]:bg-zinc-900 dark:data-[state=checked]:bg-white"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Footer Actions */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-6">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <button className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 hover:text-red-500 transition-colors px-2 italic">
-                <Trash2 size={14} />
-                Purge Administrative Data
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(p => !p)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+              >
+                {showNewPassword ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="bg-white dark:bg-zinc-950 border-zinc-100 dark:border-zinc-900 rounded-[2rem] shadow-2xl p-8">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-xl font-bold dark:text-white uppercase italic tracking-tighter">Verify Execution</AlertDialogTitle>
-                <AlertDialogDescription className="text-xs text-zinc-400 leading-relaxed">
-                  This protocol is permanent. To confirm the account purge, type <strong className="text-red-500 underline underline-offset-4 font-black">DELETE</strong> below:
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <div className="my-6">
-                <Input
-                  placeholder="TYPE DELETE"
-                  value={confirmationText}
-                  onChange={(e) => setConfirmationText(e.target.value)}
-                  className="bg-zinc-50 dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800 h-12 rounded-xl text-center font-bold tracking-[0.4em] text-xs dark:text-white focus-visible:ring-red-500/10 transition-all"
-                />
-              </div>
-              <AlertDialogFooter className="gap-3">
-                <AlertDialogCancel className="h-11 rounded-xl text-[10px] font-bold uppercase tracking-widest border-zinc-100 dark:border-zinc-800">Abort</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteAccount}
-                  disabled={confirmationText !== "DELETE" || loading}
-                  className="h-11 bg-red-600 hover:bg-red-700 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-red-600/20"
-                >
-                  Confirm Purge
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+            </div>
+          </div>
 
+          {/* Save Button */}
           <Button
             onClick={handleSubmit}
             disabled={loading || authLoading}
-            className="w-full md:w-auto px-10 h-12 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 font-bold uppercase tracking-[0.2em] text-[10px] transition-all active:scale-95 flex items-center justify-center gap-2 shadow-2xl shadow-zinc-500/10"
+            className="w-full h-11 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 font-bold uppercase tracking-widest text-[10px] hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
           >
             {loading || authLoading ? (
-              <div className="h-3 w-3 border-2 border-current/20 border-t-current rounded-full animate-spin" />
+              <RefreshCw size={13} className="animate-spin" />
             ) : (
-              <>
-                <Save size={14} />
-                <span>Commit Changes</span>
-              </>
+              <><Save size={13} /> Save Changes</>
             )}
           </Button>
+        </div>
+      </div>
+
+      {/* ── Preferences ─────────────────────────────────────────── */}
+      <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-3xl overflow-hidden">
+        <div className="p-6 border-b border-zinc-50 dark:border-zinc-900 flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400">
+            <Moon size={16} />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">Preferences</p>
+            <p className="text-[10px] text-zinc-400 uppercase tracking-widest">Appearance & notifications</p>
+          </div>
+        </div>
+
+        <div className="p-6 space-y-3">
+          {/* Dark mode */}
+          <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center">
+                {darkMode ? <Moon size={15} className="text-zinc-500" /> : <Sun size={15} className="text-zinc-500" />}
+              </div>
+              <div>
+                <p className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Dark Mode</p>
+                <p className="text-[10px] text-zinc-400">Toggle interface theme</p>
+              </div>
+            </div>
+            <Switch
+              checked={darkMode}
+              onCheckedChange={toggleTheme}
+              className="data-[state=checked]:bg-zinc-900 dark:data-[state=checked]:bg-white"
+            />
+          </div>
+
+          {/* Notifications */}
+          <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center">
+                <Bell size={15} className="text-zinc-500" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Notifications</p>
+                <p className="text-[10px] text-zinc-400">Booking & system alerts</p>
+              </div>
+            </div>
+            <Switch
+              checked={form.notifications}
+              onCheckedChange={() => setForm(p => ({ ...p, notifications: !p.notifications }))}
+              className="data-[state=checked]:bg-zinc-900 dark:data-[state=checked]:bg-white"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Session ──────────────────────────────────────────────── */}
+      <div className="bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-3xl overflow-hidden">
+        <div className="p-6 border-b border-zinc-50 dark:border-zinc-900 flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400">
+            <Lock size={16} />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">Session</p>
+            <p className="text-[10px] text-zinc-400 uppercase tracking-widest">Active login management</p>
+          </div>
+        </div>
+
+        <div className="p-6">
+          <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center">
+                <Clock size={15} className="text-zinc-500" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Current Session</p>
+                <p className="text-[10px] text-zinc-400">Logged in as {user?.role || "Admin"}</p>
+              </div>
+            </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-zinc-900 dark:hover:text-white border border-zinc-200 dark:border-zinc-800 px-3 py-1.5 rounded-lg transition-colors">
+                  <LogOut size={12} /> Sign Out
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="bg-white dark:bg-zinc-950 border-zinc-100 dark:border-zinc-900 rounded-3xl">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-xl font-bold dark:text-white tracking-tighter">Sign Out?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-zinc-500 dark:text-zinc-400 text-sm">
+                    You will be redirected to the login page.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="gap-2">
+                  <AlertDialogCancel className="rounded-xl border-zinc-200 dark:border-zinc-800 font-bold text-[10px] uppercase tracking-widest">Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleLogout} className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 rounded-xl font-bold text-[10px] uppercase tracking-widest">
+                    Sign Out
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Danger Zone ──────────────────────────────────────────── */}
+      <div className="bg-white dark:bg-zinc-950 border-2 border-red-100 dark:border-red-950/50 rounded-3xl overflow-hidden">
+        <div className="p-6 border-b border-red-50 dark:border-red-950/30 flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/30 text-red-500">
+            <AlertTriangle size={16} />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">Danger Zone</p>
+            <p className="text-[10px] text-red-400/70 dark:text-red-500/70 uppercase tracking-widest">Irreversible actions</p>
+          </div>
+        </div>
+
+        <div className="p-6 space-y-3">
+          {/* Delete account */}
+          <div className="flex items-center justify-between p-4 rounded-2xl bg-red-50/50 dark:bg-red-950/10 border border-red-100 dark:border-red-950/30">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-900 border border-red-100 dark:border-red-900/50 flex items-center justify-center">
+                <Trash2 size={15} className="text-red-500" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-tight">Delete Account</p>
+                <p className="text-[10px] text-zinc-400">Permanently remove all data. Cannot be undone.</p>
+              </div>
+            </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-red-500 hover:text-red-700 border border-red-200 dark:border-red-900/50 px-3 py-1.5 rounded-lg transition-colors hover:bg-red-50 dark:hover:bg-red-950/20">
+                  <Trash2 size={12} /> Delete
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="bg-white dark:bg-zinc-950 border-zinc-100 dark:border-zinc-900 rounded-3xl">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-xl font-bold dark:text-white tracking-tighter">Delete Account?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">
+                    This is permanent. All your data, cars, and settings will be deleted. Type{" "}
+                    <strong className="text-red-500 font-black">DELETE</strong> to confirm.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <div className="my-2">
+                  <Input
+                    placeholder="Type DELETE to confirm"
+                    value={confirmationText}
+                    onChange={(e) => setConfirmationText(e.target.value)}
+                    className="h-11 rounded-xl text-center font-bold tracking-[0.3em] text-sm border-red-100 dark:border-red-900/50 focus-visible:ring-red-500/20 dark:bg-zinc-900 dark:text-white"
+                  />
+                </div>
+                <AlertDialogFooter className="gap-2">
+                  <AlertDialogCancel
+                    onClick={() => setConfirmationText("")}
+                    className="rounded-xl border-zinc-200 dark:border-zinc-800 font-bold text-[10px] uppercase tracking-widest"
+                  >
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteAccount}
+                    disabled={confirmationText !== "DELETE" || loading}
+                    className="bg-red-600 hover:bg-red-700 disabled:opacity-40 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-red-600/20"
+                  >
+                    {loading ? <RefreshCw size={12} className="animate-spin" /> : "Confirm Delete"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       </div>
     </div>

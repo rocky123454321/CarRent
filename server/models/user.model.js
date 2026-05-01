@@ -2,20 +2,24 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
 {
-  email: { type: String, required: true, unique: true },
+  email:    { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  name: { type: String, required: true },
-  // NOTE: existing codebase uses "admin" role checks (e.g. rentals admin endpoints).
-  role: { type: String, enum: ["user", "renter", "admin"], default: "user" },
-  lastLogin: { type: Date, default: Date.now },
-  isVerified: { type: Boolean, default: false },
-  resetPasswordToken: { type: String },
-  resetPasswordExpiresAt: { type: Date },
-  verificationToken: { type: String },
+  name:     { type: String, required: true },
+  role:     { type: String, enum: ["user", "renter", "admin"], default: "user" },
+
+  // ✅ Idagdag ito
+  profileImage:   { type: String, default: "" },
+  profileImageId: { type: String, default: "" }, // para ma-delete sa Cloudinary
+
+  lastLogin:                { type: Date, default: Date.now },
+  isVerified:               { type: Boolean, default: false },
+  resetPasswordToken:       { type: String },
+  resetPasswordExpiresAt:   { type: Date },
+  verificationToken:        { type: String },
   verificationTokenExpiresAt: { type: Date },
-  resendAvailableAt: { type: Date }
+  resendAvailableAt:        { type: Date }
 },
-{ timestamps: true } 
+{ timestamps: true }
 );
 
 export const User = mongoose.model("User", userSchema);

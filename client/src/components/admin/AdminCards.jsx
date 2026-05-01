@@ -21,8 +21,14 @@ export const AdminCards = () => {
   const { user } = useAuthStore();
   const [editingCar, setEditingCar] = useState(null);
   const [openDialogId, setOpenDialogId] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const fileInputRef = useRef(null);
+
+  // ✅ 3-slot image state — each slot: { file: File|null, preview: string|null }
+  const [imageSlots, setImageSlots] = useState([
+    { file: null, preview: null },
+    { file: null, preview: null },
+    { file: null, preview: null },
+  ]);
+  const fileInputRefs = [useRef(null), useRef(null), useRef(null)];
 
   useEffect(() => {
     if (user?._id) getAdminCars(user._id);
@@ -30,52 +36,89 @@ export const AdminCards = () => {
 
   const handleDelete = async (id) => await deleteCar(id);
 
-  const handleUpdate = async () => {
-    if (editingCar) {
-      // 1. Gumawa ng FormData
-      const formData = new FormData();
+  // ✅ Open dialog — pre-fill image slots from existing car images
+  const openEdit = (car) => {
+    setEditingCar(car);
+    setOpenDialogId(car._id);
 
-      // 2. I-append ang lahat ng text fields mula sa editingCar
-      // Gumagamit tayo ng Object.keys para mabilis ma-append lahat
-      Object.keys(editingCar).forEach((key) => {
-        // Huwag isama ang 'image' muna dito kung ito ay object/file
-        if (key !== "image") {
-          formData.append(key, editingCar[key]);
-        }
-      });
-      
+    const existingImages = Array.isArray(car.images) && car.images.length > 0
+      ? car.images
+      : [car.image || null, null, null];
 
-      // 3. I-append ang image file kung may bago (na-set ito sa handleImageChange)
-      if (editingCar.image instanceof File) {
-        formData.append("image", editingCar.image);
-      }
-
-      // 4. Tawagin ang updateCar (id, formData)
-      await updateCar(editingCar._id, formData);
-    }
-    
-    setEditingCar(null);
-    setOpenDialogId(null);
-    setPreview(null);
+    setImageSlots([
+      { file: null, preview: existingImages[0] || null },
+      { file: null, preview: existingImages[1] || null },
+      { file: null, preview: existingImages[2] || null },
+    ]);
   };
 
-  const handleImageChange = (e) => {
+  const closeEdit = () => {
+    setOpenDialogId(null);
+    setEditingCar(null);
+    setImageSlots([
+      { file: null, preview: null },
+      { file: null, preview: null },
+      { file: null, preview: null },
+    ]);
+  };
+
+  // ✅ Handle image change per slot
+  const handleImageChange = (slotIndex) => (e) => {
     const file = e.target.files[0];
     if (!file) return;
-   if (file.size > 10 * 1024 * 1024) {
-  return alert("Image must be under 10MB");
-}
-    setEditingCar(prev => ({ ...prev, image: file }));
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Image must be under 10MB");
+      return;
+    }
+
     const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result);
+    reader.onloadend = () => {
+      setImageSlots(prev => {
+        const updated = [...prev];
+        updated[slotIndex] = { file, preview: reader.result };
+        return updated;
+      });
+    };
     reader.readAsDataURL(file);
   };
 
-  const removeImage = () => {
-    setEditingCar(prev => ({ ...prev, image: null }));
-    setPreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  // ✅ Remove image from slot
+  const removeImage = (slotIndex) => {
+    setImageSlots(prev => {
+      const updated = [...prev];
+      updated[slotIndex] = { file: null, preview: null };
+      return updated;
+    });
+    if (fileInputRefs[slotIndex].current) {
+      fileInputRefs[slotIndex].current.value = "";
+    }
   };
+
+  // ✅ Submit update with FormData
+  const handleUpdate = async () => {
+    if (!editingCar) return;
+
+    const formData = new FormData();
+
+    // Append all text fields — skip image-related keys (handled separately)
+    const skipKeys = ["image", "images", "imageId", "imageIds", "__v", "createdAt", "updatedAt", "id"];
+    Object.keys(editingCar).forEach((key) => {
+      if (!skipKeys.includes(key) && editingCar[key] !== null && editingCar[key] !== undefined) {
+        formData.append(key, editingCar[key]);
+      }
+    });
+
+    // ✅ Slot 0 → "image" (main, backward-compatible)
+    // ✅ Slots 1-2 → "images" (extra photos)
+    if (imageSlots[0].file) formData.append("image",  imageSlots[0].file);
+    if (imageSlots[1].file) formData.append("images", imageSlots[1].file);
+    if (imageSlots[2].file) formData.append("images", imageSlots[2].file);
+
+    await updateCar(editingCar._id, formData);
+    closeEdit();
+  };
+
+  const slotLabels = ["Main Photo", "Side View", "Interior / Detail"];
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -85,8 +128,8 @@ export const AdminCards = () => {
           {/* Header Status Badge */}
           <div className="flex items-start justify-between p-4 pb-0">
             <span className={`text-[9px] uppercase tracking-[0.15em] font-bold px-3 py-1 rounded-full border ${
-              car.isAvailable 
-                ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50" 
+              car.isAvailable
+                ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50"
                 : "bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-900 dark:text-zinc-500 dark:border-zinc-800"
             }`}>
               {car.isAvailable ? "● Available" : "○ Rented Out"}
@@ -97,14 +140,8 @@ export const AdminCards = () => {
               <Dialog
                 open={openDialogId === car._id}
                 onOpenChange={(open) => {
-                  if (open) {
-                    setEditingCar(car);
-                    setOpenDialogId(car._id);
-                    setPreview(car.image || null);
-                  } else {
-                    setOpenDialogId(null);
-                    setPreview(null);
-                  }
+                  if (open) openEdit(car);
+                  else closeEdit();
                 }}
               >
                 <DialogTrigger asChild>
@@ -121,52 +158,86 @@ export const AdminCards = () => {
                     </DialogHeader>
 
                     {editingCar && (
-                      <div className="my-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="md:col-span-2">
-                          <Label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Listing Cover</Label>
-                          <div
-                            onClick={() => !preview && fileInputRef.current?.click()}
-                            className={`relative h-44 w-full rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer overflow-hidden mt-1.5 transition-all
-                              ${preview ? 'border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/50' : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-900 dark:hover:border-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900'}`}
-                          >
-                            {preview ? (
-                              <>
-                                <img src={preview} alt="Preview" className="h-full w-full object-contain p-4" />
-                                <button type="button" onClick={(e) => { e.stopPropagation(); removeImage(); }}
-                                  className="absolute top-3 right-3 p-2 bg-zinc-900 text-white rounded-full hover:bg-zinc-700 shadow-xl transition-all">
-                                  <X size={14} />
-                                </button>
-                                <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-white/90 dark:bg-zinc-950/90 text-zinc-900 dark:text-white text-[10px] font-bold px-3 py-1.5 rounded-full border border-zinc-200 dark:border-zinc-800">
-                                  <CheckCircle size={10} /> Image Set
+                      <div className="my-6 space-y-4">
+
+                        {/* ✅ 3-Slot Image Upload */}
+                        <div>
+                          <Label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                            Vehicle Photos · Up to 3
+                          </Label>
+                          <div className="grid grid-cols-3 gap-2 mt-2">
+                            {[0, 1, 2].map((slot) => (
+                              <div key={slot} className="space-y-1">
+                                <div
+                                  onClick={() => !imageSlots[slot].preview && fileInputRefs[slot].current?.click()}
+                                  className={`relative rounded-xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer overflow-hidden transition-all
+                                    ${slot === 0 ? 'h-36' : 'h-28'}
+                                    ${imageSlots[slot].preview
+                                      ? 'border-zinc-200 dark:border-zinc-800'
+                                      : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-900 dark:hover:border-zinc-500'
+                                    }`}
+                                >
+                                  {imageSlots[slot].preview ? (
+                                    <>
+                                      <img
+                                        src={imageSlots[slot].preview}
+                                        alt={`Slot ${slot + 1}`}
+                                        className="h-full w-full object-contain p-2"
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); removeImage(slot); }}
+                                        className="absolute top-1.5 right-1.5 p-1 bg-zinc-900 text-white rounded-full hover:bg-red-500 transition-colors"
+                                      >
+                                        <X size={10} />
+                                      </button>
+                                      <div className="absolute bottom-1.5 left-1.5 bg-zinc-900/70 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                                        {slot === 0 ? 'Main' : `#${slot + 1}`}
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div className="text-center px-1">
+                                      <ImagePlus className="text-zinc-300 dark:text-zinc-700 mx-auto mb-1" size={slot === 0 ? 20 : 16} />
+                                      <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">
+                                        {slot === 0 ? 'Main' : 'Add'}
+                                      </p>
+                                    </div>
+                                  )}
                                 </div>
-                              </>
-                            ) : (
-                              <div className="text-center group">
-                                <ImagePlus className="mx-auto text-zinc-300 dark:text-zinc-700 mb-2 group-hover:text-zinc-900 transition-colors" size={32} />
-                                <p className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-tight">Upload PNG / JPG</p>
+                                <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest text-center truncate">
+                                  {slotLabels[slot]}
+                                  {slot === 0 && <span className="text-rose-400 ml-0.5">*</span>}
+                                </p>
+                                <input
+                                  type="file"
+                                  ref={fileInputRefs[slot]}
+                                  onChange={handleImageChange(slot)}
+                                  className="hidden"
+                                  accept="image/*"
+                                />
                               </div>
-                            )}
+                            ))}
                           </div>
-                          <input type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
                         </div>
 
-                        <InputField label="Brand" value={editingCar.brand} onChange={(val) => setEditingCar({ ...editingCar, brand: val })} />
-                        <InputField label="Model" value={editingCar.model} onChange={(val) => setEditingCar({ ...editingCar, model: val })} />
-                        <InputField label="Color" value={editingCar.color} onChange={(val) => setEditingCar({ ...editingCar, color: val })} />
-                        <InputField label="Year" type="number" value={editingCar.year} onChange={(val) => setEditingCar({ ...editingCar, year: parseInt(val) || 0 })} />
-                        <InputField label="Daily Rate (₱)" type="number" value={editingCar.pricePerDay} onChange={(val) => setEditingCar({ ...editingCar, pricePerDay: parseFloat(val) || 0 })} />
-                        <InputField label="Mileage (km)" type="number" value={editingCar.mileage || ""} onChange={(val) => setEditingCar({ ...editingCar, mileage: parseFloat(val) || 0 })} />
-
-                        <SelectField label="Fuel" value={editingCar.fuelType} options={["Petrol","Diesel","Electric","Hybrid"]} onChange={(val) => setEditingCar({ ...editingCar, fuelType: val })} />
-                        <SelectField label="Gearbox" value={editingCar.transmission} options={["Automatic","Manual"]} onChange={(val) => setEditingCar({ ...editingCar, transmission: val })} />
-                        
-                        <div className="md:col-span-2">
-                           <SelectField 
-                            label="Status" 
-                            value={editingCar.isAvailable} 
-                            options={[true, false]} 
-                            onChange={(val) => setEditingCar({ ...editingCar, isAvailable: val })} 
-                          />
+                        {/* Text Fields */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <InputField label="Brand" value={editingCar.brand} onChange={(val) => setEditingCar({ ...editingCar, brand: val })} />
+                          <InputField label="Model" value={editingCar.model} onChange={(val) => setEditingCar({ ...editingCar, model: val })} />
+                          <InputField label="Color" value={editingCar.color} onChange={(val) => setEditingCar({ ...editingCar, color: val })} />
+                          <InputField label="Year" type="number" value={editingCar.year} onChange={(val) => setEditingCar({ ...editingCar, year: parseInt(val) || 0 })} />
+                          <InputField label="Daily Rate (₱)" type="number" value={editingCar.pricePerDay} onChange={(val) => setEditingCar({ ...editingCar, pricePerDay: parseFloat(val) || 0 })} />
+                          <InputField label="Mileage (km)" type="number" value={editingCar.mileage || ""} onChange={(val) => setEditingCar({ ...editingCar, mileage: parseFloat(val) || 0 })} />
+                          <SelectField label="Fuel" value={editingCar.fuelType} options={["Petrol","Diesel","Electric","Hybrid"]} onChange={(val) => setEditingCar({ ...editingCar, fuelType: val })} />
+                          <SelectField label="Gearbox" value={editingCar.transmission} options={["Automatic","Manual"]} onChange={(val) => setEditingCar({ ...editingCar, transmission: val })} />
+                          <div className="md:col-span-2">
+                            <SelectField
+                              label="Status"
+                              value={editingCar.isAvailable}
+                              options={[true, false]}
+                              onChange={(val) => setEditingCar({ ...editingCar, isAvailable: val })}
+                            />
+                          </div>
                         </div>
                       </div>
                     )}
@@ -206,10 +277,10 @@ export const AdminCards = () => {
 
           {/* Vehicle Image Display */}
           <div className="mx-4 my-2 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl flex justify-center items-center p-6 h-40 group/img">
-            <img 
-              src={car.image || carImage} 
-              alt={`${car.brand} ${car.model}`} 
-              className="max-h-full w-auto object-contain transition-all duration-500 group-hover/img:scale-110 group-hover/img:-rotate-2" 
+            <img
+              src={car.image || carImage}
+              alt={`${car.brand} ${car.model}`}
+              className="max-h-full w-auto object-contain transition-all duration-500 group-hover/img:scale-110 group-hover/img:-rotate-2"
             />
           </div>
 
@@ -217,7 +288,7 @@ export const AdminCards = () => {
           <div className="px-5 pt-2">
             <h3 className="font-bold text-lg text-zinc-900 dark:text-white tracking-tighter">{car.brand} {car.model}</h3>
             <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-[0.2em] mt-0.5">{car.color} • {car.year}</p>
-            
+
             <div className="flex flex-wrap gap-2 mt-4">
               <span className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-600 dark:text-zinc-400 bg-zinc-100/80 dark:bg-zinc-900 px-3 py-1.5 rounded-lg border border-zinc-200/50 dark:border-zinc-800/50">
                 <Fuel size={12} className="text-zinc-400" /> {car.fuelType}
@@ -238,10 +309,10 @@ export const AdminCards = () => {
               </div>
             </div>
             <div className="flex flex-col items-end">
-                <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest mb-1">Plate</span>
-                <span className="text-[11px] font-mono font-bold text-zinc-900 dark:text-white bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 px-2 py-1 rounded shadow-sm">
+              <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest mb-1">Plate</span>
+              <span className="text-[11px] font-mono font-bold text-zinc-900 dark:text-white bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 px-2 py-1 rounded shadow-sm">
                 {car.licensePlate}
-                </span>
+              </span>
             </div>
           </div>
         </div>
@@ -253,12 +324,12 @@ export const AdminCards = () => {
 const InputField = ({ label, value, onChange, type = "text", min, max }) => (
   <div className="space-y-1.5">
     <Label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">{label}</Label>
-    <Input 
-      type={type} 
-      min={min} 
-      max={max} 
-      value={value} 
-      onChange={e => onChange(e.target.value)} 
+    <Input
+      type={type}
+      min={min}
+      max={max}
+      value={value}
+      onChange={e => onChange(e.target.value)}
       className="h-10 rounded-xl focus-visible:ring-zinc-950 dark:focus-visible:ring-white border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 dark:text-white font-medium"
     />
   </div>
@@ -267,8 +338,8 @@ const InputField = ({ label, value, onChange, type = "text", min, max }) => (
 const SelectField = ({ label, value, options, onChange }) => (
   <div className="space-y-1.5">
     <Label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">{label}</Label>
-    <select 
-      value={value} 
+    <select
+      value={value}
       onChange={e => {
         const val = e.target.value;
         onChange(val === "true" ? true : val === "false" ? false : val);

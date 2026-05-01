@@ -268,7 +268,7 @@ const ReceiptModal = ({ rental, onClose }) => {
         .cell-val{font-size:12px;font-weight:900}
         .cell-sub{font-size:10px;color:#888;margin-top:3px}
       </style></head><body>
-      <div class="logo">DriveEasy</div>
+      <div class="logo">Supernova</div>
       <div class="tagline">Official Rental Receipt</div>
       <div class="ref-row">Booking Ref: <strong>${bookingRef}</strong> &nbsp;·&nbsp; Paid: ${paidAt}</div>
       <div class="sec">Vehicle</div>
@@ -301,7 +301,7 @@ const ReceiptModal = ({ rental, onClose }) => {
       <hr/>
       <div class="total-row"><span>TOTAL PAID</span><span>₱${rental.totalPrice?.toLocaleString()}</span></div>
       <div class="stamp">${allOk ? '✓ Payment Verified' : '⚠ Review Required'}</div>
-      <div class="footer">DriveEasy · Official Receipt<br/>Keep this for your records.<br/>Transaction ID: ${rental._id}</div>
+      <div class="footer">Supernova · Official Receipt<br/>Keep this for your records.<br/>Transaction ID: ${rental._id}</div>
     </body></html>`);
     win.document.close();
     win.print();
@@ -354,7 +354,7 @@ const ReceiptModal = ({ rental, onClose }) => {
             {/* Brand banner */}
             <div className="bg-zinc-900 dark:bg-zinc-100 rounded-2xl px-5 py-4 flex items-center justify-between">
               <div>
-                <p className="font-black text-white dark:text-zinc-900 text-base tracking-tighter leading-none">DriveEasy</p>
+                <p className="font-black text-white dark:text-zinc-900 text-base tracking-tighter leading-none">Supernova</p>
                 <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-[0.2em] mt-0.5">Official Rental Receipt</p>
               </div>
               <div className="text-right">

@@ -237,25 +237,7 @@ const RightSidebar = ({ date, setDate }) => {
       <div className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-[2rem] p-5">
         <MarkedCalendar date={date} setDate={setDate} promoMap={promoMap} rentalDates={rentalDates} />
       </div>
-      <div className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/5 rounded-[2rem] p-5">
-        <div className="flex gap-1.5 mb-4">
-          {TABS.map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)}
-              className={`flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all
-                ${tab === t.key ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900' : 'bg-slate-50 dark:bg-white/5 text-slate-400'}`}
-            >
-              {t.label}
-              <span className={`text-[7px] px-1 py-0.5 rounded-full ${tab === t.key ? 'bg-white/20' : 'bg-slate-200 dark:bg-white/10'}`}>{t.count}</span>
-            </button>
-          ))}
-        </div>
-        <div className="space-y-2.5 max-h-[380px] overflow-y-auto hide-scrollbar">
-          {displayed.length === 0
-            ? <div className="text-center py-8"><p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">No promotions</p></div>
-            : displayed.map(ann => <EventPill key={ann.id} ann={ann} showDate={tab === 'upcoming'} />)
-          }
-        </div>
-      </div>
+     
     </div>
   );
 };
