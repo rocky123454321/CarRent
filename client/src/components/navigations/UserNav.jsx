@@ -148,6 +148,11 @@ const UserNav = () => {
 
   const totalUnread = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
 
+  useEffect(() => {
+  if (window.location.pathname !== "/cars") {
+    setSearchQuery("");
+  }
+}, [window.location.pathname, setSearchQuery]);
   // ✅ Initialize socket ONCE — no cleanup/disconnect on unmount
   useEffect(() => {
     if (!user?._id || user.role === "renter") return;
